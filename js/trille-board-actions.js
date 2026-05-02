@@ -15,23 +15,21 @@ let editSubcardId=null;
 let ctxKind='board';
 
 function fillCardForm(card){
-  selType=card.type||'habit';
   clItems=(card.items||[]).map(i=>({...i}));
   if(!clItems.length)clItems=[{id:uid(),text:'',done:false}];
   nfFields=(card.nf||[]).map(f=>({...f,value:Array.isArray(f.value)?[...f.value]:f.value}));
   document.getElementById('f-title').value=card.title||'';
   document.getElementById('f-desc').value=card.desc||'';
-  renderTypeGrid();
-  selectType(selType,card);
+  renderDyn(card);
 }
 
 function openAdd(){
-  editId=null;editSubcardId=null;clItems=[{id:uid(),text:'',done:false}];nfFields=[];selType='habit';
+  editId=null;editSubcardId=null;clItems=[{id:uid(),text:'',done:false}];nfFields=[];
   addSourceView=curView;
   document.getElementById('modal-add-title').textContent=curView==='board'?'New Card':'New Board';
   document.getElementById('save-lbl').textContent=curView==='board'?'Create Card':'Create Board';
   document.getElementById('f-title').value='';document.getElementById('f-desc').value='';
-  renderTypeGrid();selectType('habit');openModal('modal-add');
+  renderDyn({tags:[]});openModal('modal-add');
   setTimeout(()=>document.getElementById('f-title').focus(),200);
 }
 function openEdit(id){
@@ -81,7 +79,7 @@ function getCardFormData(){
   if(!title)return null;
   document.querySelectorAll('.clrow input[type=text]').forEach((inp,i)=>{if(clItems[i])clItems[i].text=inp.value;});
   nfFields.forEach((f,i)=>{if(f.type==='multi'){const inp=document.getElementById('nfmin-'+f.id);if(inp&&inp.value.trim()){if(!Array.isArray(f.value))f.value=[];f.value.push(inp.value.trim());}}});
-  const d={title,desc:document.getElementById('f-desc').value.trim(),type:selType,note:document.getElementById('f-note')?.value.trim()||'',nf:nfFields};
+  const d={title,desc:document.getElementById('f-desc').value.trim(),tags:parseTags(document.getElementById('f-tags')?.value||''),note:document.getElementById('f-note')?.value.trim()||'',nf:nfFields};
   d.items=clItems.filter(i=>i.text.trim());
   return d;
 }
@@ -118,7 +116,7 @@ function saveCard(){
 function openDetail(id){
   const card=cards.find(c=>c.id===id);if(!card)return;
   document.getElementById('modal-detail').dataset.cid=id;
-  document.getElementById('d-tag').textContent=(TYPES[card.type]||TYPES.custom).label;
+  document.getElementById('d-tag').innerHTML=tagListHTML(card.tags);
   document.getElementById('d-title').textContent=card.title;
   document.getElementById('d-desc').textContent=card.desc||'';
   let body='';
