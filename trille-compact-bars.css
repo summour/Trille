@@ -6,8 +6,9 @@
 .icon-btn svg{width:20px;height:20px;stroke-width:1.7;}
 
 .bnav{
-  left:50%;
-  right:auto;
+  left:0;
+  right:0;
+  margin:0 auto;
   bottom:max(62px,calc(env(safe-area-inset-bottom) + 44px));
   width:min(690px,calc(100vw - 112px));
   height:58px;
@@ -16,7 +17,7 @@
   grid-template-columns:repeat(5,1fr);
   gap:12px;
   align-items:center;
-  transform:translateX(-50%);
+  transform:none;
   background:rgba(255,255,255,.96);
   border:0;
   border-radius:999px;
