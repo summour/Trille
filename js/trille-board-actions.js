@@ -11,24 +11,44 @@ function toggleSubcardCheck(boardId,subId,itemId,value){
 }
 
 let addSourceView=null;
+let editSubcardId=null;
+
+function fillCardForm(card){
+  selType=card.type||'habit';
+  clItems=(card.items||[]).map(i=>({...i}));
+  if(!clItems.length)clItems=[{id:uid(),text:'',done:false}];
+  nfFields=(card.nf||[]).map(f=>({...f,value:Array.isArray(f.value)?[...f.value]:f.value}));
+  document.getElementById('f-title').value=card.title||'';
+  document.getElementById('f-desc').value=card.desc||'';
+  renderTypeGrid();
+  selectType(selType,card);
+}
+
 function openAdd(){
-  editId=null;clItems=[{id:uid(),text:'',done:false}];nfFields=[];selType='habit';
+  editId=null;editSubcardId=null;clItems=[{id:uid(),text:'',done:false}];nfFields=[];selType='habit';
   addSourceView=curView;
-  document.getElementById('modal-add-title').textContent=curView==='board'?'New Board Card':'New Card';
-  document.getElementById('save-lbl').textContent='Create Card';
+  document.getElementById('modal-add-title').textContent=curView==='board'?'New Card':'New Board';
+  document.getElementById('save-lbl').textContent=curView==='board'?'Create Card':'Create Board';
   document.getElementById('f-title').value='';document.getElementById('f-desc').value='';
   renderTypeGrid();selectType('habit');openModal('modal-add');
   setTimeout(()=>document.getElementById('f-title').focus(),200);
 }
 function openEdit(id){
   const card=cards.find(c=>c.id===id);if(!card)return;
-  editId=id;selType=card.type;addSourceView=curView;
-  clItems=(card.items||[]).map(i=>({...i}));if(!clItems.length)clItems=[{id:uid(),text:'',done:false}];
-  nfFields=(card.nf||[]).map(f=>({...f,value:Array.isArray(f.value)?[...f.value]:f.value}));
+  editId=id;editSubcardId=null;addSourceView=curView;
+  document.getElementById('modal-add-title').textContent='Edit Board';
+  document.getElementById('save-lbl').textContent='Save Board';
+  fillCardForm(card);
+  openModal('modal-add');
+}
+function openSubcardEdit(subId){
+  const board=cards.find(c=>c.id===activeBoardId);if(!board)return;
+  const sub=board.subcards?.find(c=>c.id===subId);if(!sub)return;
+  editId=null;editSubcardId=subId;addSourceView='board';
   document.getElementById('modal-add-title').textContent='Edit Card';
-  document.getElementById('save-lbl').textContent='Save Changes';
-  document.getElementById('f-title').value=card.title||'';document.getElementById('f-desc').value=card.desc||'';
-  renderTypeGrid();selectType(card.type,card);openModal('modal-add');
+  document.getElementById('save-lbl').textContent='Save Card';
+  fillCardForm(sub);
+  openModal('modal-add');
 }
 
 function rerenderCardSourceView(){
@@ -55,15 +75,26 @@ function rerenderCardSourceView(){
   switchView(source || 'home');
 }
 
-function saveCard(){
-  const title=document.getElementById('f-title').value.trim();if(!title){toast('Add a title');return;}
+function getCardFormData(){
+  const title=document.getElementById('f-title').value.trim();
+  if(!title)return null;
   document.querySelectorAll('.clrow input[type=text]').forEach((inp,i)=>{if(clItems[i])clItems[i].text=inp.value;});
   nfFields.forEach((f,i)=>{if(f.type==='multi'){const inp=document.getElementById('nfmin-'+f.id);if(inp&&inp.value.trim()){if(!Array.isArray(f.value))f.value=[];f.value.push(inp.value.trim());}}});
   const d={title,desc:document.getElementById('f-desc').value.trim(),type:selType,note:document.getElementById('f-note')?.value.trim()||'',nf:nfFields};
   if(selType==='habit')d.items=clItems.filter(i=>i.text.trim());
-  if(editId){
+  return d;
+}
+
+function saveCard(){
+  const d=getCardFormData();if(!d){toast('Add a title');return;}
+  if(editSubcardId&&activeBoardId){
+    const board=cards.find(c=>c.id===activeBoardId);
+    const i=board?.subcards?.findIndex(c=>c.id===editSubcardId)??-1;
+    if(i!==-1)board.subcards[i]={...board.subcards[i],...d};
+    toast('Card saved');
+  } else if(editId){
     const i=cards.findIndex(c=>c.id===editId);if(i!==-1)cards[i]={...cards[i],...d};
-    toast('Saved');
+    toast('Board saved');
   } else if(addSourceView==='board'&&activeBoardId){
     const board=cards.find(c=>c.id===activeBoardId);
     if(!board){toast('Board not found');return;}
@@ -80,6 +111,7 @@ function saveCard(){
   renderFolderBoards();
   rerenderCardSourceView();
   addSourceView = null;
+  editSubcardId = null;
 }
 
 function openDetail(id){
@@ -99,8 +131,10 @@ function openDetail(id){
   openModal('modal-detail');
 }
 function editFromDetail(){const id=document.getElementById('modal-detail').dataset.cid;closeModal('modal-detail');setTimeout(()=>openEdit(id),200);}
-function delCard(id){if(!confirm('Delete this card?'))return;cards=cards.filter(c=>c.id!==id);save();renderFolderBoards();renderFolders();closeModal('modal-detail');if(activeBoardId===id){document.getElementById('view-board').classList.remove('active');document.getElementById('view-boards').classList.add('active');}toast('Deleted');}
+function delCard(id){if(!confirm('Delete this board?'))return;cards=cards.filter(c=>c.id!==id);save();renderFolderBoards();renderFolders();closeModal('modal-detail');if(activeBoardId===id){document.getElementById('view-board').classList.remove('active');document.getElementById('view-boards').classList.add('active');}toast('Deleted');}
 function dupCard(id){const c=cards.find(x=>x.id===id);if(!c)return;const dup={...JSON.parse(JSON.stringify(c)),id:uid(),title:c.title+' (copy)'};const i=cards.findIndex(x=>x.id===id);cards.splice(i+1,0,dup);save();renderFolderBoards();renderFolders();closeModal('modal-detail');toast('Duplicated');}
+function dupSubcard(subId){const board=cards.find(c=>c.id===activeBoardId);if(!board?.subcards)return;const sub=board.subcards.find(c=>c.id===subId);if(!sub)return;const dup={...JSON.parse(JSON.stringify(sub)),id:uid(),title:sub.title+' (copy)'};const i=board.subcards.findIndex(c=>c.id===subId);board.subcards.splice(i+1,0,dup);save();renderBoardCards(board);renderFolderBoards();toast('Duplicated');}
+function delSubcard(subId){const board=cards.find(c=>c.id===activeBoardId);if(!board?.subcards)return;if(!confirm('Delete this card?'))return;board.subcards=board.subcards.filter(c=>c.id!==subId);save();renderBoardCards(board);renderFolderBoards();toast('Deleted');}
 
 function showCtx(e,id){ctxId=id;const m=document.getElementById('ctx');m.classList.add('open');let x=e.clientX,y=e.clientY;if(x+160>innerWidth)x=innerWidth-162;if(y+120>innerHeight-80)y=y-120;m.style.left=x+'px';m.style.top=y+'px';}
 function closeCtx(){document.getElementById('ctx').classList.remove('open');}
