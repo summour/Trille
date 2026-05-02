@@ -43,6 +43,24 @@ function quickAddFromNav(){
   else openAdd();
 }
 
+function createPlusIcon(){
+  const ns='http://www.w3.org/2000/svg';
+  const svg=document.createElementNS(ns,'svg');
+  svg.setAttribute('viewBox','0 0 24 24');
+  svg.setAttribute('fill','none');
+  svg.setAttribute('stroke','currentColor');
+
+  const p1=document.createElementNS(ns,'path');
+  p1.setAttribute('d','M12 5v14');
+
+  const p2=document.createElementNS(ns,'path');
+  p2.setAttribute('d','M5 12h14');
+
+  svg.appendChild(p1);
+  svg.appendChild(p2);
+  return svg;
+}
+
 function ensureAddButton(){
   if(document.getElementById('nav-add'))return;
   const calendar=document.getElementById('nav-calendar');
@@ -52,7 +70,7 @@ function ensureAddButton(){
   const add=document.createElement('button');
   add.id='nav-add';
   add.className='nbtn';
-  add.innerHTML='+';
+  add.appendChild(createPlusIcon());
   add.onclick=quickAddFromNav;
 
   bnav.insertBefore(add,calendar);
