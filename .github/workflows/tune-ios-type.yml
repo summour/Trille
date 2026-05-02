@@ -1,0 +1,56 @@
+name: Tune iOS typography
+on:
+  push:
+    paths:
+      - .github/workflows/tune-ios-type.yml
+jobs:
+  tune:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tune CSS scale
+        run: |
+          cat <<'CSS' >> style.css
+
+/* Balanced iOS type scale tuning */
+.hdr{padding:14px 20px 8px;}
+.hdr-logo{font-size:30px;letter-spacing:-.9px;}
+.icon-btn{width:40px;height:40px;border-radius:12px;}
+.icon-btn svg{width:22px;height:22px;}
+.section-title,.bi-type,.type-tag,.board-type-tag,.fl,.ss-t,.sl{font-size:12px;letter-spacing:.075em;}
+.board-nav-left span,.boards-back span{font-size:16px;}
+.boards-folder-name{font-size:24px;letter-spacing:-.45px;}
+.boards-folder-meta{font-size:14px;}
+.board-title{font-size:28px;line-height:1.15;letter-spacing:-.6px;}
+.board-desc{font-size:16px;line-height:1.35;}
+.board-title-row{margin-bottom:16px;}
+.board-item,.card{padding:17px;}
+.bi-title,.card-title{font-size:19px;line-height:1.22;letter-spacing:-.25px;}
+.bi-desc,.card-desc{font-size:15px;line-height:1.35;}
+.frow{font-size:15px;line-height:1.45;gap:10px;}
+.fk{min-width:82px;max-width:118px;}
+.ci,.detail-cl-item{font-size:16px;}
+.ci input[type=checkbox],.detail-cl-item input{width:19px;height:19px;}
+.card-note{font-size:15px;line-height:1.5;padding:11px 13px;}
+.add-card-btn,.add-board-btn{font-size:16px;padding:16px;}
+.mbtn-wrap{width:32px;height:32px;}
+.mbtn-wrap svg{width:18px;height:18px;}
+.nbtn{font-size:11px;}
+.nbtn svg{width:25px;height:25px;}
+.mhead h2{font-size:20px;}
+.fi,.clrow input{font-size:16px;padding:12px 14px;}
+.pri-btn{height:52px;font-size:16px;}
+@media (max-width:390px){
+  .board-title{font-size:27px;}
+  .bi-title,.card-title{font-size:18px;}
+  .frow{font-size:15px;}
+}
+CSS
+          rm .github/workflows/tune-ios-type.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add style.css .github/workflows/tune-ios-type.yml
+          git commit -m "Tune balanced iOS typography"
+          git push
