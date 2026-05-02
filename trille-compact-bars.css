@@ -62,6 +62,22 @@
 #nav-add{display:flex;font-size:0;}
 .view .scroll{padding-bottom:142px;}
 
+[data-dark] .bnav{
+  background:rgba(28,28,30,.78);
+  box-shadow:0 12px 34px rgba(0,0,0,.38);
+  border:1px solid rgba(255,255,255,.08);
+}
+[data-dark] .nbtn{
+  color:rgba(255,255,255,.76);
+}
+[data-dark] .nbtn.active{
+  color:#fff;
+  background:rgba(255,255,255,.14);
+}
+[data-dark] .nbtn:active{
+  background:rgba(255,255,255,.18);
+}
+
 .board-back-hdr{padding:1px 0 4px;}
 .board-nav-left span,.boards-back span{font-size:11px;}
 .board-nav-left svg,.boards-back svg{width:18px;height:18px;}
