@@ -34,8 +34,9 @@
   border-radius:999px;
   color:var(--ink);
   background:transparent;
-  text-indent:-9999px;
-  overflow:hidden;
+  font-size:0;
+  text-indent:0;
+  overflow:visible;
 }
 .nbtn svg{
   display:block;
@@ -46,7 +47,6 @@
   stroke:currentColor;
   stroke-width:1.9;
   fill:none;
-  text-indent:0;
   overflow:visible;
 }
 .nbtn.active{
@@ -54,8 +54,7 @@
   background:rgba(0,0,0,.06);
 }
 #nav-calendar{display:flex;}
-#nav-add{display:flex;font-size:30px;font-weight:300;line-height:1;text-indent:0;overflow:visible;}
-#nav-add svg{display:none;}
+#nav-add{display:flex;font-size:0;}
 .view .scroll{padding-bottom:88px;}
 
 .board-back-hdr{padding:1px 0 4px;}
@@ -68,5 +67,4 @@
   .bnav{left:24px;right:24px;height:56px;padding:7px 10px;gap:6px;}
   .nbtn{width:40px;height:40px;}
   .nbtn svg{width:24px;height:24px;min-width:24px;min-height:24px;}
-  #nav-add{font-size:28px;}
 }
