@@ -82,7 +82,7 @@ function getCardFormData(){
   document.querySelectorAll('.clrow input[type=text]').forEach((inp,i)=>{if(clItems[i])clItems[i].text=inp.value;});
   nfFields.forEach((f,i)=>{if(f.type==='multi'){const inp=document.getElementById('nfmin-'+f.id);if(inp&&inp.value.trim()){if(!Array.isArray(f.value))f.value=[];f.value.push(inp.value.trim());}}});
   const d={title,desc:document.getElementById('f-desc').value.trim(),type:selType,note:document.getElementById('f-note')?.value.trim()||'',nf:nfFields};
-  if(selType==='habit')d.items=clItems.filter(i=>i.text.trim());
+  d.items=clItems.filter(i=>i.text.trim());
   return d;
 }
 
@@ -122,7 +122,7 @@ function openDetail(id){
   document.getElementById('d-title').textContent=card.title;
   document.getElementById('d-desc').textContent=card.desc||'';
   let body='';
-  if(card.type==='habit'&&(card.items||[]).length){const done=card.items.filter(i=>i.done).length;body+=`<div class="fg"><label class="fl">Activities — ${done}/${card.items.length}</label><div class="detail-flds">${card.items.map(it=>`<div class="detail-cl-item${it.done?' done':''}"><input type="checkbox" data-cid="${card.id}" data-iid="${it.id}" ${it.done?'checked':''}><span>${esc(it.text)}</span></div>`).join('')}</div></div>`;}
+  if((card.items||[]).length){const done=card.items.filter(i=>i.done).length;body+=`<div class="fg"><label class="fl">Activities — ${done}/${card.items.length}</label><div class="detail-flds">${card.items.map(it=>`<div class="detail-cl-item${it.done?' done':''}"><input type="checkbox" data-cid="${card.id}" data-iid="${it.id}" ${it.done?'checked':''}><span>${esc(it.text)}</span></div>`).join('')}</div></div>`;}
   const nf=card.nf||[];
   if(nf.length)body+=`<div class="fg"><label class="fl">Fields</label><div class="detail-flds">${nf.map(f=>fDisplayHTML(f)).join('')}</div></div>`;
   if(card.note)body+=`<div class="fg"><label class="fl">Note</label><div class="card-note">${esc(card.note).replace(/\n/g,'<br>')}</div></div>`;
