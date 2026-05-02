@@ -7,6 +7,15 @@ function loadCompactBarsStyles(){
   document.head.appendChild(link);
 }
 
+function loadReorderStyles(){
+  if(document.querySelector('link[data-trille-reorder]'))return;
+  const link=document.createElement('link');
+  link.rel='stylesheet';
+  link.href='trille-reorder.css';
+  link.dataset.trilleReorder='true';
+  document.head.appendChild(link);
+}
+
 function loadAppIconMetadata(){
   if(!document.querySelector('link[rel="icon"]')){
     const favicon=document.createElement('link');
@@ -30,5 +39,6 @@ function loadAppIconMetadata(){
 }
 
 loadCompactBarsStyles();
+loadReorderStyles();
 loadAppIconMetadata();
 init();
