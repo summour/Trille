@@ -38,7 +38,17 @@ function loadAppIconMetadata(){
   }
 }
 
+function normalizeBottomNav(){
+  const home=document.getElementById('nav-home');
+  const stats=document.getElementById('nav-stats');
+  const settings=document.getElementById('nav-settings');
+  if(home)home.innerHTML='Board';
+  if(stats)stats.innerHTML='Stats';
+  if(settings)settings.innerHTML='Settings';
+}
+
 loadCompactBarsStyles();
 loadReorderStyles();
 loadAppIconMetadata();
+normalizeBottomNav();
 init();
