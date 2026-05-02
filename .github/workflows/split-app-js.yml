@@ -1,0 +1,36 @@
+name: Split App JS
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - scripts/split-app-js.js
+      - .github/workflows/split-app-js.yml
+
+permissions:
+  contents: write
+
+jobs:
+  split:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Split app.js into modules
+        run: node scripts/split-app-js.js
+      - name: Remove temporary split files
+        run: |
+          rm -f scripts/split-app-js.js
+          rm -f .github/workflows/split-app-js.yml
+          rm -f .github/workflows/activate-board-subcards-fix.yml
+          rmdir scripts 2>/dev/null || true
+      - name: Commit split
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet && exit 0
+          git commit -m "Split app script into Trille modules"
+          git push
