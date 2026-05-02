@@ -125,16 +125,21 @@ function openBoard(cid){
 
 function nestedCardHTML(sub){
   const type=(TYPES[sub.type]||TYPES.custom).label;
-  const note=sub.note?`<div class="card-note">${esc(sub.note).replace(/\n/g,'<br>')}</div>`:'';
-  const desc=sub.desc?`<div class="bi-desc">${esc(sub.desc)}</div>`:'';
+  const desc=sub.desc?`<div class="card-desc">${esc(sub.desc)}</div>`:'';
   const menu=`<div class="mbtn-wrap" onclick="showSubcardCtx(event,'${sub.id}')"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1" fill="currentColor" stroke="none"/></svg></div>`;
   let body='';
-  if(sub.type==='habit'&&sub.items?.length){
-    const done=sub.items.filter(i=>i.done).length;
-    body+=`<div class="cl">${sub.items.map(it=>`<label class="ci${it.done?' done':''}"><input type="checkbox" data-subid="${sub.id}" data-iid="${it.id}" ${it.done?'checked':''}><span>${esc(it.text)}</span></label>`).join('')}</div><div class="cl-prog">${done} / ${sub.items.length} done</div>`;
+  if(sub.type==='habit'){
+    const items=Array.isArray(sub.items)?sub.items:[];
+    if(items.length){
+      const done=items.filter(i=>i.done).length;
+      body+=`<div class="cl">${items.map(it=>`<label class="ci${it.done?' done':''}"><input type="checkbox" data-subid="${sub.id}" data-iid="${it.id}" ${it.done?'checked':''}><span>${esc(it.text)}</span></label>`).join('')}</div><div class="cl-prog">${done} / ${items.length} done</div>`;
+    }
   }
-  if(sub.nf?.length)body+=`<div class="flds">${sub.nf.map(f=>fDisplayHTML(f)).join('')}</div>`;
-  return `<div class="card" data-subcard-id="${sub.id}" data-id="${sub.id}"><div class="card-top"><div class="card-left"><div class="type-tag">${type}</div><div class="card-title">${esc(sub.title)}</div>${desc}</div>${menu}</div>${body}${note}</div>`;
+  const fields=Array.isArray(sub.nf)?sub.nf:[];
+  if(fields.length)body+=`<div class="flds">${fields.map(f=>fDisplayHTML(f)).join('')}</div>`;
+  if(sub.note)body+=`<div class="card-note">${esc(sub.note).replace(/\n/g,'<br>')}</div>`;
+  if(!body&&!sub.desc){body='<div class="card-desc">No details yet.</div>';}
+  return `<div class="card" data-subcard-id="${sub.id}" data-id="${sub.id}"><div class="card-top"><div class="card-left"><div class="type-tag">${type}</div><div class="card-title">${esc(sub.title)}</div>${desc}</div>${menu}</div>${body}</div>`;
 }
 
 function renderBoardCards(card){
