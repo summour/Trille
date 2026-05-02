@@ -1,18 +1,18 @@
 /* Direct compact top and bottom bar tuning */
 .hdr{padding:8px 16px 4px;}
 .hdr-logo{font-size:20px;letter-spacing:-.45px;}
-.hdr-actions{gap:1px;}
-.icon-btn{width:24px;height:24px;border-radius:8px;}
-.icon-btn svg{width:13px;height:13px;stroke-width:1.65;}
+.hdr-actions{gap:2px;}
+.icon-btn{width:36px;height:36px;border-radius:10px;}
+.icon-btn svg{width:20px;height:20px;stroke-width:1.7;}
 .bnav{padding:3px 0 max(5px,env(safe-area-inset-bottom));}
 .nbtn{font-size:7px;gap:1px;padding:3px;}
-.nbtn svg{width:14px;height:14px;stroke-width:1.5;}
+.nbtn svg{width:21px;height:21px;stroke-width:1.55;}
 .board-back-hdr{padding:1px 0 4px;}
 .board-nav-left span,.boards-back span{font-size:11px;}
-.board-nav-left svg,.boards-back svg{width:12px;height:12px;}
+.board-nav-left svg,.boards-back svg{width:18px;height:18px;}
 @media (max-width:390px){
   .hdr-logo{font-size:19px;}
-  .icon-btn{width:23px;height:23px;}
-  .icon-btn svg{width:12px;height:12px;}
-  .nbtn svg{width:13px;height:13px;}
+  .icon-btn{width:35px;height:35px;}
+  .icon-btn svg{width:19px;height:19px;}
+  .nbtn svg{width:20px;height:20px;}
 }
