@@ -121,13 +121,14 @@ function nestedCardHTML(sub){
   const type=(TYPES[sub.type]||TYPES.custom).label;
   const note=sub.note?`<div class="card-note">${esc(sub.note).replace(/\n/g,'<br>')}</div>`:'';
   const desc=sub.desc?`<div class="bi-desc">${esc(sub.desc)}</div>`:'';
+  const actions=`<div class="act-row"><button class="act-btn" onclick="openSubcardEdit('${sub.id}')">Edit</button><button class="act-btn" onclick="dupSubcard('${sub.id}')">Duplicate</button><button class="act-btn danger" onclick="delSubcard('${sub.id}')">Delete</button></div>`;
   let body='';
   if(sub.type==='habit'&&sub.items?.length){
     const done=sub.items.filter(i=>i.done).length;
     body+=`<div class="cl">${sub.items.map(it=>`<label class="ci${it.done?' done':''}"><input type="checkbox" data-subid="${sub.id}" data-iid="${it.id}" ${it.done?'checked':''}><span>${esc(it.text)}</span></label>`).join('')}</div><div class="cl-prog">${done} / ${sub.items.length} done</div>`;
   }
   if(sub.nf?.length)body+=`<div class="flds">${sub.nf.map(f=>fDisplayHTML(f)).join('')}</div>`;
-  return `<div class="card"><div class="card-top"><div class="card-left"><div class="type-tag">${type}</div><div class="card-title">${esc(sub.title)}</div>${desc}</div></div>${body}${note}</div>`;
+  return `<div class="card"><div class="card-top"><div class="card-left"><div class="type-tag">${type}</div><div class="card-title">${esc(sub.title)}</div>${desc}</div></div>${body}${note}${actions}</div>`;
 }
 
 function renderBoardCards(card){
