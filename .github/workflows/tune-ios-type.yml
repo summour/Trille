@@ -14,13 +14,14 @@ jobs:
         run: |
           cat <<'CSS' >> style.css
 
-/* Balanced iOS type scale tuning */
+/* Balanced iOS type and icon scale tuning */
 .hdr{padding:14px 20px 8px;}
 .hdr-logo{font-size:30px;letter-spacing:-.9px;}
-.icon-btn{width:40px;height:40px;border-radius:12px;}
-.icon-btn svg{width:22px;height:22px;}
+.icon-btn{width:38px;height:38px;border-radius:12px;}
+.icon-btn svg{width:20px;height:20px;stroke-width:1.75;}
 .section-title,.bi-type,.type-tag,.board-type-tag,.fl,.ss-t,.sl{font-size:12px;letter-spacing:.075em;}
 .board-nav-left span,.boards-back span{font-size:16px;}
+.board-nav-left svg,.boards-back svg{width:18px;height:18px;stroke-width:2;}
 .boards-folder-name{font-size:24px;letter-spacing:-.45px;}
 .boards-folder-meta{font-size:14px;}
 .board-title{font-size:28px;line-height:1.15;letter-spacing:-.6px;}
@@ -35,10 +36,15 @@ jobs:
 .ci input[type=checkbox],.detail-cl-item input{width:19px;height:19px;}
 .card-note{font-size:15px;line-height:1.5;padding:11px 13px;}
 .add-card-btn,.add-board-btn{font-size:16px;padding:16px;}
-.mbtn-wrap{width:32px;height:32px;}
-.mbtn-wrap svg{width:18px;height:18px;}
+.mbtn-wrap,.card-mbtn{width:30px;height:30px;border-radius:9px;}
+.mbtn-wrap svg,.card-mbtn svg{width:16px;height:16px;stroke-width:1.9;}
 .nbtn{font-size:11px;}
-.nbtn svg{width:25px;height:25px;}
+.nbtn svg{width:23px;height:23px;stroke-width:1.6;}
+.delbtn{width:34px;height:34px;border-radius:10px;}
+.delbtn svg{width:16px;height:16px;}
+.nf-type-btn{width:38px;font-size:12px;}
+.ftp-icon{font-size:14px;}
+.ctx-i svg{width:16px;height:16px;}
 .mhead h2{font-size:20px;}
 .fi,.clrow input{font-size:16px;padding:12px 14px;}
 .pri-btn{height:52px;font-size:16px;}
@@ -46,11 +52,14 @@ jobs:
   .board-title{font-size:27px;}
   .bi-title,.card-title{font-size:18px;}
   .frow{font-size:15px;}
+  .icon-btn{width:36px;height:36px;}
+  .icon-btn svg{width:19px;height:19px;}
+  .nbtn svg{width:22px;height:22px;}
 }
 CSS
           rm .github/workflows/tune-ios-type.yml
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add style.css .github/workflows/tune-ios-type.yml
-          git commit -m "Tune balanced iOS typography"
+          git commit -m "Tune balanced iOS typography and icons"
           git push
