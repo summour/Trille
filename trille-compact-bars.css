@@ -16,7 +16,7 @@
   left:0;
   right:0;
   margin:0 auto;
-  bottom:max(62px,calc(env(safe-area-inset-bottom) + 44px));
+  bottom:max(88px,calc(env(safe-area-inset-bottom) + 70px));
   width:min(690px,calc(100vw - 112px));
   height:58px;
   padding:8px 18px;
@@ -71,7 +71,7 @@
 }
 #nav-calendar{display:flex;}
 #nav-add{display:flex;font-size:0;}
-.view .scroll{padding-bottom:126px;}
+.view .scroll{padding-bottom:154px;}
 
 [data-dark] .bnav{
   background:rgba(28,28,30,.94);
@@ -99,7 +99,7 @@
   .boards-folder-name{font-size:21px;}
   .board-title{font-size:24px;}
   .bi-title,.card-title{font-size:18px;}
-  .bnav{width:calc(100vw - 112px);bottom:max(58px,calc(env(safe-area-inset-bottom) + 40px));height:56px;padding:7px 14px;gap:8px;}
+  .bnav{width:calc(100vw - 112px);bottom:max(82px,calc(env(safe-area-inset-bottom) + 64px));height:56px;padding:7px 14px;gap:8px;}
   .nbtn{width:40px;height:40px;}
   .nbtn svg{width:25px;height:25px;min-width:25px;min-height:25px;}
 }
