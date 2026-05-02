@@ -155,7 +155,7 @@ function openBoard(cid){
   document.getElementById('board-title-el').textContent=card.title;
   document.getElementById('board-desc-el').textContent=card.desc||'';
   document.getElementById('board-back-label').textContent=folder?folder.name:'Back';
-  document.getElementById('board-back-btn').onclick=()=>{document.getElementById('view-board').classList.remove('active');document.getElementById('view-boards').classList.add('active');};
+  document.getElementById('board-back-btn').onclick=()=>{document.getElementById('view-board').classList.remove('active');document.getElementById('view-boards').classList.add('active');curView='boards';};
   renderBoardCards(card);
   document.getElementById('view-boards').classList.remove('active');
   document.getElementById('view-board').classList.add('active');
@@ -283,19 +283,26 @@ function openEdit(id){
 
 function rerenderCardSourceView(){
   const source = addSourceView || curView;
-  if (source === 'board' && typeof activeBoardId !== 'undefined' && activeBoardId) {
-    if (typeof renderBoard === 'function') renderBoard(activeBoardId);
-    if (typeof showView === 'function') showView('board');
+
+  if (source === 'board' && activeBoardId) {
+    const card = cards.find(c => c.id === activeBoardId);
+    if (card) {
+      openBoard(activeBoardId);
+      return;
+    }
+  }
+
+  if (source === 'boards' && activeFolderId) {
+    renderFolderBoards();
+    document.getElementById('view-home')?.classList.remove('active');
+    document.getElementById('view-board')?.classList.remove('active');
+    document.getElementById('view-boards')?.classList.add('active');
+    document.querySelectorAll('.nbtn').forEach(b => b.classList.remove('active'));
+    curView = 'boards';
     return;
   }
-  if (source === 'boards' && typeof activeFolderId !== 'undefined' && activeFolderId) {
-    if (typeof renderFolderBoards === 'function') renderFolderBoards(activeFolderId);
-    if (typeof showView === 'function') showView('boards');
-    return;
-  }
-  if (typeof renderFolders === 'function') renderFolders();
-  if (typeof renderRecent === 'function') renderRecent();
-  if (typeof showView === 'function') showView(source || 'home');
+
+  switchView(source || 'home');
 }
 
 function saveCard(){
