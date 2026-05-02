@@ -7,5 +7,28 @@ function loadCompactBarsStyles(){
   document.head.appendChild(link);
 }
 
+function loadAppIconMetadata(){
+  if(!document.querySelector('link[rel="icon"]')){
+    const favicon=document.createElement('link');
+    favicon.rel='icon';
+    favicon.type='image/svg+xml';
+    favicon.href='app-icon.svg';
+    document.head.appendChild(favicon);
+  }
+  if(!document.querySelector('link[rel="apple-touch-icon"]')){
+    const apple=document.createElement('link');
+    apple.rel='apple-touch-icon';
+    apple.href='app-icon.svg';
+    document.head.appendChild(apple);
+  }
+  if(!document.querySelector('link[rel="manifest"]')){
+    const manifest=document.createElement('link');
+    manifest.rel='manifest';
+    manifest.href='site.webmanifest';
+    document.head.appendChild(manifest);
+  }
+}
+
 loadCompactBarsStyles();
+loadAppIconMetadata();
 init();
