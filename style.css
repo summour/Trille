@@ -135,6 +135,16 @@ a{color:inherit;text-decoration:none;}
 .card-mbtn:hover{background:var(--hover);color:var(--ink);}
 .card-mbtn svg{width:20px;height:20px;stroke:currentColor;fill:currentColor;stroke-width:1;}
 
+.Trille-linked-editor{display:flex;flex-direction:column;gap:6px;}
+.Trille-linked-option{display:flex;align-items:center;gap:10px;padding:10px 12px;border:.5px solid var(--line);border-radius:12px;background:var(--bg);font-size:15px;color:var(--ink2);}
+.Trille-linked-option input{width:18px;height:18px;accent-color:var(--ink);flex-shrink:0;}
+.Trille-linked-option span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.Trille-linked-empty{padding:12px 14px;border:1px dashed var(--line);border-radius:12px;color:var(--ink3);font-size:14px;line-height:1.35;}
+.Trille-linked-flow{margin-top:12px;padding-top:12px;border-top:.5px solid var(--line);display:flex;flex-wrap:wrap;align-items:center;gap:6px;}
+.Trille-linked-label{width:100%;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--ink3);}
+.Trille-linked-chip{max-width:100%;padding:6px 10px;border-radius:999px;background:var(--bg2);color:var(--ink2);font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.Trille-linked-chip:active{background:var(--line);color:var(--ink);}
+
 .cl{display:flex;flex-direction:column;gap:6px;margin-top:4px;}
 .ci{display:flex;align-items:center;gap:10px;font-size:17px;padding:4px 0;cursor:pointer;font-weight:400;}
 .ci input[type=checkbox]{width:20px;height:20px;accent-color:var(--ink);flex-shrink:0;cursor:pointer;}
