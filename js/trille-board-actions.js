@@ -28,6 +28,7 @@ function fillCardForm(card){
   clItems=(card.items||[]).map(i=>({...i}));
   if(!clItems.length)clItems=[{id:uid(),text:'',done:false}];
   nfFields=(card.nf||[]).map(f=>({...f,value:Array.isArray(f.value)?[...f.value]:f.value}));
+  linkedCardIds=Array.isArray(card.linkedCardIds)?[...card.linkedCardIds]:[];
   document.getElementById('f-title').value=card.title||'';
   document.getElementById('f-desc').value=card.desc||'';
   renderDyn(card);
@@ -38,6 +39,7 @@ function openAdd(){
   editSubcardId=null;
   clItems=[{id:uid(),text:'',done:false}];
   nfFields=[];
+  linkedCardIds=[];
   addSourceView=curView;
   document.getElementById('modal-add-title').textContent=curView==='board'?'New Card':'New Board';
   document.getElementById('save-lbl').textContent=curView==='board'?'Create Card':'Create Board';
@@ -116,6 +118,7 @@ function getCardFormData(){
     nf:nfFields
   };
   d.items=clItems.filter(i=>i.text.trim());
+  d.linkedCardIds=[...new Set(linkedCardIds)].filter(Boolean);
   return d;
 }
 
@@ -149,6 +152,7 @@ function saveCard(){
   rerenderCardSourceView();
   addSourceView=null;
   editSubcardId=null;
+  linkedCardIds=[];
 }
 
 function openDetail(id){
@@ -224,6 +228,9 @@ function delSubcard(subId){
   if(!board?.subcards)return;
   if(!confirm('Delete this card?'))return;
   board.subcards=board.subcards.filter(c=>c.id!==subId);
+  board.subcards.forEach(card=>{
+    if(Array.isArray(card.linkedCardIds))card.linkedCardIds=card.linkedCardIds.filter(id=>id!==subId);
+  });
   save();
   renderBoardCards(board);
   renderFolderBoards();
