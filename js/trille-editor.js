@@ -8,9 +8,29 @@ function activitiesEditorHTML(){
 function tagsEditorHTML(card){
   return `<div class="fg"><label class="fl">Hashtags</label><input class="fi" id="f-tags" placeholder="#work #idea #urgent" value="${esc(tagsToInput(card?.tags||[]))}"></div>`;
 }
+function getBoardCardOptions(card){
+  if(curView!=='board'&&!activeBoardId)return [];
+  const board=cards.find(c=>c.id===activeBoardId);
+  const currentId=card?.id||editSubcardId;
+  return (board?.subcards||[]).filter(item=>item.id!==currentId);
+}
+function linkedCardsEditorHTML(card){
+  if((curView!=='board'&&!activeBoardId)||editId)return '';
+  const options=getBoardCardOptions(card);
+  if(!options.length)return `<div class="fg"><label class="fl">Linked cards</label><div class="Trille-linked-empty">Create another card in this board to link workflow steps.</div></div>`;
+  return `<div class="fg"><label class="fl">Linked cards</label><div class="Trille-linked-editor">${options.map(item=>`<label class="Trille-linked-option"><input type="checkbox" value="${item.id}" ${linkedCardIds.includes(item.id)?'checked':''} onchange="toggleLinkedCard('${item.id}',this.checked)"><span>${esc(item.title)}</span></label>`).join('')}</div></div>`;
+}
+function toggleLinkedCard(id,checked){
+  if(checked){
+    if(!linkedCardIds.includes(id))linkedCardIds.push(id);
+  }else{
+    linkedCardIds=linkedCardIds.filter(item=>item!==id);
+  }
+}
 function renderDyn(card){
   removeTypeEditor();
   let h=tagsEditorHTML(card);
+  h+=linkedCardsEditorHTML(card);
   h+=activitiesEditorHTML();
   h+=`<div class="fg"><label class="fl">Note</label><textarea class="fi" id="f-note" rows="2" placeholder="Notes...">${esc(card?.note||'')}</textarea></div>`;
   h+=`<div class="fg"><label class="fl">Fields</label><div class="nf-editor" id="nf-editor">${nfFields.map((f,i)=>nfRowHTML(f,i)).join('')}</div><button class="addbtn" onclick="nfAdd()">+ Add field</button></div>`;
