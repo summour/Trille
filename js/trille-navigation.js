@@ -82,7 +82,7 @@ function renderFolderBoards(){
     const nfProgress=c.nf?.find(f=>f.type==='progress');
     const prog2=nfProgress?`<div class="bi-prog-pill"><div class="bi-prog-bar"><div class="bi-prog-fill" style="width:${nfProgress.value||0}%"></div></div>${nfProgress.value||0}%</div>`:'';
     const subCount=Array.isArray(c.subcards)&&c.subcards.length?` · ${c.subcards.length} card${c.subcards.length!==1?'s':''}`:'';
-    return `<div class="board-item" onclick="openBoard('${c.id}')"><div class="bi-top"><span class="bi-type">${(TYPES[c.type]||TYPES.custom).label}${subCount}</span><div class="mbtn-wrap" onclick="event.stopPropagation();showBoardCtx(event,'${c.id}')"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1" fill="currentColor" stroke="none"/></svg></div></div><div class="bi-title">${esc(c.title)}</div>${c.desc?`<div class="bi-desc">${esc(c.desc)}</div>`:''}<div class="bi-meta">${prog||prog2}</div></div>`;
+    return `<div class="board-item" onclick="openBoard('${c.id}')"><div class="bi-top"><span class="bi-type">${(TYPES[c.type]||TYPES.custom).label}${subCount}</span><div class="mbtn-wrap" onclick="event.stopPropagation();ctxKind='board';showBoardCtx(event,'${c.id}')"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1" fill="currentColor" stroke="none"/></svg></div></div><div class="bi-title">${esc(c.title)}</div>${c.desc?`<div class="bi-desc">${esc(c.desc)}</div>`:''}<div class="bi-meta">${prog||prog2}</div></div>`;
   }).join('');
   bg.innerHTML+=addBoardBtnHTML();
 }
@@ -98,7 +98,7 @@ function goHome(){
 }
 
 function openAddInFolder(){editId=null;openAdd();}
-function showBoardCtx(e,id){ctxId=id;const m=document.getElementById('ctx');m.classList.add('open');let x=e.clientX,y=e.clientY;if(x+160>innerWidth)x=innerWidth-162;if(y+120>innerHeight-80)y=y-120;m.style.left=x+'px';m.style.top=y+'px';}
+function showBoardCtx(e,id){ctxKind='board';ctxId=id;const m=document.getElementById('ctx');m.classList.add('open');let x=e.clientX,y=e.clientY;if(x+160>innerWidth)x=innerWidth-162;if(y+120>innerHeight-80)y=y-120;m.style.left=x+'px';m.style.top=y+'px';}
 
 function openBoard(cid){
   curView = 'board';
@@ -121,14 +121,14 @@ function nestedCardHTML(sub){
   const type=(TYPES[sub.type]||TYPES.custom).label;
   const note=sub.note?`<div class="card-note">${esc(sub.note).replace(/\n/g,'<br>')}</div>`:'';
   const desc=sub.desc?`<div class="bi-desc">${esc(sub.desc)}</div>`:'';
-  const actions=`<div class="act-row"><button class="act-btn" onclick="openSubcardEdit('${sub.id}')">Edit</button><button class="act-btn" onclick="dupSubcard('${sub.id}')">Duplicate</button><button class="act-btn danger" onclick="delSubcard('${sub.id}')">Delete</button></div>`;
+  const menu=`<div class="mbtn-wrap" onclick="showSubcardCtx(event,'${sub.id}')"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1" fill="currentColor" stroke="none"/></svg></div>`;
   let body='';
   if(sub.type==='habit'&&sub.items?.length){
     const done=sub.items.filter(i=>i.done).length;
     body+=`<div class="cl">${sub.items.map(it=>`<label class="ci${it.done?' done':''}"><input type="checkbox" data-subid="${sub.id}" data-iid="${it.id}" ${it.done?'checked':''}><span>${esc(it.text)}</span></label>`).join('')}</div><div class="cl-prog">${done} / ${sub.items.length} done</div>`;
   }
   if(sub.nf?.length)body+=`<div class="flds">${sub.nf.map(f=>fDisplayHTML(f)).join('')}</div>`;
-  return `<div class="card"><div class="card-top"><div class="card-left"><div class="type-tag">${type}</div><div class="card-title">${esc(sub.title)}</div>${desc}</div></div>${body}${note}${actions}</div>`;
+  return `<div class="card"><div class="card-top"><div class="card-left"><div class="type-tag">${type}</div><div class="card-title">${esc(sub.title)}</div>${desc}</div>${menu}</div>${body}${note}</div>`;
 }
 
 function renderBoardCards(card){
