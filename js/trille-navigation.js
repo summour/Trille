@@ -64,12 +64,13 @@ function openFolder(fid){
   const folder=folders.find(f=>f.id===fid);
   if(!folder)return;
   const cnt=cards.filter(c=>c.folderId===fid).length;
-  document.getElementById('boards-folder-hdr').innerHTML=`<div class="boards-folder-icon-wrap">${folderSVG()}</div><div><div class="boards-folder-name">${esc(folder.name)}</div><div class="boards-folder-meta">${cnt} board${cnt!==1?'s':''}</div></div>`;
+  document.getElementById('boards-folder-hdr').innerHTML=`<div class="boards-folder-icon-wrap">${folderSVG()}</div><div><div class="boards-folder-name">${esc(folder.name)}</div><div class="boards-folder-meta">${cnt} board${cnt!==1?'s':''}</div></div><button class="icon-btn" id="boards-reorder-btn" onclick="toggleReorder('boards')" title="Reorder boards"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></button>`;
   renderFolderBoards();
   document.getElementById('view-home').classList.remove('active');
   document.getElementById('view-boards').classList.add('active');
   document.querySelectorAll('.nbtn').forEach(b=>b.classList.remove('active'));
   curView='boards';
+  updateReorderButtons?.();
 }
 
 function renderFolderBoards(){
@@ -82,14 +83,17 @@ function renderFolderBoards(){
     const nfProgress=c.nf?.find(f=>f.type==='progress');
     const prog2=nfProgress?`<div class="bi-prog-pill"><div class="bi-prog-bar"><div class="bi-prog-fill" style="width:${nfProgress.value||0}%"></div></div>${nfProgress.value||0}%</div>`:'';
     const subCount=Array.isArray(c.subcards)&&c.subcards.length?` · ${c.subcards.length} card${c.subcards.length!==1?'s':''}`:'';
-    return `<div class="board-item" onclick="openBoard('${c.id}')"><div class="bi-top"><span class="bi-type">${(TYPES[c.type]||TYPES.custom).label}${subCount}</span><div class="mbtn-wrap" onclick="event.stopPropagation();ctxKind='board';showBoardCtx(event,'${c.id}')"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1" fill="currentColor" stroke="none"/></svg></div></div><div class="bi-title">${esc(c.title)}</div>${c.desc?`<div class="bi-desc">${esc(c.desc)}</div>`:''}<div class="bi-meta">${prog||prog2}</div></div>`;
+    return `<div class="board-item" data-id="${c.id}" onclick="if(!reorder)openBoard('${c.id}')"><div class="bi-top"><span class="bi-type">${(TYPES[c.type]||TYPES.custom).label}${subCount}</span><div class="mbtn-wrap" onclick="event.stopPropagation();ctxKind='board';showBoardCtx(event,'${c.id}')"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1" fill="currentColor" stroke="none"/></svg></div></div><div class="bi-title">${esc(c.title)}</div>${c.desc?`<div class="bi-desc">${esc(c.desc)}</div>`:''}<div class="bi-meta">${prog||prog2}</div></div>`;
   }).join('');
   bg.innerHTML+=addBoardBtnHTML();
+  bindBoardListReorder?.();
+  updateReorderButtons?.();
 }
 function addBoardBtnHTML(){return `<button class="add-board-btn" onclick="openAddInFolder()">+ Add board</button>`;}
 
 function goHome(){
   activeFolderId=null;
+  reorder=false;
   document.getElementById('view-boards').classList.remove('active');
   document.getElementById('view-home').classList.add('active');
   curView='home';
@@ -102,6 +106,7 @@ function showBoardCtx(e,id){ctxKind='board';ctxId=id;const m=document.getElement
 
 function openBoard(cid){
   curView = 'board';
+  reorder=false;
   activeBoardId=cid;
   const card=cards.find(c=>c.id===cid);
   if(!card)return;
@@ -110,11 +115,12 @@ function openBoard(cid){
   document.getElementById('board-title-el').textContent=card.title;
   document.getElementById('board-desc-el').textContent=card.desc||'';
   document.getElementById('board-back-label').textContent=folder?folder.name:'Back';
-  document.getElementById('board-back-btn').onclick=()=>{document.getElementById('view-board').classList.remove('active');document.getElementById('view-boards').classList.add('active');curView='boards';};
+  document.getElementById('board-back-btn').onclick=()=>{reorder=false;document.getElementById('view-board').classList.remove('active');document.getElementById('view-boards').classList.add('active');curView='boards';updateReorderButtons?.();};
   renderBoardCards(card);
   document.getElementById('view-boards').classList.remove('active');
   document.getElementById('view-board').classList.add('active');
   curView='board';
+  updateReorderButtons?.();
 }
 
 function nestedCardHTML(sub){
@@ -128,7 +134,7 @@ function nestedCardHTML(sub){
     body+=`<div class="cl">${sub.items.map(it=>`<label class="ci${it.done?' done':''}"><input type="checkbox" data-subid="${sub.id}" data-iid="${it.id}" ${it.done?'checked':''}><span>${esc(it.text)}</span></label>`).join('')}</div><div class="cl-prog">${done} / ${sub.items.length} done</div>`;
   }
   if(sub.nf?.length)body+=`<div class="flds">${sub.nf.map(f=>fDisplayHTML(f)).join('')}</div>`;
-  return `<div class="card"><div class="card-top"><div class="card-left"><div class="type-tag">${type}</div><div class="card-title">${esc(sub.title)}</div>${desc}</div>${menu}</div>${body}${note}</div>`;
+  return `<div class="card" data-subcard-id="${sub.id}" data-id="${sub.id}"><div class="card-top"><div class="card-left"><div class="type-tag">${type}</div><div class="card-title">${esc(sub.title)}</div>${desc}</div>${menu}</div>${body}${note}</div>`;
 }
 
 function renderBoardCards(card){
@@ -155,6 +161,8 @@ function renderBoardCards(card){
   list.innerHTML=html;
   list.querySelectorAll('.ci input:not([data-subid])').forEach(cb=>cb.addEventListener('change',e=>{e.stopPropagation();toggleCheck(card.id,cb.dataset.iid,cb.checked);}));
   list.querySelectorAll('.ci input[data-subid]').forEach(cb=>cb.addEventListener('change',e=>{e.stopPropagation();toggleSubcardCheck(card.id,cb.dataset.subid,cb.dataset.iid,cb.checked);}));
+  bindSubcardReorder?.();
+  updateReorderButtons?.();
 }
 
 function editFromBoardView(id){openEdit(id);}
