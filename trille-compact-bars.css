@@ -32,22 +32,30 @@
   align-items:center;
   justify-content:center;
   border-radius:999px;
-  font-size:0;
   color:var(--ink);
   background:transparent;
+  text-indent:-9999px;
+  overflow:hidden;
 }
 .nbtn svg{
   display:block;
   width:25px;
   height:25px;
+  min-width:25px;
+  min-height:25px;
+  stroke:currentColor;
   stroke-width:1.9;
+  fill:none;
+  text-indent:0;
+  overflow:visible;
 }
 .nbtn.active{
   color:var(--ink);
   background:rgba(0,0,0,.06);
 }
 #nav-calendar{display:flex;}
-#nav-add{display:flex;}
+#nav-add{display:flex;font-size:30px;font-weight:300;line-height:1;text-indent:0;overflow:visible;}
+#nav-add svg{display:none;}
 .view .scroll{padding-bottom:88px;}
 
 .board-back-hdr{padding:1px 0 4px;}
@@ -59,5 +67,6 @@
   .icon-btn svg{width:19px;height:19px;}
   .bnav{left:24px;right:24px;height:56px;padding:7px 10px;gap:6px;}
   .nbtn{width:40px;height:40px;}
-  .nbtn svg{width:24px;height:24px;}
+  .nbtn svg{width:24px;height:24px;min-width:24px;min-height:24px;}
+  #nav-add{font-size:28px;}
 }
