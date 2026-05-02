@@ -74,6 +74,11 @@
 #nav-add{display:flex;font-size:0;}
 .view .scroll{padding-bottom:100px;}
 
+#reorder-btn,
+#boards-reorder-btn{
+  display:none;
+}
+
 [data-dark] .bnav{
   background:rgba(28,28,30,.94);
   box-shadow:0 10px 28px rgba(0,0,0,.36);
