@@ -1,10 +1,20 @@
 function toggleCheck(cid,iid,v){const c=cards.find(x=>x.id===cid);const it=c?.items?.find(x=>x.id===iid);if(it){it.done=v;save();if(activeBoardId===cid)renderBoardCards(c);renderFolderBoards();}}
+function toggleSubcardCheck(boardId,subId,itemId,value){
+  const board=cards.find(x=>x.id===boardId);
+  const sub=board?.subcards?.find(x=>x.id===subId);
+  const item=sub?.items?.find(x=>x.id===itemId);
+  if(!item)return;
+  item.done=value;
+  save();
+  if(activeBoardId===boardId)renderBoardCards(board);
+  renderFolderBoards();
+}
 
 let addSourceView=null;
 function openAdd(){
   editId=null;clItems=[{id:uid(),text:'',done:false}];nfFields=[];selType='habit';
   addSourceView=curView;
-  document.getElementById('modal-add-title').textContent='New Card';
+  document.getElementById('modal-add-title').textContent=curView==='board'?'New Board Card':'New Card';
   document.getElementById('save-lbl').textContent='Create Card';
   document.getElementById('f-title').value='';document.getElementById('f-desc').value='';
   renderTypeGrid();selectType('habit');openModal('modal-add');
@@ -54,28 +64,20 @@ function saveCard(){
   if(editId){
     const i=cards.findIndex(c=>c.id===editId);if(i!==-1)cards[i]={...cards[i],...d};
     toast('Saved');
-    // refresh whichever view we came from
-    if(addSourceView==='board'&&activeBoardId===editId){
-      const card=cards.find(c=>c.id===activeBoardId);
-      if(card){document.getElementById('board-title-el').textContent=card.title;document.getElementById('board-desc-el').textContent=card.desc||'';renderBoardCards(card);}
-    } else if(addSourceView==='boards'){
-      renderFolderBoards();
-    }
+  } else if(addSourceView==='board'&&activeBoardId){
+    const board=cards.find(c=>c.id===activeBoardId);
+    if(!board){toast('Board not found');return;}
+    if(!Array.isArray(board.subcards))board.subcards=[];
+    board.subcards.push({id:uid(),...d});
+    toast('Card created');
   } else {
     const fid=activeFolderId||(folders[0]?.id);
     cards.push({id:uid(),folderId:fid,...d});
-    toast('Card created');
-    // only refresh the list behind the modal, don't navigate
-    if(addSourceView==='board'){
-      // new card was added to folder, stay on board view — just refresh boards list silently
-      renderFolderBoards();
-    } else {
-      renderFolderBoards();
-    }
-    renderFolders();
+    toast('Board created');
   }
   save();closeModal('modal-add');
-
+  renderFolders();
+  renderFolderBoards();
   rerenderCardSourceView();
   addSourceView = null;
 }
