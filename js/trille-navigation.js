@@ -1,6 +1,13 @@
 function setDark(v){dark=v;v?document.documentElement.setAttribute('data-dark',''):document.documentElement.removeAttribute('data-dark');document.getElementById('dark-tog')?.classList.toggle('on',v);localStorage.setItem('t-theme',v?'dark':'light');}
 function toggleTheme(){setDark(!dark);}
 
+function activateView(name){
+  ['home','boards','board','stats','calendar','settings'].forEach(n=>document.getElementById('view-'+n)?.classList.toggle('active',n===name));
+  document.querySelectorAll('.nbtn').forEach(b=>b.classList.remove('active'));
+  if(['home','stats','calendar','settings'].includes(name))document.getElementById('nav-'+name)?.classList.add('active');
+  curView=name;
+}
+
 function toggleSearch(){
   showSrch=!showSrch;
   document.getElementById('srch-wrap').style.display=showSrch?'block':'none';
@@ -10,12 +17,8 @@ function toggleSearch(){
 function onSearch(v){sq=v;if(curView==='home')renderHome();}
 
 function switchView(v,btn){
-  curView=v;
-  ['home','boards','board','stats','calendar','settings'].forEach(n=>document.getElementById('view-'+n)?.classList.toggle('active',n===v));
-  document.querySelectorAll('.nbtn').forEach(b=>b.classList.remove('active'));
-  if(['home','stats','calendar','settings'].includes(v)){
-    (btn||document.getElementById('nav-'+v))?.classList.add('active');
-  }
+  activateView(v);
+  if(btn){document.querySelectorAll('.nbtn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
   if(v==='home')renderHome();
   if(v==='stats')renderStats();
   if(v==='calendar')renderCal();
@@ -60,17 +63,13 @@ function openBoardFromCard(cid){
 }
 
 function openFolder(fid){
-  curView = 'boards';
   activeFolderId=fid;
   const folder=folders.find(f=>f.id===fid);
   if(!folder)return;
   const cnt=cards.filter(c=>c.folderId===fid).length;
   document.getElementById('boards-folder-hdr').innerHTML=`<div class="boards-folder-icon-wrap">${folderSVG()}</div><div><div class="boards-folder-name">${esc(folder.name)}</div><div class="boards-folder-meta">${cnt} board${cnt!==1?'s':''}</div></div><button class="icon-btn" id="boards-reorder-btn" onclick="toggleReorder('boards')" title="Reorder boards"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></button>`;
   renderFolderBoards();
-  document.getElementById('view-home').classList.remove('active');
-  document.getElementById('view-boards').classList.add('active');
-  document.querySelectorAll('.nbtn').forEach(b=>b.classList.remove('active'));
-  curView='boards';
+  activateView('boards');
   updateReorderButtons?.();
 }
 
@@ -96,10 +95,7 @@ function addBoardBtnHTML(){return `<button class="add-board-btn" onclick="openAd
 function goHome(){
   activeFolderId=null;
   reorder=false;
-  document.getElementById('view-boards').classList.remove('active');
-  document.getElementById('view-home').classList.add('active');
-  curView='home';
-  document.getElementById('nav-home').classList.add('active');
+  activateView('home');
   renderHome();
 }
 
@@ -107,7 +103,6 @@ function openAddInFolder(){editId=null;openAdd();}
 function showBoardCtx(e,id){ctxKind='board';ctxId=id;const m=document.getElementById('ctx');m.classList.add('open');let x=e.clientX,y=e.clientY;if(x+160>innerWidth)x=innerWidth-162;if(y+120>innerHeight-80)y=y-120;m.style.left=x+'px';m.style.top=y+'px';}
 
 function openBoard(cid){
-  curView = 'board';
   reorder=false;
   activeBoardId=cid;
   const card=cards.find(c=>c.id===cid);
@@ -117,11 +112,9 @@ function openBoard(cid){
   document.getElementById('board-title-el').textContent=card.title;
   document.getElementById('board-desc-el').textContent=card.desc||'';
   document.getElementById('board-back-label').textContent=folder?folder.name:'Back';
-  document.getElementById('board-back-btn').onclick=()=>{reorder=false;document.getElementById('view-board').classList.remove('active');document.getElementById('view-boards').classList.add('active');curView='boards';updateReorderButtons?.();};
+  document.getElementById('board-back-btn').onclick=()=>{reorder=false;activateView('boards');updateReorderButtons?.();};
   renderBoardCards(card);
-  document.getElementById('view-boards').classList.remove('active');
-  document.getElementById('view-board').classList.add('active');
-  curView='board';
+  activateView('board');
   updateReorderButtons?.();
 }
 
