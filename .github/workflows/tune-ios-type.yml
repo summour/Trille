@@ -10,32 +10,32 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
-      - name: Tune CSS scale
+      - name: Reduce top and bottom scale
         run: |
           cat <<'CSS' >> style.css
 
-/* Compact top and bottom bar tuning */
-.hdr{padding:12px 20px 6px;}
-.hdr-logo{font-size:28px;letter-spacing:-.8px;}
-.hdr-actions{gap:2px;}
-.icon-btn{width:34px;height:34px;border-radius:10px;}
-.icon-btn svg{width:18px;height:18px;stroke-width:1.7;}
-.bnav{padding:5px 0 max(8px,env(safe-area-inset-bottom));}
-.nbtn{font-size:10px;gap:2px;padding:4px 4px;}
-.nbtn svg{width:20px;height:20px;stroke-width:1.55;}
-.board-back-hdr{padding:2px 0 6px;}
-.board-nav-left span,.boards-back span{font-size:15px;}
-.board-nav-left svg,.boards-back svg{width:17px;height:17px;}
+/* 30% smaller top and bottom bars */
+.hdr{padding:8px 16px 4px;}
+.hdr-logo{font-size:20px;letter-spacing:-.45px;}
+.hdr-actions{gap:1px;}
+.icon-btn{width:24px;height:24px;border-radius:8px;}
+.icon-btn svg{width:13px;height:13px;stroke-width:1.65;}
+.bnav{padding:3px 0 max(5px,env(safe-area-inset-bottom));}
+.nbtn{font-size:7px;gap:1px;padding:3px 3px;}
+.nbtn svg{width:14px;height:14px;stroke-width:1.5;}
+.board-back-hdr{padding:1px 0 4px;}
+.board-nav-left span,.boards-back span{font-size:11px;}
+.board-nav-left svg,.boards-back svg{width:12px;height:12px;}
 @media (max-width:390px){
-  .hdr-logo{font-size:27px;}
-  .icon-btn{width:32px;height:32px;}
-  .icon-btn svg{width:17px;height:17px;}
-  .nbtn svg{width:19px;height:19px;}
+  .hdr-logo{font-size:19px;}
+  .icon-btn{width:23px;height:23px;}
+  .icon-btn svg{width:12px;height:12px;}
+  .nbtn svg{width:13px;height:13px;}
 }
 CSS
           rm .github/workflows/tune-ios-type.yml
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add style.css .github/workflows/tune-ios-type.yml
-          git commit -m "Tune compact top and bottom bars"
+          git commit -m "Reduce top and bottom bars by thirty percent"
           git push
