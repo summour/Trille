@@ -13,6 +13,7 @@
 .bi-desc,.card-desc{font-size:15px;line-height:1.35;}
 
 .bnav{
+  position:fixed;
   left:0;
   right:0;
   margin:0 auto;
@@ -32,7 +33,7 @@
   backdrop-filter:none;
   -webkit-backdrop-filter:none;
   overflow:hidden;
-  z-index:80;
+  z-index:180;
 }
 .nbtn{
   min-width:0;
@@ -71,7 +72,7 @@
 }
 #nav-calendar{display:flex;}
 #nav-add{display:flex;font-size:0;}
-.view .scroll{padding-bottom:154px;}
+.view .scroll{padding-bottom:180px;}
 
 [data-dark] .bnav{
   background:rgba(28,28,30,.94);
