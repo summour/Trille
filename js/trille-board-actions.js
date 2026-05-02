@@ -12,6 +12,7 @@ function toggleSubcardCheck(boardId,subId,itemId,value){
 
 let addSourceView=null;
 let editSubcardId=null;
+let ctxKind='board';
 
 function fillCardForm(card){
   selType=card.type||'habit';
@@ -136,11 +137,25 @@ function dupCard(id){const c=cards.find(x=>x.id===id);if(!c)return;const dup={..
 function dupSubcard(subId){const board=cards.find(c=>c.id===activeBoardId);if(!board?.subcards)return;const sub=board.subcards.find(c=>c.id===subId);if(!sub)return;const dup={...JSON.parse(JSON.stringify(sub)),id:uid(),title:sub.title+' (copy)'};const i=board.subcards.findIndex(c=>c.id===subId);board.subcards.splice(i+1,0,dup);save();renderBoardCards(board);renderFolderBoards();toast('Duplicated');}
 function delSubcard(subId){const board=cards.find(c=>c.id===activeBoardId);if(!board?.subcards)return;if(!confirm('Delete this card?'))return;board.subcards=board.subcards.filter(c=>c.id!==subId);save();renderBoardCards(board);renderFolderBoards();toast('Deleted');}
 
-function showCtx(e,id){ctxId=id;const m=document.getElementById('ctx');m.classList.add('open');let x=e.clientX,y=e.clientY;if(x+160>innerWidth)x=innerWidth-162;if(y+120>innerHeight-80)y=y-120;m.style.left=x+'px';m.style.top=y+'px';}
+function showCtx(e,id){
+  ctxId=id;
+  const m=document.getElementById('ctx');
+  m.classList.add('open');
+  let x=e.clientX,y=e.clientY;
+  if(x+160>innerWidth)x=innerWidth-162;
+  if(y+120>innerHeight-80)y=y-120;
+  m.style.left=x+'px';
+  m.style.top=y+'px';
+}
+function showSubcardCtx(e,id){
+  e.stopPropagation();
+  ctxKind='subcard';
+  showCtx(e,id);
+}
 function closeCtx(){document.getElementById('ctx').classList.remove('open');}
-function ctxEdit(){closeCtx();openEdit(ctxId);}
-function ctxDup(){closeCtx();dupCard(ctxId);}
-function ctxDel(){closeCtx();delCard(ctxId);}
+function ctxEdit(){closeCtx();ctxKind==='subcard'?openSubcardEdit(ctxId):openEdit(ctxId);}
+function ctxDup(){closeCtx();ctxKind==='subcard'?dupSubcard(ctxId):dupCard(ctxId);}
+function ctxDel(){closeCtx();ctxKind==='subcard'?delSubcard(ctxId):delCard(ctxId);}
 
 function toggleReorder(){reorder=!reorder;document.getElementById('reorder-btn').style.color=reorder?'var(--ink)':'';toast(reorder?'Drag to reorder':'Reorder off');}
 
