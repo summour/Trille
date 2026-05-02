@@ -1,11 +1,15 @@
-function renderTypeGrid(){document.getElementById('type-grid').innerHTML=Object.keys(TYPES).map(t=>`<button class="tbtn" data-t="${t}" onclick="selectType('${t}')">${TYPES[t].label}</button>`).join('');}
-function selectType(t,card){selType=t;document.querySelectorAll('.tbtn').forEach(b=>b.classList.toggle('sel',b.dataset.t===t));renderDyn(card);}
+function renderTypeGrid(){}
+function selectType(t,card){renderDyn(card);}
 
 function activitiesEditorHTML(){
   return `<div class="fg"><label class="fl">Activities</label><div class="cled" id="cl-editor">${clItems.map((it,i)=>`<div class="clrow"><input type="text" placeholder="Activity..." value="${esc(it.text)}" oninput="clItems[${i}].text=this.value" onkeydown="clKey(event,${i})"><button class="delbtn" onclick="clDel(${i})"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>`).join('')}</div><button class="addbtn" onclick="clAdd()">+ Add activity</button></div>`;
 }
+function tagsEditorHTML(card){
+  return `<div class="fg"><label class="fl">Hashtags</label><input class="fi" id="f-tags" placeholder="#work #idea #urgent" value="${esc(tagsToInput(card?.tags||[]))}"></div>`;
+}
 function renderDyn(card){
-  let h=activitiesEditorHTML();
+  let h=tagsEditorHTML(card);
+  h+=activitiesEditorHTML();
   h+=`<div class="fg"><label class="fl">Note</label><textarea class="fi" id="f-note" rows="2" placeholder="Notes...">${esc(card?.note||'')}</textarea></div>`;
   h+=`<div class="fg"><label class="fl">Fields</label><div class="nf-editor" id="nf-editor">${nfFields.map((f,i)=>nfRowHTML(f,i)).join('')}</div><button class="addbtn" onclick="nfAdd()">+ Add field</button></div>`;
   document.getElementById('dyn-fields').innerHTML=h;
