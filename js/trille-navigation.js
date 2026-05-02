@@ -81,7 +81,8 @@ function renderFolderBoards(){
     const prog=pct!==null?`<div class="bi-prog-pill"><div class="bi-prog-bar"><div class="bi-prog-fill" style="width:${pct}%"></div></div>${pct}%</div>`:'';
     const nfProgress=c.nf?.find(f=>f.type==='progress');
     const prog2=nfProgress?`<div class="bi-prog-pill"><div class="bi-prog-bar"><div class="bi-prog-fill" style="width:${nfProgress.value||0}%"></div></div>${nfProgress.value||0}%</div>`:'';
-    return `<div class="board-item" onclick="openBoard('${c.id}')"><div class="bi-top"><span class="bi-type">${(TYPES[c.type]||TYPES.custom).label}</span><div class="mbtn-wrap" onclick="event.stopPropagation();showBoardCtx(event,'${c.id}')"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1" fill="currentColor" stroke="none"/></svg></div></div><div class="bi-title">${esc(c.title)}</div>${c.desc?`<div class="bi-desc">${esc(c.desc)}</div>`:''}<div class="bi-meta">${prog||prog2}</div></div>`;
+    const subCount=Array.isArray(c.subcards)&&c.subcards.length?` · ${c.subcards.length} card${c.subcards.length!==1?'s':''}`:'';
+    return `<div class="board-item" onclick="openBoard('${c.id}')"><div class="bi-top"><span class="bi-type">${(TYPES[c.type]||TYPES.custom).label}${subCount}</span><div class="mbtn-wrap" onclick="event.stopPropagation();showBoardCtx(event,'${c.id}')"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1" fill="currentColor" stroke="none"/></svg></div></div><div class="bi-title">${esc(c.title)}</div>${c.desc?`<div class="bi-desc">${esc(c.desc)}</div>`:''}<div class="bi-meta">${prog||prog2}</div></div>`;
   }).join('');
   bg.innerHTML+=addBoardBtnHTML();
 }
@@ -116,6 +117,19 @@ function openBoard(cid){
   curView='board';
 }
 
+function nestedCardHTML(sub){
+  const type=(TYPES[sub.type]||TYPES.custom).label;
+  const note=sub.note?`<div class="card-note">${esc(sub.note).replace(/\n/g,'<br>')}</div>`:'';
+  const desc=sub.desc?`<div class="bi-desc">${esc(sub.desc)}</div>`:'';
+  let body='';
+  if(sub.type==='habit'&&sub.items?.length){
+    const done=sub.items.filter(i=>i.done).length;
+    body+=`<div class="cl">${sub.items.map(it=>`<label class="ci${it.done?' done':''}"><input type="checkbox" data-subid="${sub.id}" data-iid="${it.id}" ${it.done?'checked':''}><span>${esc(it.text)}</span></label>`).join('')}</div><div class="cl-prog">${done} / ${sub.items.length} done</div>`;
+  }
+  if(sub.nf?.length)body+=`<div class="flds">${sub.nf.map(f=>fDisplayHTML(f)).join('')}</div>`;
+  return `<div class="card"><div class="card-top"><div class="card-left"><div class="type-tag">${type}</div><div class="card-title">${esc(sub.title)}</div>${desc}</div></div>${body}${note}</div>`;
+}
+
 function renderBoardCards(card){
   const list=document.getElementById('board-cards');
   let html='';
@@ -132,8 +146,14 @@ function renderBoardCards(card){
   if(card.note){
     html+=`<div class="card"><div class="card-top"><div class="card-left"><div class="type-tag">Note</div></div></div><div class="card-note">${esc(card.note).replace(/\n/g,'<br>')}</div></div>`;
   }
+  const subcards=Array.isArray(card.subcards)?card.subcards:[];
+  if(subcards.length){
+    html+=`<div class="section-hdr" style="padding:4px 0 0"><span class="section-title">Cards</span></div>`;
+    html+=subcards.map(nestedCardHTML).join('');
+  }
   list.innerHTML=html;
-  list.querySelectorAll('.ci input').forEach(cb=>cb.addEventListener('change',e=>{e.stopPropagation();toggleCheck(card.id,cb.dataset.iid,cb.checked);}));
+  list.querySelectorAll('.ci input:not([data-subid])').forEach(cb=>cb.addEventListener('change',e=>{e.stopPropagation();toggleCheck(card.id,cb.dataset.iid,cb.checked);}));
+  list.querySelectorAll('.ci input[data-subid]').forEach(cb=>cb.addEventListener('change',e=>{e.stopPropagation();toggleSubcardCheck(card.id,cb.dataset.subid,cb.dataset.iid,cb.checked);}));
 }
 
 function editFromBoardView(id){openEdit(id);}
