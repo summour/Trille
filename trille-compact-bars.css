@@ -1,4 +1,4 @@
-/* Direct compact top and reference floating icon dock tuning */
+/* Direct compact top and stable floating icon dock tuning */
 .hdr{padding:8px 16px 4px;}
 .hdr-logo{font-size:20px;letter-spacing:-.45px;}
 .hdr-actions{gap:2px;}
@@ -31,17 +31,6 @@
   box-shadow:0 12px 30px rgba(0,0,0,.12);
   backdrop-filter:blur(22px);
   z-index:80;
-}
-.bnav::before{
-  content:'';
-  position:fixed;
-  left:0;
-  right:0;
-  bottom:0;
-  height:150px;
-  background:linear-gradient(to top,var(--bg) 0%,rgba(245,245,247,.92) 54%,rgba(245,245,247,0) 100%);
-  pointer-events:none;
-  z-index:-1;
 }
 .nbtn{
   min-width:0;
@@ -80,15 +69,12 @@
 }
 #nav-calendar{display:flex;}
 #nav-add{display:flex;font-size:0;}
-.view .scroll{padding-bottom:172px;}
+.view .scroll{padding-bottom:142px;}
 
 [data-dark] .bnav{
   background:rgba(28,28,30,.78);
   box-shadow:0 12px 34px rgba(0,0,0,.38);
   border:1px solid rgba(255,255,255,.08);
-}
-[data-dark] .bnav::before{
-  background:linear-gradient(to top,var(--bg) 0%,rgba(0,0,0,.88) 54%,rgba(0,0,0,0) 100%);
 }
 [data-dark] .nbtn{
   color:rgba(255,255,255,.76);
@@ -112,7 +98,6 @@
   .board-title{font-size:24px;}
   .bi-title,.card-title{font-size:18px;}
   .bnav{width:calc(100vw - 112px);bottom:max(58px,calc(env(safe-area-inset-bottom) + 40px));height:56px;padding:7px 14px;gap:8px;}
-  .bnav::before{height:144px;}
   .nbtn{width:40px;height:40px;}
   .nbtn svg{width:25px;height:25px;min-width:25px;min-height:25px;}
 }
