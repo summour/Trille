@@ -1,6 +1,6 @@
 /* Direct compact top and stable floating icon dock tuning */
 .hdr{padding:8px 16px 4px;}
-.hdr-logo{font-size:20px;letter-spacing:-.45px;}
+.hdr-logo{font-size:28px;letter-spacing:-.75px;}
 .hdr-actions{gap:2px;}
 .icon-btn{width:36px;height:36px;border-radius:10px;}
 .icon-btn svg{width:20px;height:20px;stroke-width:1.7;}
@@ -93,7 +93,7 @@
 .board-nav-left span,.boards-back span{font-size:11px;}
 .board-nav-left svg,.boards-back svg{width:18px;height:18px;}
 @media (max-width:390px){
-  .hdr-logo{font-size:19px;}
+  .hdr-logo{font-size:27px;letter-spacing:-.7px;}
   .icon-btn{width:35px;height:35px;}
   .icon-btn svg{width:19px;height:19px;}
   .boards-folder-name{font-size:21px;}
