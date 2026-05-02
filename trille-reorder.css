@@ -1,0 +1,4 @@
+.trille-reorder-active{touch-action:none;-webkit-user-select:none;user-select:none;}
+.trille-reorder-active .board-item,
+.trille-reorder-active .card[data-subcard-id]{touch-action:none;-webkit-user-select:none;user-select:none;}
+.trille-reorder-dragging{opacity:.9;transform:scale(.985);}
