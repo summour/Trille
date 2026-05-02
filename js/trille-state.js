@@ -1,5 +1,5 @@
 let folders=[],cards=[],editId=null,ctxId=null,selType='custom';
-let clItems=[],nfFields=[];
+let clItems=[],nfFields=[],linkedCardIds=[];
 let reorder=false,dark=false,bn='My Workspace';
 let curView='home',activeFolderId=null,activeBoardId=null;
 let activePicker=null,calY,calM,showSrch=false,sq='';
@@ -9,7 +9,7 @@ const FT={text:{label:'Text',sym:'T'},number:{label:'Number',sym:'#'},date:{labe
 const FT_GROUPS=[{sec:'Basic',keys:['text','number','date','check']},{sec:'Select',keys:['select','multi']},{sec:'Contact',keys:['url','email','phone','person']},{sec:'Visual',keys:['rating','progress']},{sec:'Other',keys:['formula','file','longtext']}];
 
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,5);}
-function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\"/g,'&quot;');}
 function defVal(t){const m={check:false,multi:[],rating:0,progress:0,number:0};return m[t]!==undefined?m[t]:'';}
 function parseTags(value){
   return [...new Set(String(value||'').split(/[\s,]+/).map(t=>t.trim().replace(/^#+/,'').toLowerCase()).filter(Boolean))];
