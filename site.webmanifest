@@ -1,0 +1,15 @@
+{
+  "name": "Trille",
+  "short_name": "Trille",
+  "icons": [
+    {
+      "src": "app-icon.svg",
+      "sizes": "1024x1024",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "theme_color": "#000000",
+  "background_color": "#000000",
+  "display": "standalone"
+}
