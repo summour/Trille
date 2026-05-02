@@ -1,4 +1,5 @@
-function renderTypeGrid(){}
+function removeTypeEditor(){document.getElementById('type-grid')?.closest('.fg')?.remove();}
+function renderTypeGrid(){removeTypeEditor();}
 function selectType(t,card){renderDyn(card);}
 
 function activitiesEditorHTML(){
@@ -8,6 +9,7 @@ function tagsEditorHTML(card){
   return `<div class="fg"><label class="fl">Hashtags</label><input class="fi" id="f-tags" placeholder="#work #idea #urgent" value="${esc(tagsToInput(card?.tags||[]))}"></div>`;
 }
 function renderDyn(card){
+  removeTypeEditor();
   let h=tagsEditorHTML(card);
   h+=activitiesEditorHTML();
   h+=`<div class="fg"><label class="fl">Note</label><textarea class="fi" id="f-note" rows="2" placeholder="Notes...">${esc(card?.note||'')}</textarea></div>`;
