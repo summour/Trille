@@ -1,0 +1,35 @@
+name: Fix Board Subcards
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - scripts/fix-board-subcards.js
+      - .github/workflows/fix-board-subcards.yml
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Patch app.js
+        run: node scripts/fix-board-subcards.js
+      - name: Remove temporary fix files
+        run: |
+          rm -f scripts/fix-board-subcards.js
+          rm -f .github/workflows/fix-board-subcards.yml
+          rmdir scripts 2>/dev/null || true
+      - name: Commit fix
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet && exit 0
+          git commit -m "Keep added cards inside the active board"
+          git push
