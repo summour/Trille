@@ -6,9 +6,9 @@
 .icon-btn svg{width:20px;height:20px;stroke-width:1.7;}
 
 .bnav{
-  left:26px;
-  right:26px;
-  bottom:max(12px,env(safe-area-inset-bottom));
+  left:58px;
+  right:58px;
+  bottom:max(74px,calc(env(safe-area-inset-bottom) + 56px));
   width:auto;
   height:58px;
   padding:8px 12px;
@@ -55,7 +55,7 @@
 }
 #nav-calendar{display:flex;}
 #nav-add{display:flex;font-size:0;}
-.view .scroll{padding-bottom:88px;}
+.view .scroll{padding-bottom:156px;}
 
 .board-back-hdr{padding:1px 0 4px;}
 .board-nav-left span,.boards-back span{font-size:11px;}
@@ -64,7 +64,7 @@
   .hdr-logo{font-size:19px;}
   .icon-btn{width:35px;height:35px;}
   .icon-btn svg{width:19px;height:19px;}
-  .bnav{left:24px;right:24px;height:56px;padding:7px 10px;gap:6px;}
+  .bnav{left:52px;right:52px;bottom:max(68px,calc(env(safe-area-inset-bottom) + 50px));height:56px;padding:7px 10px;gap:6px;}
   .nbtn{width:40px;height:40px;}
   .nbtn svg{width:24px;height:24px;min-width:24px;min-height:24px;}
 }
