@@ -1,337 +1,670 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Trille — Workflow Board</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet" />
-  <style>
-    :root {
-      --bg: #f5f3ef;
-      --surface: #ffffff;
-      --surface-2: #f0ede8;
-      --border: #e2ddd6;
-      --text: #1a1714;
-      --text-2: #6b645a;
-      --text-3: #9e978d;
-      --accent: #1a1714;
-      --habit: #22c55e;
-      --habit-bg: #dcfce7;
-      --focus: #3b82f6;
-      --focus-bg: #dbeafe;
-      --output: #8b5cf6;
-      --output-bg: #ede9fe;
-      --project: #f59e0b;
-      --project-bg: #fef3c7;
-      --waiting: #f97316;
-      --waiting-bg: #ffedd5;
-      --note: #6b7280;
-      --note-bg: #f3f4f6;
-      --custom: #ec4899;
-      --custom-bg: #fce7f3;
-      --danger: #ef4444;
-      --radius: 16px;
-      --shadow: 0 2px 12px rgba(0,0,0,0.06);
-      --shadow-lg: 0 8px 40px rgba(0,0,0,0.12);
-      --transition: 0.2s cubic-bezier(0.4,0,0.2,1);
-    }
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Trille</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{--bg:#f8f7f5;--ink:#111;--ink2:#666;--ink3:#bbb;--line:#e2dfd9;--surface:#fff;--hover:#f2efe9;--r:13px;}
+[data-dark]{--bg:#111;--ink:#f0ede7;--ink2:#888;--ink3:#444;--line:#252320;--surface:#1b1a18;--hover:#222;}
+body{font-family:'DM Mono',monospace;background:var(--bg);color:var(--ink);min-height:100vh;font-size:13px;}
+button,input,textarea,select{font:inherit;color:inherit;background:none;border:none;}
+button{cursor:pointer;}
+a{color:inherit;}
 
-    [data-theme="dark"] {
-      --bg: #141210;
-      --surface: #1e1c19;
-      --surface-2: #252220;
-      --border: #2e2b27;
-      --text: #f0ece6;
-      --text-2: #8c8478;
-      --text-3: #5c5550;
-      --accent: #f0ece6;
-      --shadow: 0 2px 12px rgba(0,0,0,0.3);
-      --shadow-lg: 0 8px 40px rgba(0,0,0,0.5);
-    }
+header{position:sticky;top:0;z-index:60;background:var(--bg);border-bottom:1px solid var(--line);height:50px;padding:0 16px;display:flex;align-items:center;justify-content:space-between;}
+.logo{font-family:'Instrument Serif',serif;font-size:19px;letter-spacing:-.4px;}
+.logo em{font-style:italic;color:var(--ink3);}
+.hr{display:flex;gap:4px;}
+.hbtn{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--ink2);transition:background .12s;border:1px solid transparent;}
+.hbtn:hover{background:var(--hover);border-color:var(--line);color:var(--ink);}
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; transition: background var(--transition), color var(--transition); }
-    button, input, textarea, select { font: inherit; }
-    button { cursor: pointer; }
+#toolbar{padding:9px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:7px;}
+.tbr{margin-left:auto;}
+.btn{height:30px;padding:0 11px;border-radius:7px;border:1px solid var(--line);background:var(--surface);font-size:12px;display:inline-flex;align-items:center;gap:5px;transition:all .12s;color:var(--ink2);}
+.btn:hover{background:var(--hover);color:var(--ink);}
+.btn.pri{background:var(--ink);color:var(--bg);border-color:var(--ink);}
+.btn.pri:hover{opacity:.82;}
+.btn.act{background:var(--ink);color:var(--bg);border-color:var(--ink);}
+.cnt{font-size:11px;color:var(--ink3);}
 
-    header { position: sticky; top: 0; z-index: 100; background: color-mix(in srgb, var(--bg) 92%, transparent); border-bottom: 1px solid var(--border); padding: 0 20px; display: flex; align-items: center; gap: 12px; height: 60px; backdrop-filter: blur(12px); }
-    .header-left { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
-    .header-right { display: flex; align-items: center; gap: 8px; }
-    .logo { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 10px; background: var(--text); color: var(--bg); font-weight: 800; letter-spacing: -1px; }
-    .wordmark { font-family: 'DM Serif Display', serif; font-size: 22px; letter-spacing: -0.5px; white-space: nowrap; }
-    .wordmark em { font-style: italic; color: var(--text-2); }
-    .board-title-wrap { display: flex; align-items: center; gap: 6px; cursor: pointer; padding: 4px 8px; border-radius: 8px; transition: background var(--transition); min-width: 0; }
-    .board-title-wrap:hover { background: var(--surface-2); }
-    .board-title { font-size: 15px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .icon-btn { width: 36px; height: 36px; border-radius: 10px; border: none; background: transparent; color: var(--text); display: flex; align-items: center; justify-content: center; transition: background var(--transition); }
-    .icon-btn:hover { background: var(--surface-2); }
+#srch-wrap{padding:9px 16px;border-bottom:1px solid var(--line);display:none;}
+.srch-in{width:100%;padding:8px 11px;border:1px solid var(--line);border-radius:8px;background:var(--surface);outline:none;}
+.srch-in:focus{border-color:var(--ink3);}
 
-    .toolbar { padding: 14px 20px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); background: var(--bg); flex-wrap: wrap; }
-    .toolbar-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
-    .card-count { font-size: 13px; color: var(--text-3); }
-    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 8px 16px; border-radius: 12px; border: 1.5px solid var(--border); background: var(--surface); color: var(--text); font-size: 13.5px; font-weight: 600; transition: all var(--transition); }
-    .btn:hover { background: var(--surface-2); border-color: var(--text-3); }
-    .btn-primary { background: var(--text); color: var(--bg); border-color: var(--text); }
-    .btn-danger { color: var(--danger); }
+main{padding:14px 16px 84px;max-width:680px;margin:0 auto;}
+.cards{display:flex;flex-direction:column;gap:9px;}
 
-    .view { padding-bottom: 86px; }
-    .board, .stats-view, .calendar-view, .settings-view { padding: 20px; max-width: 760px; margin: 0 auto; }
-    .board { display: flex; flex-direction: column; gap: 14px; }
-    .search-bar { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 12px; border: 1.5px solid var(--border); background: var(--surface-2); }
-    .search-bar input { flex: 1; border: none; background: transparent; color: var(--text); outline: none; }
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 15px;cursor:pointer;transition:border-color .12s,box-shadow .12s;}
+.card:hover{border-color:var(--ink3);box-shadow:0 2px 10px rgba(0,0,0,.05);}
+.card.dragging{opacity:.35;}
+.card.drag-over{border-color:var(--ink);outline:1.5px solid var(--ink);}
+.card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:9px;}
+.card-left{flex:1;min-width:0;}
+.type-tag{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);margin-bottom:3px;}
+.card-title{font-family:'Instrument Serif',serif;font-size:17px;line-height:1.28;letter-spacing:-.15px;}
+.card-desc{font-size:12px;color:var(--ink2);margin-top:2px;line-height:1.4;}
+.mbtn{width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--ink3);font-size:15px;flex-shrink:0;letter-spacing:1px;transition:background .12s;}
+.mbtn:hover{background:var(--hover);color:var(--ink);}
 
-    .card { background: var(--surface); border-radius: var(--radius); border: 1.5px solid var(--border); padding: 18px 18px 16px; box-shadow: var(--shadow); position: relative; transition: all var(--transition); animation: slideIn 0.25s ease; overflow: hidden; }
-    .card:hover { box-shadow: var(--shadow-lg); transform: translateY(-1px); }
-    .card.reorder-mode { border-style: dashed; cursor: grab; }
-    .card.dragging { opacity: 0.5; transform: scale(0.98); }
-    .card.drag-over { border-color: var(--focus); }
-    @keyframes slideIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-    .card-stripe { position: absolute; left: 0; top: 0; bottom: 0; width: 4px; }
-    .card-inner { padding-left: 10px; }
-    .card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
-    .card-type-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 3px 8px; border-radius: 6px; margin-bottom: 4px; }
-    .card-title { font-size: 16px; font-weight: 700; line-height: 1.3; margin-bottom: 2px; }
-    .card-desc { font-size: 13px; color: var(--text-2); margin-bottom: 10px; }
-    .card-menu-btn { min-width: 28px; height: 28px; border-radius: 8px; border: none; background: transparent; color: var(--text-3); transition: all var(--transition); }
-    .card-menu-btn:hover { background: var(--surface-2); color: var(--text); }
-    .progress-badge { min-width: 44px; height: 28px; border-radius: 100px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; border: 2px solid; padding: 0 8px; }
-    .checklist { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
-    .checklist-item { display: flex; align-items: center; gap: 9px; font-size: 13.5px; color: var(--text); }
-    .checklist-item input { width: 17px; height: 17px; accent-color: var(--habit); flex-shrink: 0; }
-    .checklist-item.done span { text-decoration: line-through; color: var(--text-3); }
-    .info-row { display: flex; align-items: baseline; gap: 6px; font-size: 13px; margin-bottom: 4px; }
-    .info-label { color: var(--text-3); font-weight: 600; min-width: 68px; }
-    .info-value { color: var(--text); }
-    .info-value.highlight { color: var(--focus); font-weight: 600; }
-    .info-value.warning { color: var(--waiting); font-weight: 600; }
-    .status-pill { display: inline-flex; padding: 3px 10px; border-radius: 100px; font-size: 12px; font-weight: 600; }
-    .card-note { margin-top: 10px; padding: 10px 12px; background: var(--surface-2); border-radius: 10px; font-size: 13px; color: var(--text-2); line-height: 1.5; }
+.cl{display:flex;flex-direction:column;gap:4px;margin-top:3px;}
+.ci{display:flex;align-items:center;gap:8px;font-size:13px;padding:2px 0;cursor:pointer;}
+.ci input[type=checkbox]{width:14px;height:14px;accent-color:var(--ink);flex-shrink:0;cursor:pointer;}
+.ci.done span{text-decoration:line-through;color:var(--ink3);}
+.cl-prog{font-size:11px;color:var(--ink3);margin-top:6px;}
 
-    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; z-index: 100; background: var(--surface); border-top: 1px solid var(--border); display: flex; padding: 8px 0 max(8px, env(safe-area-inset-bottom)); }
-    .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 6px 0; border: none; background: transparent; color: var(--text-3); font-size: 11px; font-weight: 600; }
-    .nav-item.active { color: var(--text); }
+.flds{display:flex;flex-direction:column;gap:4px;margin-top:4px;}
+.frow{display:flex;align-items:baseline;gap:8px;font-size:12px;line-height:1.5;}
+.fk{color:var(--ink3);min-width:60px;max-width:96px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.fv{color:var(--ink);word-break:break-word;flex:1;}
+.fv a{text-decoration:underline;text-underline-offset:2px;}
+.fv.warn{color:#b45309;}
+.tag-chip{display:inline-block;padding:1px 7px;border:1px solid var(--line);border-radius:100px;font-size:11px;margin:1px 2px 1px 0;}
+.pill{display:inline-block;padding:2px 8px;border-radius:100px;font-size:11px;border:1px solid var(--line);color:var(--ink2);}
+.stars{letter-spacing:2px;}
+.prog-bar{height:4px;background:var(--line);border-radius:2px;display:inline-block;width:80px;vertical-align:middle;margin-right:6px;}
+.prog-fill{height:100%;border-radius:2px;background:var(--ink);}
 
-    .modal-overlay { position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.4); display: flex; align-items: flex-end; justify-content: center; opacity: 0; pointer-events: none; transition: opacity var(--transition); backdrop-filter: blur(4px); }
-    .modal-overlay.open { opacity: 1; pointer-events: all; }
-    .modal { background: var(--surface); border-radius: 24px 24px 0 0; width: 100%; max-width: 760px; max-height: 92vh; overflow-y: auto; transform: translateY(40px); transition: transform 0.32s cubic-bezier(0.4,0,0.2,1); padding-bottom: max(20px, env(safe-area-inset-bottom)); }
-    .modal-overlay.open .modal { transform: translateY(0); }
-    .modal-handle { width: 40px; height: 4px; border-radius: 2px; background: var(--border); margin: 14px auto 0; }
-    .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--border); gap: 12px; }
-    .modal-title { font-size: 16px; font-weight: 700; }
-    .modal-body { padding: 20px; display: flex; flex-direction: column; gap: 18px; }
-    .form-group { display: flex; flex-direction: column; gap: 8px; }
-    .form-label { font-size: 13px; font-weight: 700; color: var(--text-2); }
-    .form-input { width: 100%; padding: 12px 14px; border-radius: 12px; border: 1.5px solid var(--border); background: var(--surface-2); color: var(--text); font-size: 14px; outline: none; resize: vertical; }
-    .form-input:focus { border-color: var(--text-2); }
-    .type-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-    .type-btn { display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 10px 8px; border-radius: 12px; border: 2px solid var(--border); background: var(--surface-2); color: var(--text-2); font-size: 12px; font-weight: 700; }
-    .type-btn.selected { border-color: currentColor; background: var(--surface); color: var(--text); }
-    .checklist-editor { display: flex; flex-direction: column; gap: 8px; }
-    .checklist-row { display: flex; align-items: center; gap: 8px; }
-    .checklist-row input { flex: 1; padding: 9px 12px; border-radius: 10px; border: 1.5px solid var(--border); background: var(--surface-2); color: var(--text); outline: none; }
-    .del-btn { width: 30px; height: 30px; border-radius: 8px; border: none; background: transparent; color: var(--text-3); font-size: 16px; }
-    .del-btn:hover { background: #fee2e2; color: var(--danger); }
-    .add-item-btn { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-3); background: none; border: none; padding: 6px 0; }
-    .action-row { display: flex; gap: 8px; margin-top: 4px; }
-    .action-btn { flex: 1; padding: 11px; border-radius: 12px; border: 1.5px solid var(--border); background: var(--surface-2); color: var(--text); font-size: 13px; font-weight: 700; }
-    .action-btn.danger { color: var(--danger); border-color: #fee2e2; }
-    .ctx-menu { position: fixed; z-index: 300; background: var(--surface); border: 1.5px solid var(--border); border-radius: 14px; box-shadow: var(--shadow-lg); padding: 6px; min-width: 160px; opacity: 0; pointer-events: none; transform: scale(0.95); transform-origin: top right; transition: all 0.15s ease; }
-    .ctx-menu.open { opacity: 1; pointer-events: all; transform: scale(1); }
-    .ctx-item { display: flex; align-items: center; gap: 10px; width: 100%; padding: 9px 12px; border-radius: 9px; border: none; background: none; color: var(--text); font-size: 13.5px; text-align: left; }
-    .ctx-item:hover { background: var(--surface-2); }
-    .ctx-item.danger { color: var(--danger); }
-    .ctx-divider { height: 1px; background: var(--border); margin: 4px 0; }
+.card-note{margin-top:9px;padding:9px 11px;background:var(--hover);border-radius:8px;font-size:12px;color:var(--ink2);line-height:1.6;border:1px solid var(--line);}
 
-    .board-empty { text-align: center; padding: 60px 20px; color: var(--text-3); }
-    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
-    .stat-card { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); }
-    .stat-number { font-family: 'DM Serif Display', serif; font-size: 32px; line-height: 1; margin-bottom: 4px; }
-    .stat-label { font-size: 12px; color: var(--text-3); font-weight: 600; }
-    .cal-month { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-    .cal-month-title { font-family: 'DM Serif Display', serif; font-size: 22px; }
-    .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
-    .cal-day-header { text-align: center; font-size: 11px; color: var(--text-3); font-weight: 700; padding: 6px 0; }
-    .cal-day { aspect-ratio: 1; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 13px; position: relative; }
-    .cal-day:hover { background: var(--surface-2); }
-    .cal-day.today { background: var(--text); color: var(--bg); }
-    .cal-day.has-event::after { content: ''; position: absolute; bottom: 4px; width: 4px; height: 4px; border-radius: 50%; background: var(--focus); }
-    .settings-section { margin-bottom: 24px; }
-    .settings-section-title { font-size: 12px; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; }
-    .settings-item { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: var(--surface); border: 1.5px solid var(--border); border-radius: 12px; margin-bottom: 8px; gap: 12px; }
-    .board-name-input { background: transparent; border: none; outline: none; font-size: 15px; font-weight: 600; color: var(--text); min-width: 80px; max-width: 220px; text-align: right; }
-    .toggle { width: 44px; height: 26px; border-radius: 13px; background: var(--border); position: relative; border: none; }
-    .toggle.on { background: var(--text); }
-    .toggle::after { content: ''; position: absolute; width: 20px; height: 20px; border-radius: 50%; background: white; top: 3px; left: 3px; transition: transform var(--transition); box-shadow: 0 1px 4px rgba(0,0,0,0.2); }
-    .toggle.on::after { transform: translateX(18px); }
-    .toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--text); color: var(--bg); padding: 10px 18px; border-radius: 100px; font-size: 13.5px; font-weight: 700; box-shadow: var(--shadow-lg); z-index: 500; opacity: 0; transition: all 0.3s ease; white-space: nowrap; }
-    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-    .hidden { display: none !important; }
+.empty{text-align:center;padding:60px 20px;color:var(--ink3);}
+.empty h3{font-family:'Instrument Serif',serif;font-size:20px;color:var(--ink2);margin-bottom:6px;}
 
-    @media (max-width: 520px) {
-      .wordmark { display: none; }
-      .type-grid { grid-template-columns: repeat(2, 1fr); }
-      .toolbar-right { width: 100%; margin-left: 0; }
-      .btn { flex: 1; }
-    }
-  </style>
+.bnav{position:fixed;bottom:0;left:0;right:0;z-index:60;background:var(--bg);border-top:1px solid var(--line);display:flex;padding:5px 0 max(5px,env(safe-area-inset-bottom));}
+.nbtn{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px;font-size:11px;color:var(--ink3);letter-spacing:.04em;transition:color .12s;}
+.nbtn.active{color:var(--ink);}
+
+.ov{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.3);display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .18s;}
+.ov.open{opacity:1;pointer-events:all;}
+.modal{background:var(--surface);border-radius:18px 18px 0 0;width:100%;max-width:680px;max-height:92vh;overflow-y:auto;transform:translateY(28px);transition:transform .22s ease;padding-bottom:max(18px,env(safe-area-inset-bottom));}
+.ov.open .modal{transform:translateY(0);}
+.mhandle{width:34px;height:3px;border-radius:2px;background:var(--line);margin:11px auto 0;}
+.mhead{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:1px solid var(--line);}
+.mhead h2{font-family:'Instrument Serif',serif;font-size:18px;}
+.mbody{padding:16px;display:flex;flex-direction:column;gap:14px;}
+
+.fg{display:flex;flex-direction:column;gap:6px;}
+.fl{font-size:10px;font-weight:500;color:var(--ink3);text-transform:uppercase;letter-spacing:.09em;}
+.fi{width:100%;padding:9px 11px;border-radius:9px;border:1px solid var(--line);background:var(--hover);outline:none;font-size:13px;resize:vertical;}
+.fi:focus{border-color:var(--ink2);background:var(--surface);}
+
+.tgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;}
+.tbtn{padding:8px 5px;border-radius:8px;border:1px solid var(--line);background:var(--hover);font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink3);transition:all .12s;text-align:center;}
+.tbtn.sel{background:var(--ink);color:var(--bg);border-color:var(--ink);}
+
+.cled{display:flex;flex-direction:column;gap:5px;}
+.clrow{display:flex;align-items:center;gap:5px;}
+.clrow input{flex:1;padding:7px 10px;border-radius:8px;border:1px solid var(--line);background:var(--hover);outline:none;}
+.clrow input:focus{border-color:var(--ink2);background:var(--surface);}
+.delbtn{width:26px;height:26px;border-radius:6px;color:var(--ink3);font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.delbtn:hover{background:#fee2e2;color:#ef4444;}
+.addbtn{font-size:12px;color:var(--ink3);padding:3px 0;text-align:left;}
+.addbtn:hover{color:var(--ink);}
+
+/* ── Notion-style field editor ── */
+.nf-editor{display:flex;flex-direction:column;gap:5px;}
+.nf-row{display:flex;align-items:stretch;gap:5px;position:relative;}
+.nf-type-btn{width:32px;flex-shrink:0;border:1px solid var(--line);border-radius:8px;background:var(--hover);display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;color:var(--ink2);transition:all .12s;font-family:'DM Mono',monospace;}
+.nf-type-btn:hover{background:var(--ink);color:var(--bg);border-color:var(--ink);}
+.nf-key{width:88px;flex-shrink:0;padding:7px 9px;border-radius:8px;border:1px solid var(--line);background:var(--hover);outline:none;font-size:12px;}
+.nf-key:focus{border-color:var(--ink2);background:var(--surface);}
+.nf-val-wrap{flex:1;min-width:0;}
+
+.nf-in{width:100%;padding:7px 10px;border-radius:8px;border:1px solid var(--line);background:var(--hover);outline:none;font-size:12px;}
+.nf-in:focus{border-color:var(--ink2);background:var(--surface);}
+select.nf-in{cursor:pointer;color:var(--ink);}
+
+.nf-check-wrap{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:8px;border:1px solid var(--line);background:var(--hover);height:34px;}
+.nf-check-wrap input{width:15px;height:15px;accent-color:var(--ink);cursor:pointer;}
+.nf-check-label{font-size:12px;color:var(--ink2);}
+
+.nf-multi{display:flex;flex-wrap:wrap;gap:3px;align-items:center;padding:4px 8px;border-radius:8px;border:1px solid var(--line);background:var(--hover);min-height:34px;cursor:text;}
+.nf-multi.focused{border-color:var(--ink2);background:var(--surface);}
+.nf-tag{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border:1px solid var(--line);border-radius:100px;font-size:11px;background:var(--surface);}
+.nf-tag-del{font-size:13px;color:var(--ink3);line-height:1;}
+.nf-tag-del:hover{color:#ef4444;}
+.nf-multi-in{border:none;outline:none;background:transparent;font-size:12px;min-width:70px;flex:1;padding:3px 0;}
+
+.nf-rating{display:flex;gap:3px;align-items:center;padding:6px 8px;border-radius:8px;border:1px solid var(--line);background:var(--hover);height:34px;}
+.nf-star{font-size:17px;cursor:pointer;color:var(--line);line-height:1;transition:color .1s;user-select:none;}
+.nf-star.on{color:var(--ink);}
+
+.nf-prog-wrap{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:8px;border:1px solid var(--line);background:var(--hover);height:34px;}
+.nf-prog-wrap input[type=range]{flex:1;accent-color:var(--ink);}
+.nf-prog-n{font-size:11px;color:var(--ink3);min-width:30px;text-align:right;}
+
+.nf-file-wrap{display:flex;align-items:center;gap:7px;padding:6px 10px;border-radius:8px;border:1px solid var(--line);background:var(--hover);height:34px;}
+.nf-file-name{flex:1;font-size:12px;color:var(--ink2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.nf-file-lbl{font-size:11px;color:var(--ink3);text-decoration:underline;cursor:pointer;flex-shrink:0;}
+.nf-file-lbl:hover{color:var(--ink);}
+
+/* Type picker popup */
+.ft-popup{position:fixed;z-index:400;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:5px;min-width:200px;box-shadow:0 8px 30px rgba(0,0,0,.14);display:none;max-height:300px;overflow-y:auto;}
+.ft-popup.open{display:block;}
+.ftp-sec{padding:6px 10px 3px;font-size:10px;text-transform:uppercase;letter-spacing:.09em;color:var(--ink3);}
+.ftp-item{display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:7px;cursor:pointer;font-size:12px;color:var(--ink2);}
+.ftp-item:hover{background:var(--hover);color:var(--ink);}
+.ftp-icon{width:22px;text-align:center;font-size:13px;color:var(--ink3);}
+
+.act-row{display:flex;gap:7px;margin-top:4px;}
+.act-btn{flex:1;padding:10px;border-radius:9px;border:1px solid var(--line);font-size:12px;font-weight:500;transition:all .12s;color:var(--ink2);}
+.act-btn:hover{background:var(--hover);color:var(--ink);}
+.act-btn.danger{color:#ef4444;border-color:#fecaca;}
+.act-btn.danger:hover{background:#fee2e2;}
+
+.ctx{position:fixed;z-index:200;background:var(--surface);border:1px solid var(--line);border-radius:11px;box-shadow:0 8px 28px rgba(0,0,0,.13);padding:5px;min-width:145px;opacity:0;pointer-events:none;transform:scale(.95);transform-origin:top right;transition:all .1s ease;}
+.ctx.open{opacity:1;pointer-events:all;transform:scale(1);}
+.ctx-i{display:flex;align-items:center;gap:8px;width:100%;padding:8px 10px;border-radius:7px;font-size:12px;color:var(--ink2);}
+.ctx-i:hover{background:var(--hover);color:var(--ink);}
+.ctx-i.danger{color:#ef4444;}
+.ctx-div{height:1px;background:var(--line);margin:4px 0;}
+
+/* Stats */
+.sv{padding:14px 16px 84px;max-width:680px;margin:0 auto;}
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px;}
+.sc{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;}
+.sn{font-family:'Instrument Serif',serif;font-size:34px;line-height:1;}
+.sl{font-size:10px;color:var(--ink3);text-transform:uppercase;letter-spacing:.08em;margin-top:3px;}
+.bar-row{margin-bottom:11px;}
+.bar-lbl{display:flex;justify-content:space-between;font-size:12px;color:var(--ink2);margin-bottom:4px;}
+.btrack{height:3px;background:var(--line);border-radius:2px;}
+.bfill{height:100%;border-radius:2px;background:var(--ink);}
+
+/* Calendar */
+.cv{padding:14px 16px 84px;max-width:680px;margin:0 auto;}
+.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.cal-title{font-family:'Instrument Serif',serif;font-size:21px;}
+.cal-g{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+.cdh{text-align:center;font-size:10px;color:var(--ink3);padding:5px 0;text-transform:uppercase;letter-spacing:.06em;}
+.cd{aspect-ratio:1;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;position:relative;}
+.cd:hover{background:var(--hover);}
+.cd.today{background:var(--ink);color:var(--bg);}
+.cd.hev::after{content:'';position:absolute;bottom:3px;width:3px;height:3px;border-radius:50%;background:var(--ink2);}
+.cd.today.hev::after{background:var(--bg);}
+
+/* Settings */
+.stv{padding:14px 16px 84px;max-width:680px;margin:0 auto;}
+.ss-t{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--ink3);margin-bottom:7px;font-weight:500;}
+.si{display:flex;align-items:center;justify-content:space-between;padding:12px 13px;background:var(--surface);border:1px solid var(--line);border-radius:10px;margin-bottom:5px;cursor:pointer;transition:background .12s;gap:10px;}
+.si:hover{background:var(--hover);}
+.si span{font-size:13px;}
+.si .r{font-size:12px;color:var(--ink3);}
+.bn-in{background:none;border:none;outline:none;font-size:13px;color:var(--ink2);text-align:right;min-width:80px;max-width:180px;}
+.tog{width:38px;height:22px;border-radius:11px;background:var(--line);position:relative;transition:background .18s;flex-shrink:0;}
+.tog.on{background:var(--ink);}
+.tog::after{content:'';position:absolute;width:16px;height:16px;border-radius:50%;background:#fff;top:3px;left:3px;transition:transform .18s;box-shadow:0 1px 3px rgba(0,0,0,.18);}
+.tog.on::after{transform:translateX(16px);}
+
+.toast{position:fixed;bottom:74px;left:50%;transform:translateX(-50%) translateY(8px);background:var(--ink);color:var(--bg);padding:8px 15px;border-radius:100px;font-size:12px;z-index:500;opacity:0;transition:all .22s;white-space:nowrap;pointer-events:none;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.hidden{display:none!important;}
+</style>
 </head>
 <body>
-  <header>
-    <div class="header-left">
-      <span class="logo">Tr</span>
-      <span class="wordmark">trill<em>e</em></span>
-      <div class="board-title-wrap" onclick="switchView('settings')">
-        <span class="board-title" id="board-name-display">My Workflow Board</span>
-        <span style="color:var(--text-3)">⌄</span>
-      </div>
-    </div>
-    <div class="header-right">
-      <button class="icon-btn" onclick="toggleSearch()" title="Search">⌕</button>
-      <button class="icon-btn" onclick="toggleTheme()" title="Toggle theme" id="theme-btn">🌙</button>
-    </div>
-  </header>
 
-  <div class="toolbar" id="toolbar">
-    <button class="btn btn-primary" onclick="openAddCard()">＋ Add Card</button>
-    <button class="btn" onclick="toggleReorder()" id="reorder-btn">☰ Reorder</button>
-    <div class="toolbar-right"><span class="card-count" id="card-count">0 Cards</span></div>
+<header>
+  <span class="logo">trill<em>e</em></span>
+  <div class="hr">
+    <button class="hbtn" onclick="toggleSearch()">&#9906;</button>
+    <button class="hbtn" onclick="toggleTheme()" id="theme-btn">&#9670;</button>
   </div>
+</header>
 
-  <main class="view">
-    <section id="view-board">
-      <div class="board" id="board-container">
-        <div class="search-bar hidden" id="search-bar"><span>⌕</span><input id="search-input" placeholder="Search cards..." oninput="updateSearch(this.value)" /></div>
-        <div class="card-count hidden" id="drag-hint">Drag to reorder cards</div>
-      </div>
-      <div style="padding:0 20px 20px;max-width:760px;margin:0 auto"><button class="btn" style="width:100%" onclick="openAddCard()">＋ Add Another Card</button></div>
-    </section>
+<div id="toolbar">
+  <button class="btn pri" onclick="openAdd()">+ Add</button>
+  <button class="btn" onclick="toggleReorder()" id="reorder-btn">Reorder</button>
+  <div class="tbr"><span class="cnt" id="card-count"></span></div>
+</div>
 
-    <section id="view-stats" class="hidden stats-view"><div class="stats-grid" id="stats-grid"></div><div id="stats-breakdown"></div></section>
-    <section id="view-calendar" class="hidden calendar-view"><div class="cal-month"><button class="icon-btn" onclick="prevMonth()">‹</button><span class="cal-month-title" id="cal-title"></span><button class="icon-btn" onclick="nextMonth()">›</button></div><div class="cal-grid" id="cal-grid"></div><div id="cal-events" style="margin-top:20px"></div></section>
-    <section id="view-settings" class="hidden settings-view">
-      <div class="settings-section">
-        <div class="settings-section-title">Board Settings</div>
-        <div class="settings-item"><span>Board Name</span><input class="board-name-input" id="board-name-input" value="My Workflow Board" oninput="updateBoardName(this.value)" /></div>
-        <div class="settings-item"><span>Dark Mode</span><button class="toggle" id="dark-toggle" onclick="toggleTheme()"></button></div>
-      </div>
-      <div class="settings-section">
-        <div class="settings-section-title">Actions</div>
-        <div class="settings-item" onclick="exportBoard()"><span>Export Board JSON</span><span>↗</span></div>
-        <div class="settings-item" onclick="importBoard()"><span>Import Board JSON</span><span>↙</span></div>
-        <div class="settings-item" onclick="clearBoard()" style="color:var(--danger)"><span>Clear All Cards</span><span>×</span></div>
-      </div>
-    </section>
-  </main>
+<div id="srch-wrap"><input class="srch-in" id="srch-in" placeholder="Search..." oninput="onSearch(this.value)"></div>
 
-  <nav class="bottom-nav">
-    <button class="nav-item active" onclick="switchView('board',this)" id="nav-board">▦<span>Board</span></button>
-    <button class="nav-item" onclick="switchView('stats',this)" id="nav-stats">▥<span>Stats</span></button>
-    <button class="nav-item" onclick="switchView('calendar',this)" id="nav-calendar">□<span>Calendar</span></button>
-    <button class="nav-item" onclick="switchView('settings',this)" id="nav-settings">⚙<span>Settings</span></button>
-  </nav>
+<main class="hidden" id="view-board">
+  <div class="cards" id="board"></div>
+  <div style="margin-top:9px"><button class="btn" style="width:100%;justify-content:center" onclick="openAdd()">+ Add another</button></div>
+</main>
+<div class="sv hidden" id="view-stats"></div>
+<div class="cv hidden" id="view-calendar"></div>
+<div class="stv hidden" id="view-settings">
+  <div style="margin-bottom:20px">
+    <div class="ss-t">Board</div>
+    <div class="si"><span>Name</span><input class="bn-in" id="bn-in" value="My Workflow" oninput="updateBN(this.value)"></div>
+    <div class="si"><span>Dark mode</span><button class="tog" id="dark-tog" onclick="toggleTheme()"></button></div>
+  </div>
+  <div>
+    <div class="ss-t">Data</div>
+    <div class="si" onclick="exportData()"><span>Export JSON</span><span class="r">&#8599;</span></div>
+    <div class="si" onclick="importData()"><span>Import JSON</span><span class="r">&#8601;</span></div>
+    <div class="si" onclick="clearAll()" style="color:#ef4444"><span>Clear all</span><span class="r">&#215;</span></div>
+  </div>
+</div>
 
-  <div class="modal-overlay" id="add-modal" onclick="closeModalOutside(event,'add-modal')">
-    <div class="modal">
-      <div class="modal-handle"></div>
-      <div class="modal-header"><span class="modal-title" id="add-modal-title">Add New Card</span><button class="icon-btn" onclick="closeModal('add-modal')">✕</button></div>
-      <div class="modal-body">
-        <div class="form-group"><label class="form-label">Card Type</label><div class="type-grid" id="type-grid"></div></div>
-        <div class="form-group"><label class="form-label">Card Title</label><input class="form-input" id="card-title-input" placeholder="Enter card title..." maxlength="80" /></div>
-        <div class="form-group"><label class="form-label">Description</label><textarea class="form-input" id="card-desc-input" placeholder="What is this card about?" rows="2"></textarea></div>
-        <div id="dynamic-fields"></div>
-        <button class="btn btn-primary" style="width:100%;padding:14px" onclick="saveCard()" id="save-btn-text">Create Card</button>
-      </div>
+<nav class="bnav">
+  <button class="nbtn active" id="nav-board" onclick="switchView('board',this)">Board</button>
+  <button class="nbtn" id="nav-stats" onclick="switchView('stats',this)">Stats</button>
+  <button class="nbtn" id="nav-calendar" onclick="switchView('calendar',this)">Calendar</button>
+  <button class="nbtn" id="nav-settings" onclick="switchView('settings',this)">Settings</button>
+</nav>
+
+<!-- ADD/EDIT MODAL -->
+<div class="ov" id="modal-add" onclick="ovClose(event,'modal-add')">
+  <div class="modal">
+    <div class="mhandle"></div>
+    <div class="mhead"><h2 id="modal-add-title">New Card</h2><button class="hbtn" onclick="closeModal('modal-add')">&#215;</button></div>
+    <div class="mbody">
+      <div class="fg"><label class="fl">Type</label><div class="tgrid" id="type-grid"></div></div>
+      <div class="fg"><label class="fl">Title</label><input class="fi" id="f-title" placeholder="Card title" maxlength="80"></div>
+      <div class="fg"><label class="fl">Description</label><textarea class="fi" id="f-desc" rows="2" placeholder="Optional"></textarea></div>
+      <div id="dyn-fields"></div>
+      <button class="btn pri" style="width:100%;height:40px;border-radius:9px;font-size:13px" onclick="saveCard()" id="save-lbl">Create Card</button>
     </div>
   </div>
+</div>
 
-  <div class="modal-overlay" id="detail-modal" onclick="closeModalOutside(event,'detail-modal')">
-    <div class="modal">
-      <div class="modal-handle"></div>
-      <div class="modal-header" style="border:none;padding-bottom:8px">
-        <div><div id="detail-type-badge"></div><h2 id="detail-title" style="font-size:24px;font-family:'DM Serif Display',serif;line-height:1.2;margin-top:4px"></h2><p id="detail-desc" style="font-size:14px;color:var(--text-2);margin-top:2px"></p></div>
-        <div style="display:flex;gap:4px"><button class="icon-btn" onclick="editCurrentCard()">✎</button><button class="icon-btn" onclick="closeModal('detail-modal')">✕</button></div>
+<!-- DETAIL MODAL -->
+<div class="ov" id="modal-detail" onclick="ovClose(event,'modal-detail')">
+  <div class="modal">
+    <div class="mhandle"></div>
+    <div class="mhead" style="border:none;padding-bottom:6px">
+      <div>
+        <div id="d-tag" style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);margin-bottom:3px"></div>
+        <h2 id="d-title" style="font-family:'Instrument Serif',serif;font-size:22px;line-height:1.2;letter-spacing:-.25px"></h2>
+        <p id="d-desc" style="font-size:13px;color:var(--ink2);margin-top:2px"></p>
       </div>
-      <div class="modal-body" id="detail-body"></div>
+      <div style="display:flex;gap:4px">
+        <button class="hbtn" onclick="editFromDetail()">&#9998;</button>
+        <button class="hbtn" onclick="closeModal('modal-detail')">&#215;</button>
+      </div>
     </div>
+    <div class="mbody" id="d-body"></div>
   </div>
+</div>
 
-  <div class="ctx-menu" id="ctx-menu"><button class="ctx-item" onclick="ctxEdit()">✎ Edit</button><button class="ctx-item" onclick="ctxDuplicate()">⧉ Duplicate</button><div class="ctx-divider"></div><button class="ctx-item danger" onclick="ctxDelete()">× Delete</button></div>
-  <div class="toast" id="toast"></div>
-  <input type="file" id="import-input" accept=".json" style="display:none" onchange="handleImport(event)" />
+<!-- CTX -->
+<div class="ctx" id="ctx">
+  <button class="ctx-i" onclick="ctxEdit()">Edit</button>
+  <button class="ctx-i" onclick="ctxDup()">Duplicate</button>
+  <div class="ctx-div"></div>
+  <button class="ctx-i danger" onclick="ctxDel()">Delete</button>
+</div>
 
-  <script>
-    let cards = [];
-    let editingId = null;
-    let selectedType = 'habit';
-    let ctxCardId = null;
-    let reorderMode = false;
-    let dragSrcIdx = null;
-    let currentView = 'board';
-    let calYear, calMonth;
-    let darkMode = false;
-    let boardName = 'My Workflow Board';
-    let addChecklist = [];
-    let searchQuery = '';
-    let showSearch = false;
+<!-- Field type picker -->
+<div class="ft-popup" id="ft-popup"></div>
 
-    const TYPE_CONFIG = {
-      habit: { label: 'HABIT', color: 'var(--habit)', bg: 'var(--habit-bg)', icon: '🌱' },
-      focus: { label: 'FOCUS', color: 'var(--focus)', bg: 'var(--focus-bg)', icon: '🎯' },
-      output: { label: 'OUTPUT', color: 'var(--output)', bg: 'var(--output-bg)', icon: '🎙️' },
-      project: { label: 'PROJECT', color: 'var(--project)', bg: 'var(--project-bg)', icon: '📁' },
-      waiting: { label: 'WAITING', color: 'var(--waiting)', bg: 'var(--waiting-bg)', icon: '⏳' },
-      note: { label: 'NOTE', color: 'var(--note)', bg: 'var(--note-bg)', icon: '📝' },
-      custom: { label: 'CUSTOM', color: 'var(--custom)', bg: 'var(--custom-bg)', icon: '✨' }
-    };
+<div class="toast" id="toast"></div>
+<input type="file" id="import-file" accept=".json" style="display:none" onchange="handleImport(event)">
 
-    function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
-    function esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-    function init() { renderTypeButtons(); load(); renderBoard(); renderStats(); renderCalendar(); detectTheme(); }
-    function detectTheme() { const saved = localStorage.getItem('trille-theme'); setDark(saved === 'dark'); }
-    function setDark(v) { darkMode = v; document.documentElement.setAttribute('data-theme', v ? 'dark' : 'light'); document.getElementById('theme-btn').textContent = v ? '☀️' : '🌙'; document.getElementById('dark-toggle')?.classList.toggle('on', v); localStorage.setItem('trille-theme', v ? 'dark' : 'light'); }
-    function toggleTheme() { setDark(!darkMode); }
-    function save() { localStorage.setItem('trille-cards', JSON.stringify(cards)); localStorage.setItem('trille-board', boardName); }
-    function load() { const c = localStorage.getItem('trille-cards'); const b = localStorage.getItem('trille-board'); if (c) cards = JSON.parse(c); if (b) boardName = b; document.getElementById('board-name-display').textContent = boardName; document.getElementById('board-name-input').value = boardName; if (!cards.length) loadDefaults(); }
-    function loadDefaults() { cards = [{ id: uid(), type: 'habit', title: 'Daily Routine', desc: 'Daily low cognitive load habits', items: [{ id: uid(), text: 'Yoga 10 min (morning)', done: true }, { id: uid(), text: 'Light diet', done: true }, { id: uid(), text: 'English Input (Tech & Econ)', done: false }, { id: uid(), text: 'Watch 1 online lecture', done: false }, { id: uid(), text: 'Savings transfer', done: false }], note: 'Today feeling more refreshed.', linkedTo: [] }, { id: uid(), type: 'focus', title: 'ก.พ. Phase ก', desc: '', dday: '2026-07-05', bestSlot: '08:00 - 10:00', action: 'Review old questions', status: 'in-progress', progress: 60, linkedTo: [] }, { id: uid(), type: 'output', title: 'English Output Project', input: 'Exam or economics topic', level: 'A2-B1', practice: '7', status: 'in-progress', linkedTo: [] }, { id: uid(), type: 'waiting', title: 'Google Data Analytics Certificate', waitStatus: 'Waiting for Financial Aid approval', checkDate: '2026-05-16', linkedTo: [] }]; save(); }
+<script>
+// ── State ──
+let cards=[],editId=null,ctxId=null,selType='habit';
+let clItems=[],nfFields=[];
+let reorder=false,dragIdx=null,dark=false,bn='My Workflow',sq='',showSrch=false,curView='board';
+let calY,calM,activePicker=null;
 
-    function renderTypeButtons() { const grid = document.getElementById('type-grid'); grid.innerHTML = Object.keys(TYPE_CONFIG).map(type => `<button class="type-btn" data-type="${type}" onclick="selectType('${type}')"><span>${TYPE_CONFIG[type].icon}</span>${TYPE_CONFIG[type].label}</button>`).join(''); }
-    function renderBoard() { const container = document.getElementById('board-container'); Array.from(container.querySelectorAll('.card,.board-empty')).forEach(el => el.remove()); document.getElementById('search-bar').classList.toggle('hidden', !showSearch); const filtered = searchQuery ? cards.filter(c => (c.title || '').toLowerCase().includes(searchQuery.toLowerCase()) || (c.desc || '').toLowerCase().includes(searchQuery.toLowerCase())) : cards; if (!filtered.length) { const empty = document.createElement('div'); empty.className = 'board-empty'; empty.innerHTML = `<h3>Your board is empty</h3><p>Tap Add Card to create your first workflow card.</p>`; container.appendChild(empty); } else filtered.forEach((card, idx) => container.appendChild(createCardEl(card, idx))); document.getElementById('drag-hint').classList.toggle('hidden', !reorderMode); document.getElementById('card-count').textContent = `${cards.length} Card${cards.length !== 1 ? 's' : ''}`; }
-    function createCardEl(card, idx) { const cfg = TYPE_CONFIG[card.type] || TYPE_CONFIG.custom; const el = document.createElement('div'); el.className = 'card' + (reorderMode ? ' reorder-mode' : ''); el.dataset.id = card.id; el.innerHTML = `<div class="card-stripe" style="background:${cfg.color}"></div><div class="card-inner">${buildCardHTML(card, cfg)}</div>`; el.addEventListener('click', e => { if (e.target.closest('.card-menu-btn') || e.target.closest('.checklist-item')) return; openDetail(card.id); }); el.querySelector('.card-menu-btn')?.addEventListener('click', e => { e.stopPropagation(); showCtxMenu(e, card.id); }); el.querySelectorAll('.checklist-item input').forEach(cb => cb.addEventListener('change', e => { e.stopPropagation(); toggleCheckItem(card.id, cb.dataset.iid, cb.checked); })); if (reorderMode) { el.draggable = true; el.addEventListener('dragstart', () => { dragSrcIdx = idx; el.classList.add('dragging'); }); el.addEventListener('dragend', () => el.classList.remove('dragging')); el.addEventListener('dragover', e => { e.preventDefault(); el.classList.add('drag-over'); }); el.addEventListener('dragleave', () => el.classList.remove('drag-over')); el.addEventListener('drop', e => { e.preventDefault(); el.classList.remove('drag-over'); dropCard(idx); }); } return el; }
-    function badgeHTML(card,cfg){return `<div class="card-type-badge" style="color:${cfg.color};background:${cfg.bg}">${cfg.icon} ${cfg.label}</div>`;}
-    function buildCardHTML(card, cfg) { const badge = badgeHTML(card,cfg); const menu = `<button class="card-menu-btn">···</button>`; if (card.type === 'habit') { const done = (card.items||[]).filter(i=>i.done).length, total = (card.items||[]).length; return `<div class="card-header"><div>${badge}<div class="card-title">${esc(card.title)}</div>${card.desc ? `<div class="card-desc">${esc(card.desc)}</div>` : ''}</div><div style="display:flex;align-items:center;gap:6px"><div class="progress-badge" style="color:${cfg.color};border-color:${cfg.color}">${done}/${total}</div>${menu}</div></div><div class="checklist">${(card.items||[]).map(it => `<label class="checklist-item${it.done?' done':''}"><input type="checkbox" data-iid="${it.id}" ${it.done?'checked':''}/><span>${esc(it.text)}</span></label>`).join('')}</div>${card.note ? `<div class="card-note">${esc(card.note)}</div>` : ''}`; } if (card.type === 'focus') { const dday = card.dday ? new Date(card.dday) : null; const daysLeft = dday ? Math.ceil((dday - new Date()) / 86400000) : null; return `<div class="card-header"><div>${badge}<div class="card-title">${esc(card.title)}</div></div>${menu}</div>${dday ? `<div class="info-row"><span class="info-label">D-Day:</span><span class="info-value">${dday.toLocaleDateString('en-GB')} <span class="${daysLeft<=30?'warning':'highlight'}">(${daysLeft} days)</span></span></div>` : ''}${card.bestSlot ? `<div class="info-row"><span class="info-label">Best slot:</span><span>${esc(card.bestSlot)}</span></div>` : ''}${card.action ? `<div class="info-row"><span class="info-label">Action:</span><span>${esc(card.action)}</span></div>` : ''}${card.status ? `<div class="info-row"><span class="info-label">Status:</span><span>${statusPill(card.status)}</span></div>` : ''}`; } if (card.type === 'output') { return `<div class="card-header"><div>${badge}<div class="card-title">${esc(card.title)}</div></div>${menu}</div>${card.input ? `<div class="info-row"><span class="info-label">Input:</span><span>${esc(card.input)}</span></div>` : ''}${card.level ? `<div class="info-row"><span class="info-label">Level:</span><span>${esc(card.level)}</span></div>` : ''}${card.practice ? `<div class="info-row"><span class="info-label">Practice:</span><span>${esc(card.practice)} min</span></div>` : ''}`; } if (card.type === 'waiting') { const cd = card.checkDate ? new Date(card.checkDate) : null; return `<div class="card-header"><div>${badge}<div class="card-title">${esc(card.title)}</div></div>${menu}</div>${card.waitStatus ? `<div class="info-row"><span class="info-label">Status:</span><span>${esc(card.waitStatus)}</span></div>` : ''}${cd ? `<div class="info-row"><span class="info-label">Check:</span><span>${cd.toLocaleDateString('en-GB')}</span></div>` : ''}`; } return `<div class="card-header"><div>${badge}<div class="card-title">${esc(card.title)}</div></div>${menu}</div>${card.desc ? `<div class="card-desc">${esc(card.desc)}</div>` : ''}${card.note ? `<div class="card-note">${esc(card.note)}</div>` : ''}`; }
-    function statusPill(s) { const map = {'in-progress':['In Progress','var(--focus)','var(--focus-bg)'], done:['Done','var(--habit)','var(--habit-bg)'], pending:['Pending','var(--text-3)','var(--surface-2)'], blocked:['Blocked','var(--danger)','#fee2e2']}; const [label,color,bg] = map[s] || [s,'var(--text-3)','var(--surface-2)']; return `<span class="status-pill" style="color:${color};background:${bg}">${label}</span>`; }
-    function toggleCheckItem(cardId,itemId,checked){ const card=cards.find(c=>c.id===cardId); const item=card?.items?.find(i=>i.id===itemId); if(item){ item.done=checked; save(); renderBoard(); renderStats(); }}
+// ── Field types (Notion-style) ──
+const FT={
+  text:    {label:'Text',     sym:'T'},
+  number:  {label:'Number',   sym:'#'},
+  date:    {label:'Date',     sym:'D'},
+  select:  {label:'Select',   sym:'S'},
+  multi:   {label:'Multi',    sym:'M'},
+  check:   {label:'Checkbox', sym:'&#9744;'},
+  url:     {label:'URL',      sym:'&#8599;'},
+  email:   {label:'Email',    sym:'@'},
+  phone:   {label:'Phone',    sym:'&#9742;'},
+  person:  {label:'Person',   sym:'&#9786;'},
+  rating:  {label:'Rating',   sym:'&#9733;'},
+  progress:{label:'Progress', sym:'%'},
+  formula: {label:'Formula',  sym:'f'},
+  file:    {label:'File',     sym:'&#128206;'},
+  longtext:{label:'Long text',sym:'&#182;'},
+};
+const FT_GROUPS=[
+  {sec:'Basic',   keys:['text','number','date','check']},
+  {sec:'Select',  keys:['select','multi']},
+  {sec:'Contact', keys:['url','email','phone','person']},
+  {sec:'Visual',  keys:['rating','progress']},
+  {sec:'Other',   keys:['formula','file','longtext']},
+];
 
-    function openAddCard(){ editingId=null; addChecklist=[{id:uid(), text:'', done:false}]; selectedType='habit'; document.getElementById('add-modal-title').textContent='Add New Card'; document.getElementById('save-btn-text').textContent='Create Card'; document.getElementById('card-title-input').value=''; document.getElementById('card-desc-input').value=''; renderTypeButtons(); selectType('habit'); openModal('add-modal'); setTimeout(()=>document.getElementById('card-title-input').focus(),200); }
-    function openEditCard(id){ const card=cards.find(c=>c.id===id); if(!card)return; editingId=id; selectedType=card.type; addChecklist=(card.items||[]).map(i=>({...i})); if(!addChecklist.length)addChecklist=[{id:uid(), text:'', done:false}]; document.getElementById('add-modal-title').textContent='Edit Card'; document.getElementById('save-btn-text').textContent='Save Changes'; document.getElementById('card-title-input').value=card.title||''; document.getElementById('card-desc-input').value=card.desc||''; renderTypeButtons(); selectType(card.type, card); openModal('add-modal'); }
-    function selectType(type, card){ selectedType=type; document.querySelectorAll('.type-btn').forEach(b=>b.classList.toggle('selected', b.dataset.type===type)); renderDynamicFields(card); }
-    function renderDynamicFields(card){ const el=document.getElementById('dynamic-fields'); let html=''; if(selectedType==='habit'){ html=`<div class="form-group"><label class="form-label">Activities</label><div class="checklist-editor" id="cl-editor">${addChecklist.map((it,i)=>`<div class="checklist-row"><input type="text" placeholder="Activity..." value="${esc(it.text)}" oninput="updateClItem(${i},this.value)" onkeydown="clKeydown(event,${i})"><button class="del-btn" onclick="removeClItem(${i})" type="button">×</button></div>`).join('')}</div><button class="add-item-btn" onclick="addClItem()" type="button">＋ Add activity</button></div><div class="form-group"><label class="form-label">Note</label><textarea class="form-input" id="card-note-input" rows="2">${esc(card?.note||'')}</textarea></div>`; } else if(selectedType==='focus'){ html=`<div class="form-group"><label class="form-label">D-Day</label><input class="form-input" id="f-dday" type="date" value="${card?.dday||''}"></div><div class="form-group"><label class="form-label">Best Time Slot</label><input class="form-input" id="f-slot" value="${esc(card?.bestSlot||'')}"></div><div class="form-group"><label class="form-label">Action</label><input class="form-input" id="f-action" value="${esc(card?.action||'')}"></div><div class="form-group"><label class="form-label">Progress (%)</label><input class="form-input" id="f-progress" type="number" min="0" max="100" value="${card?.progress||0}"></div><div class="form-group"><label class="form-label">Status</label><select class="form-input" id="f-status"><option value="in-progress">In Progress</option><option value="pending">Pending</option><option value="done">Done</option><option value="blocked">Blocked</option></select></div>`; } else if(selectedType==='output'){ html=`<div class="form-group"><label class="form-label">Input Source</label><input class="form-input" id="o-input" value="${esc(card?.input||'')}"></div><div class="form-group"><label class="form-label">Level</label><input class="form-input" id="o-level" value="${esc(card?.level||'')}"></div><div class="form-group"><label class="form-label">Practice Duration</label><input class="form-input" id="o-practice" value="${esc(card?.practice||'')}"></div>`; } else if(selectedType==='waiting'){ html=`<div class="form-group"><label class="form-label">Wait Status</label><input class="form-input" id="w-status" value="${esc(card?.waitStatus||'')}"></div><div class="form-group"><label class="form-label">Check Date</label><input class="form-input" id="w-date" type="date" value="${card?.checkDate||''}"></div>`; } else { html=`<div class="form-group"><label class="form-label">Note</label><textarea class="form-input" id="card-note-input" rows="3">${esc(card?.note||'')}</textarea></div>`; } el.innerHTML=html; if(card?.status && document.getElementById('f-status')) document.getElementById('f-status').value=card.status; }
-    function updateClItem(i,val){ addChecklist[i].text=val; }
-    function clKeydown(e,i){ if(e.key==='Enter'){ e.preventDefault(); addClItem(i); }}
-    function addClItem(afterIdx){ const item={id:uid(), text:'', done:false}; if(afterIdx!==undefined)addChecklist.splice(afterIdx+1,0,item); else addChecklist.push(item); renderDynamicFields(); }
-    function removeClItem(i){ if(addChecklist.length>1){ addChecklist.splice(i,1); renderDynamicFields(); }}
-    function saveCard(){ const title=document.getElementById('card-title-input').value.trim(); if(!title){ showToast('Please enter a card title'); return; } document.querySelectorAll('#cl-editor input[type=text]').forEach((inp,i)=>{ if(addChecklist[i]) addChecklist[i].text=inp.value; }); const desc=document.getElementById('card-desc-input').value.trim(); let data={title,desc,type:selectedType}; if(selectedType==='habit'){data.items=addChecklist.filter(i=>i.text.trim());data.note=document.getElementById('card-note-input')?.value.trim()||'';} else if(selectedType==='focus'){data.dday=document.getElementById('f-dday')?.value||'';data.bestSlot=document.getElementById('f-slot')?.value.trim()||'';data.action=document.getElementById('f-action')?.value.trim()||'';data.progress=parseInt(document.getElementById('f-progress')?.value)||0;data.status=document.getElementById('f-status')?.value||'in-progress';} else if(selectedType==='output'){data.input=document.getElementById('o-input')?.value.trim()||'';data.level=document.getElementById('o-level')?.value.trim()||'';data.practice=document.getElementById('o-practice')?.value.trim()||'';} else if(selectedType==='waiting'){data.waitStatus=document.getElementById('w-status')?.value.trim()||'';data.checkDate=document.getElementById('w-date')?.value||'';} else {data.note=document.getElementById('card-note-input')?.value.trim()||'';} if(editingId){ const idx=cards.findIndex(c=>c.id===editingId); if(idx!==-1) cards[idx]={...cards[idx],...data}; showToast('Card updated'); } else { cards.push({id:uid(),linkedTo:[],...data}); showToast('Card created'); } save(); renderBoard(); renderStats(); renderCalendar(); closeModal('add-modal'); }
+const TYPES={habit:{label:'Habit'},focus:{label:'Focus'},output:{label:'Output'},project:{label:'Project'},waiting:{label:'Waiting'},note:{label:'Note'},custom:{label:'Custom'}};
 
-    function openDetail(id){ const card=cards.find(c=>c.id===id); if(!card)return; const cfg=TYPE_CONFIG[card.type]||TYPE_CONFIG.custom; document.getElementById('detail-type-badge').innerHTML=badgeHTML(card,cfg); document.getElementById('detail-title').textContent=card.title; document.getElementById('detail-desc').textContent=card.desc||''; let body=''; if(card.type==='habit'){ const done=(card.items||[]).filter(i=>i.done).length,total=(card.items||[]).length; body += `<div class="form-label">Activities (${done}/${total})</div><div class="checklist">${(card.items||[]).map(it=>`<label class="checklist-item${it.done?' done':''}"><input type="checkbox" data-cid="${card.id}" data-iid="${it.id}" ${it.done?'checked':''}><span>${esc(it.text)}</span></label>`).join('')}</div>${card.note?`<div class="card-note">${esc(card.note)}</div>`:''}`;} else body += buildCardHTML(card,cfg).replace(/<button class="card-menu-btn">···<\/button>/g,''); body += `<div class="action-row"><button class="action-btn" onclick="duplicateCard('${card.id}')">Duplicate</button><button class="action-btn danger" onclick="deleteCard('${card.id}')">Delete</button></div>`; document.getElementById('detail-body').innerHTML=body; document.querySelectorAll('#detail-body .checklist-item input').forEach(cb=>cb.addEventListener('change',()=>{toggleCheckItem(cb.dataset.cid, cb.dataset.iid, cb.checked); openDetail(id);})); document.getElementById('detail-modal').dataset.cardId=id; openModal('detail-modal'); }
-    function editCurrentCard(){ const id=document.getElementById('detail-modal').dataset.cardId; closeModal('detail-modal'); setTimeout(()=>openEditCard(id),180); }
-    function deleteCard(id){ if(!confirm('Delete this card?'))return; cards=cards.filter(c=>c.id!==id); cards.forEach(c=>c.linkedTo=(c.linkedTo||[]).filter(l=>l!==id)); save(); renderBoard(); renderStats(); closeModal('detail-modal'); showToast('Card deleted'); }
-    function duplicateCard(id){ const card=cards.find(c=>c.id===id); if(!card)return; const dup={...JSON.parse(JSON.stringify(card)), id:uid(), title:card.title+' (copy)', linkedTo:[]}; const idx=cards.findIndex(c=>c.id===id); cards.splice(idx+1,0,dup); save(); renderBoard(); renderStats(); closeModal('detail-modal'); showToast('Card duplicated'); }
-    function showCtxMenu(e,id){ ctxCardId=id; const m=document.getElementById('ctx-menu'); m.classList.add('open'); let x=e.clientX,y=e.clientY; if(x+170>innerWidth)x=innerWidth-175; if(y+130>innerHeight-80)y=y-130; m.style.left=x+'px'; m.style.top=y+'px'; }
-    function closeCtxMenu(){document.getElementById('ctx-menu').classList.remove('open');}
-    function ctxEdit(){closeCtxMenu();openEditCard(ctxCardId);} function ctxDuplicate(){closeCtxMenu();duplicateCard(ctxCardId);} function ctxDelete(){closeCtxMenu();deleteCard(ctxCardId);} document.addEventListener('click',e=>{if(!e.target.closest('#ctx-menu')&&!e.target.closest('.card-menu-btn'))closeCtxMenu();});
-    function toggleReorder(){ reorderMode=!reorderMode; document.getElementById('reorder-btn').classList.toggle('btn-primary', reorderMode); renderBoard(); }
-    function dropCard(targetIdx){ if(dragSrcIdx===null||dragSrcIdx===targetIdx)return; const moved=cards.splice(dragSrcIdx,1)[0]; cards.splice(targetIdx,0,moved); dragSrcIdx=null; save(); renderBoard(); }
-    function openModal(id){document.getElementById(id).classList.add('open');} function closeModal(id){document.getElementById(id).classList.remove('open');} function closeModalOutside(e,id){ if(e.target===document.getElementById(id))closeModal(id); }
-    function toggleSearch(){ showSearch=!showSearch; if(!showSearch) searchQuery=''; renderBoard(); setTimeout(()=>document.getElementById('search-input')?.focus(),50); } function updateSearch(v){ searchQuery=v; renderBoard(); }
-    function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2200); }
-    function switchView(name, btn){ currentView=name; ['board','stats','calendar','settings'].forEach(v=>document.getElementById(`view-${v}`).classList.toggle('hidden',v!==name)); document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active')); (btn||document.getElementById(`nav-${name}`))?.classList.add('active'); document.getElementById('toolbar').style.display=name==='board'?'flex':'none'; if(name==='stats')renderStats(); if(name==='calendar')renderCalendar(); }
-    function renderStats(){ const grid=document.getElementById('stats-grid'), bd=document.getElementById('stats-breakdown'); if(!grid)return; const total=cards.length; const habit=cards.filter(c=>c.type==='habit'); const totalItems=habit.reduce((a,c)=>a+(c.items||[]).length,0); const doneItems=habit.reduce((a,c)=>a+(c.items||[]).filter(i=>i.done).length,0); grid.innerHTML=`<div class="stat-card"><div class="stat-number">${total}</div><div class="stat-label">Total Cards</div></div><div class="stat-card"><div class="stat-number" style="color:var(--habit)">${doneItems}/${totalItems}</div><div class="stat-label">Activities Done</div></div><div class="stat-card"><div class="stat-number" style="color:var(--focus)">${cards.filter(c=>c.status==='in-progress').length}</div><div class="stat-label">In Progress</div></div><div class="stat-card"><div class="stat-number" style="color:var(--waiting)">${cards.filter(c=>c.type==='waiting').length}</div><div class="stat-label">Waiting</div></div>`; const byType={}; cards.forEach(c=>byType[c.type]=(byType[c.type]||0)+1); bd.innerHTML='<div class="form-label">By Type</div>'+Object.keys(byType).map(t=>{const cfg=TYPE_CONFIG[t]||TYPE_CONFIG.custom; const pct=total?Math.round(byType[t]/total*100):0; return `<div style="margin:12px 0"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><span>${cfg.icon} ${cfg.label}</span><span style="color:var(--text-3)">${byType[t]}</span></div><div style="height:6px;border-radius:3px;background:var(--border)"><div style="height:100%;border-radius:3px;background:${cfg.color};width:${pct}%"></div></div></div>`;}).join(''); }
-    function renderCalendar(){ const now=new Date(); if(calYear===undefined){calYear=now.getFullYear();calMonth=now.getMonth();} document.getElementById('cal-title').textContent=new Date(calYear,calMonth).toLocaleDateString('en-US',{month:'long',year:'numeric'}); const grid=document.getElementById('cal-grid'); const days=['Su','Mo','Tu','We','Th','Fr','Sa']; let html=days.map(d=>`<div class="cal-day-header">${d}</div>`).join(''); const first=new Date(calYear,calMonth,1).getDay(); const last=new Date(calYear,calMonth+1,0).getDate(); const eventDates=new Set(); cards.forEach(c=>{[c.dday,c.checkDate].forEach(raw=>{if(raw){const d=new Date(raw);if(d.getMonth()===calMonth&&d.getFullYear()===calYear)eventDates.add(d.getDate());}})}); for(let i=0;i<first;i++)html+='<div></div>'; for(let d=1;d<=last;d++){const isToday=d===now.getDate()&&calMonth===now.getMonth()&&calYear===now.getFullYear();html+=`<div class="cal-day${isToday?' today':''}${eventDates.has(d)?' has-event':''}">${d}</div>`;} grid.innerHTML=html; document.getElementById('cal-events').innerHTML='<div style="text-align:center;color:var(--text-3);font-size:13px;padding:20px">Dots mark D-Day or check dates.</div>'; }
-    function prevMonth(){calMonth--; if(calMonth<0){calMonth=11;calYear--;} renderCalendar();} function nextMonth(){calMonth++; if(calMonth>11){calMonth=0;calYear++;} renderCalendar();}
-    function updateBoardName(v){boardName=v||'My Workflow Board'; document.getElementById('board-name-display').textContent=boardName; localStorage.setItem('trille-board',boardName);} function exportBoard(){const blob=new Blob([JSON.stringify({boardName,cards,exported:new Date().toISOString()},null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='trille-board.json';a.click();URL.revokeObjectURL(url);showToast('Board exported');} function importBoard(){document.getElementById('import-input').click();} function handleImport(e){const f=e.target.files[0]; if(!f)return; const reader=new FileReader(); reader.onload=ev=>{try{const data=JSON.parse(ev.target.result); if(data.cards){cards=data.cards; if(data.boardName)updateBoardName(data.boardName); save(); renderBoard(); renderStats(); showToast('Board imported');}}catch{showToast('Invalid file');}}; reader.readAsText(f); e.target.value='';} function clearBoard(){if(!confirm('Clear all cards?'))return; cards=[]; save(); renderBoard(); renderStats(); showToast('Board cleared');}
-    init();
-  </script>
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,5);}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function defVal(t){const m={check:false,multi:[],rating:0,progress:0,number:0};return m[t]!==undefined?m[t]:'';}
+
+// ── Init ──
+function init(){
+  const tc=localStorage.getItem('t-cards'),tb=localStorage.getItem('t-board'),th=localStorage.getItem('t-theme');
+  if(tc)cards=JSON.parse(tc);
+  if(tb)bn=tb;
+  if(!cards.length)loadDefaults();
+  if(th==='dark')setDark(true);
+  document.getElementById('bn-in').value=bn;
+  renderTypeGrid();
+  switchView('board');
+}
+function save(){localStorage.setItem('t-cards',JSON.stringify(cards));localStorage.setItem('t-board',bn);}
+
+function loadDefaults(){
+  cards=[
+    {id:uid(),type:'habit',title:'Daily Routine',desc:'Low-load daily habits',
+     items:[{id:uid(),text:'Yoga 10 min',done:true},{id:uid(),text:'Light diet',done:true},{id:uid(),text:'English input',done:false},{id:uid(),text:'1 online lecture',done:false},{id:uid(),text:'Savings transfer',done:false}],
+     note:'Feeling more refreshed today.',nf:[]},
+    {id:uid(),type:'focus',title:'ก.พ. Phase ก',desc:'',nf:[
+      {id:uid(),key:'D-Day',type:'date',value:'2026-07-05'},
+      {id:uid(),key:'Best slot',type:'text',value:'08:00 – 10:00'},
+      {id:uid(),key:'Action',type:'text',value:'Review old questions'},
+      {id:uid(),key:'Status',type:'select',value:'In Progress'},
+      {id:uid(),key:'Progress',type:'progress',value:60},
+    ]},
+    {id:uid(),type:'waiting',title:'Google Data Analytics',desc:'',nf:[
+      {id:uid(),key:'Wait status',type:'text',value:'Awaiting Financial Aid'},
+      {id:uid(),key:'Check date',type:'date',value:'2026-05-16'},
+      {id:uid(),key:'Priority',type:'rating',value:4},
+    ]},
+    {id:uid(),type:'custom',title:'Custom Card — All Field Types',desc:'Every field type demonstrated',nf:[
+      {id:uid(),key:'Website',type:'url',value:'https://notion.so'},
+      {id:uid(),key:'Owner',type:'person',value:'Ploy'},
+      {id:uid(),key:'Tags',type:'multi',value:['design','research','2026']},
+      {id:uid(),key:'Done',type:'check',value:false},
+      {id:uid(),key:'Budget',type:'number',value:5000},
+      {id:uid(),key:'Score',type:'rating',value:3},
+      {id:uid(),key:'Completion',type:'progress',value:42},
+      {id:uid(),key:'Email',type:'email',value:'hello@example.com'},
+    ],note:''},
+  ];
+  save();
+}
+
+// ── Theme ──
+function setDark(v){dark=v;v?document.documentElement.setAttribute('data-dark',''):document.documentElement.removeAttribute('data-dark');document.getElementById('theme-btn').innerHTML=v?'&#9675;':'&#9670;';document.getElementById('dark-tog')?.classList.toggle('on',v);localStorage.setItem('t-theme',v?'dark':'light');}
+function toggleTheme(){setDark(!dark);}
+
+// ── Views ──
+function switchView(v,btn){curView=v;['board','stats','calendar','settings'].forEach(n=>document.getElementById('view-'+n)?.classList.toggle('hidden',n!==v));document.querySelectorAll('.nbtn').forEach(b=>b.classList.remove('active'));(btn||document.getElementById('nav-'+v))?.classList.add('active');document.getElementById('toolbar').style.display=v==='board'?'flex':'none';document.getElementById('srch-wrap').style.display=v==='board'&&showSrch?'block':'none';if(v==='stats')renderStats();if(v==='calendar')renderCal();if(v==='board')renderBoard();}
+
+// ── Search ──
+function toggleSearch(){showSrch=!showSrch;document.getElementById('srch-wrap').style.display=showSrch?'block':'none';if(!showSrch){sq='';renderBoard();}else setTimeout(()=>document.getElementById('srch-in').focus(),50);}
+function onSearch(v){sq=v;renderBoard();}
+
+// ── Board ──
+function renderBoard(){
+  const b=document.getElementById('board');b.innerHTML='';
+  const list=sq?cards.filter(c=>(c.title+' '+(c.desc||'')).toLowerCase().includes(sq.toLowerCase())):cards;
+  if(!list.length){b.innerHTML='<div class="empty"><h3>Nothing here.</h3><p>Tap + Add to start.</p></div>';return;}
+  list.forEach((card,idx)=>b.appendChild(buildCard(card,idx)));
+  document.getElementById('card-count').textContent=cards.length+' card'+(cards.length!==1?'s':'');
+}
+
+function buildCard(card,idx){
+  const el=document.createElement('div');el.className='card';el.dataset.id=card.id;
+  el.innerHTML=cardHTML(card);
+  el.addEventListener('click',e=>{if(e.target.closest('.mbtn')||e.target.closest('.ci'))return;openDetail(card.id);});
+  el.querySelector('.mbtn')?.addEventListener('click',e=>{e.stopPropagation();showCtx(e,card.id);});
+  el.querySelectorAll('.ci input').forEach(cb=>cb.addEventListener('change',e=>{e.stopPropagation();toggleCheck(card.id,cb.dataset.iid,cb.checked);}));
+  if(reorder){el.draggable=true;el.addEventListener('dragstart',()=>{dragIdx=idx;el.classList.add('dragging');});el.addEventListener('dragend',()=>el.classList.remove('dragging'));el.addEventListener('dragover',e=>{e.preventDefault();el.classList.add('drag-over');});el.addEventListener('dragleave',()=>el.classList.remove('drag-over'));el.addEventListener('drop',e=>{e.preventDefault();el.classList.remove('drag-over');dropCard(idx);});}
+  return el;
+}
+
+function cardHTML(card){
+  const typeLabel=(TYPES[card.type]||TYPES.custom).label;
+  const menu='<button class="mbtn">&#8943;</button>';
+  const hdr='<div class="card-top"><div class="card-left"><div class="type-tag">'+typeLabel+'</div><div class="card-title">'+esc(card.title)+'</div>'+(card.desc?'<div class="card-desc">'+esc(card.desc)+'</div>':'')+'</div>'+menu+'</div>';
+  let body='';
+  if(card.type==='habit'&&(card.items||[]).length){
+    const done=(card.items||[]).filter(i=>i.done).length,tot=(card.items||[]).length;
+    body+='<div class="cl">'+(card.items||[]).map(it=>'<label class="ci'+(it.done?' done':'')+'"><input type="checkbox" data-iid="'+it.id+'" '+(it.done?'checked':'')+'><span>'+esc(it.text)+'</span></label>').join('')+'</div><div class="cl-prog">'+done+' / '+tot+'</div>';
+  }
+  const nf=card.nf||[];
+  if(nf.length)body+='<div class="flds">'+nf.map(f=>fDisplayHTML(f)).join('')+'</div>';
+  if(card.note)body+='<div class="card-note">'+esc(card.note).replace(/\n/g,'<br>')+'</div>';
+  return hdr+body;
+}
+
+function fDisplayHTML(f){
+  let v='';const val=f.value;
+  switch(f.type){
+    case 'text':case 'formula':case 'person': v=esc(val||'—');break;
+    case 'number': v=val!==''&&val!==undefined?String(val):'—';break;
+    case 'date': if(val){const d=new Date(val);const left=Math.ceil((d-new Date())/86400000);v=d.toLocaleDateString('en-GB')+(left>=0&&left<=30?' <span class="fv warn">('+left+'d)</span>':'');}else v='—';break;
+    case 'select': v=val?'<span class="pill">'+esc(val)+'</span>':'—';break;
+    case 'multi': v=(Array.isArray(val)?val:[]).map(t=>'<span class="tag-chip">'+esc(t)+'</span>').join('')||'—';break;
+    case 'check': v=val?'&#9745; Yes':'&#9744; No';break;
+    case 'url': v=val?'<a href="'+esc(val)+'" target="_blank" rel="noopener">'+esc(val.replace(/^https?:\/\//,'').slice(0,40))+'</a>':'—';break;
+    case 'email': v=val?'<a href="mailto:'+esc(val)+'">'+esc(val)+'</a>':'—';break;
+    case 'phone': v=val?'<a href="tel:'+esc(val)+'">'+esc(val)+'</a>':'—';break;
+    case 'rating': {const n=parseInt(val)||0;v='<span class="stars">'+'&#9733;'.repeat(n)+'<span style="color:var(--line)">'+'&#9733;'.repeat(5-n)+'</span></span>';break;}
+    case 'progress': {const p=parseInt(val)||0;v='<span class="prog-bar"><span class="prog-fill" style="width:'+p+'%;display:block"></span></span>'+p+'%';break;}
+    case 'file': v=val?'<span style="text-decoration:underline;text-underline-offset:2px">'+esc(val)+'</span>':'—';break;
+    case 'longtext': v='<span style="white-space:pre-wrap">'+esc(val||'')+'</span>';break;
+    default: v=esc(val||'—');
+  }
+  return '<div class="frow"><span class="fk">'+esc(f.key||'—')+'</span><span class="fv">'+v+'</span></div>';
+}
+
+function toggleCheck(cid,iid,v){const c=cards.find(x=>x.id===cid);const it=c?.items?.find(x=>x.id===iid);if(it){it.done=v;save();renderBoard();renderStats();}}
+
+// ── Type grid ──
+function renderTypeGrid(){document.getElementById('type-grid').innerHTML=Object.keys(TYPES).map(t=>'<button class="tbtn" data-t="'+t+'" onclick="selectType(\''+t+'\')">'+TYPES[t].label+'</button>').join('');}
+function selectType(t,card){selType=t;document.querySelectorAll('.tbtn').forEach(b=>b.classList.toggle('sel',b.dataset.t===t));renderDyn(card);}
+
+// ── Dynamic fields ──
+function renderDyn(card){
+  let h='';
+  if(selType==='habit'){
+    h+='<div class="fg"><label class="fl">Activities</label><div class="cled" id="cl-editor">'+clItems.map((it,i)=>'<div class="clrow"><input type="text" placeholder="Activity..." value="'+esc(it.text)+'" oninput="clItems['+i+'].text=this.value" onkeydown="clKey(event,'+i+')"><button class="delbtn" onclick="clDel('+i+')">&#215;</button></div>').join('')+'</div><button class="addbtn" onclick="clAdd()">+ Add activity</button></div>';
+  }
+  h+='<div class="fg"><label class="fl">Note</label><textarea class="fi" id="f-note" rows="2" placeholder="Notes...">'+(card?.note||'')+'</textarea></div>';
+  h+='<div class="fg"><label class="fl">Fields</label><div class="nf-editor" id="nf-editor">'+nfFields.map((f,i)=>nfRowHTML(f,i)).join('')+'</div><button class="addbtn" onclick="nfAdd()">+ Add field</button></div>';
+  document.getElementById('dyn-fields').innerHTML=h;
+}
+
+// ── NF row HTML ──
+function nfRowHTML(f,i){
+  const sym=FT[f.type]?FT[f.type].sym:'T';
+  return '<div class="nf-row" id="nfrow-'+f.id+'"><button class="nf-type-btn" onclick="openPicker(\''+f.id+'\','+i+')" title="'+(FT[f.type]?.label||'Text')+'">'+sym+'</button><input class="nf-key" type="text" placeholder="Name" value="'+esc(f.key)+'" oninput="nfFields['+i+'].key=this.value"><div class="nf-val-wrap">'+nfValHTML(f,i)+'</div><button class="delbtn" onclick="nfDel('+i+')">&#215;</button></div>';
+}
+
+function nfValHTML(f,i){
+  const v=f.value;const id=f.id;
+  switch(f.type){
+    case 'text': return '<input class="nf-in" type="text" placeholder="Value..." value="'+esc(v||'')+'" oninput="nfFields['+i+'].value=this.value">';
+    case 'number': return '<input class="nf-in" type="number" placeholder="0" value="'+(v!==undefined?v:'')+'" oninput="nfFields['+i+'].value=parseFloat(this.value)||0">';
+    case 'date': return '<input class="nf-in" type="date" value="'+(v||'')+'" style="color:var(--ink)" oninput="nfFields['+i+'].value=this.value">';
+    case 'select': {
+      const opts=['To Do','In Progress','Done','Blocked','On Hold','Not Started','Cancelled'];
+      return '<select class="nf-in" onchange="nfFields['+i+'].value=this.value"><option value="">— select —</option>'+opts.map(o=>'<option value="'+o+'"'+(v===o?' selected':'')+'>'+o+'</option>').join('')+(v&&!opts.includes(v)?'<option value="'+esc(v)+'" selected>'+esc(v)+'</option>':'')+'</select>';
+    }
+    case 'multi': return nfMultiHTML(f,i);
+    case 'check': return '<div class="nf-check-wrap"><input type="checkbox" '+(v?'checked':'')+' onchange="nfFields['+i+'].value=this.checked;this.nextElementSibling.textContent=this.checked?\'Yes\':\'No\'"><span class="nf-check-label">'+(v?'Yes':'No')+'</span></div>';
+    case 'url': return '<input class="nf-in" type="url" placeholder="https://..." value="'+esc(v||'')+'" oninput="nfFields['+i+'].value=this.value">';
+    case 'email': return '<input class="nf-in" type="email" placeholder="email@..." value="'+esc(v||'')+'" oninput="nfFields['+i+'].value=this.value">';
+    case 'phone': return '<input class="nf-in" type="tel" placeholder="+66..." value="'+esc(v||'')+'" oninput="nfFields['+i+'].value=this.value">';
+    case 'person': return '<input class="nf-in" type="text" placeholder="Name..." value="'+esc(v||'')+'" oninput="nfFields['+i+'].value=this.value">';
+    case 'rating': return nfRatingHTML(f,i);
+    case 'progress': return '<div class="nf-prog-wrap"><input type="range" min="0" max="100" value="'+(parseInt(v)||0)+'" oninput="nfFields['+i+'].value=parseInt(this.value);this.nextElementSibling.textContent=this.value+\'%\'"><span class="nf-prog-n">'+(parseInt(v)||0)+'%</span></div>';
+    case 'formula': return '<input class="nf-in" type="text" placeholder="e.g. prop(\'A\') * 2" value="'+esc(v||'')+'" style="font-style:italic;color:var(--ink3)" oninput="nfFields['+i+'].value=this.value">';
+    case 'file': return '<div class="nf-file-wrap"><span class="nf-file-name">'+(v?esc(v):'No file')+'</span><label class="nf-file-lbl">Upload<input type="file" style="display:none" onchange="nfFields['+i+'].value=this.files[0]?.name||\'\'"></label></div>';
+    case 'longtext': return '<textarea class="nf-in" rows="3" placeholder="Long text..." oninput="nfFields['+i+'].value=this.value" style="resize:vertical">'+esc(v||'')+'</textarea>';
+    default: return '<input class="nf-in" type="text" placeholder="Value..." value="'+esc(v||'')+'" oninput="nfFields['+i+'].value=this.value">';
+  }
+}
+
+function nfMultiHTML(f,i){
+  const tags=Array.isArray(f.value)?f.value:[];
+  return '<div class="nf-multi" id="nfm-'+f.id+'">'+tags.map((t,ti)=>'<span class="nf-tag">'+esc(t)+'<button class="nf-tag-del" onclick="tagDel(\''+f.id+'\','+i+','+ti+')">&#215;</button></span>').join('')+'<input class="nf-multi-in" id="nfmin-'+f.id+'" placeholder="'+(tags.length?'':'Add, press Enter')+'" onkeydown="tagKey(event,\''+f.id+'\','+i+')"></div>';
+}
+
+function nfRatingHTML(f,i){
+  const n=parseInt(f.value)||0;
+  return '<div class="nf-rating">'+[1,2,3,4,5].map(s=>'<span class="nf-star'+(s<=n?' on':'')+'" data-s="'+s+'" onclick="setRating('+i+','+s+',\''+f.id+'\')">&#9733;</span>').join('')+'</div>';
+}
+
+function setRating(idx,val,fid){
+  nfFields[idx].value=val;
+  document.querySelectorAll('#nfrow-'+fid+' .nf-star').forEach(s=>s.classList.toggle('on',parseInt(s.dataset.s)<=val));
+}
+
+function tagKey(e,fid,idx){
+  if(e.key==='Enter'||e.key===','||e.key==='Tab'){
+    e.preventDefault();const v=e.target.value.trim();
+    if(v){if(!Array.isArray(nfFields[idx].value))nfFields[idx].value=[];nfFields[idx].value.push(v);e.target.value='';
+    const wrap=document.getElementById('nfm-'+fid);if(wrap)wrap.outerHTML=nfMultiHTML(nfFields[idx],idx);}
+  }
+}
+function tagDel(fid,idx,ti){
+  if(!Array.isArray(nfFields[idx].value))return;
+  nfFields[idx].value.splice(ti,1);
+  const wrap=document.getElementById('nfm-'+fid);if(wrap)wrap.outerHTML=nfMultiHTML(nfFields[idx],idx);
+}
+
+function nfAdd(){
+  const f={id:uid(),key:'',type:'text',value:''};nfFields.push(f);
+  const ed=document.getElementById('nf-editor');
+  if(ed){const tmp=document.createElement('div');tmp.innerHTML=nfRowHTML(f,nfFields.length-1);ed.appendChild(tmp.firstElementChild);ed.lastElementChild.querySelector('.nf-key')?.focus();}
+}
+function nfDel(i){nfFields.splice(i,1);renderDyn();}
+
+// ── Field type picker ──
+function openPicker(fid,idx){
+  if(activePicker===fid){closePicker();return;}
+  activePicker=fid;
+  const popup=document.getElementById('ft-popup');
+  popup.innerHTML=FT_GROUPS.map(g=>'<div class="ftp-sec">'+g.sec+'</div>'+g.keys.map(k=>'<div class="ftp-item" onclick="setFType(\''+fid+'\','+idx+',\''+k+'\')"><span class="ftp-icon">'+FT[k].sym+'</span>'+FT[k].label+'</div>').join('')).join('');
+  const btn=document.querySelector('#nfrow-'+fid+' .nf-type-btn');
+  if(!btn)return;
+  const r=btn.getBoundingClientRect();
+  popup.style.left=Math.min(r.left,innerWidth-210)+'px';
+  popup.style.top=Math.min(r.bottom+4,innerHeight-310)+'px';
+  popup.classList.add('open');
+}
+function closePicker(){activePicker=null;document.getElementById('ft-popup').classList.remove('open');}
+function setFType(fid,idx,type){
+  nfFields[idx].type=type;nfFields[idx].value=defVal(type);closePicker();
+  const row=document.getElementById('nfrow-'+fid);
+  if(row){const sym=FT[type]?.sym||'T';row.querySelector('.nf-type-btn').innerHTML=sym;row.querySelector('.nf-type-btn').title=FT[type]?.label||type;const vw=row.querySelector('.nf-val-wrap');if(vw)vw.innerHTML=nfValHTML(nfFields[idx],idx);}
+}
+
+document.addEventListener('click',e=>{
+  if(activePicker&&!e.target.closest('.nf-type-btn')&&!e.target.closest('#ft-popup'))closePicker();
+  if(!e.target.closest('#ctx')&&!e.target.closest('.mbtn'))closeCtx();
+});
+
+// ── Checklist ──
+function clKey(e,i){if(e.key==='Enter'){e.preventDefault();clAdd(i);}}
+function clAdd(after){const it={id:uid(),text:'',done:false};if(after!==undefined)clItems.splice(after+1,0,it);else clItems.push(it);renderDyn();setTimeout(()=>{const rows=document.querySelectorAll('.clrow input');const t=rows[after!==undefined?after+1:rows.length-1];if(t)t.focus();},30);}
+function clDel(i){if(clItems.length>1){clItems.splice(i,1);renderDyn();}}
+
+// ── Open / Save ──
+function openAdd(){
+  editId=null;clItems=[{id:uid(),text:'',done:false}];nfFields=[];selType='habit';
+  document.getElementById('modal-add-title').textContent='New Card';
+  document.getElementById('save-lbl').textContent='Create Card';
+  document.getElementById('f-title').value='';document.getElementById('f-desc').value='';
+  renderTypeGrid();selectType('habit');openModal('modal-add');
+  setTimeout(()=>document.getElementById('f-title').focus(),200);
+}
+function openEdit(id){
+  const card=cards.find(c=>c.id===id);if(!card)return;
+  editId=id;selType=card.type;
+  clItems=(card.items||[]).map(i=>({...i}));if(!clItems.length)clItems=[{id:uid(),text:'',done:false}];
+  nfFields=(card.nf||[]).map(f=>({...f,value:Array.isArray(f.value)?[...f.value]:f.value}));
+  document.getElementById('modal-add-title').textContent='Edit Card';
+  document.getElementById('save-lbl').textContent='Save';
+  document.getElementById('f-title').value=card.title||'';document.getElementById('f-desc').value=card.desc||'';
+  renderTypeGrid();selectType(card.type,card);openModal('modal-add');
+}
+function saveCard(){
+  const title=document.getElementById('f-title').value.trim();if(!title){toast('Add a title');return;}
+  document.querySelectorAll('.clrow input[type=text]').forEach((inp,i)=>{if(clItems[i])clItems[i].text=inp.value;});
+  // flush open multi inputs
+  nfFields.forEach((f,i)=>{if(f.type==='multi'){const inp=document.getElementById('nfmin-'+f.id);if(inp&&inp.value.trim()){if(!Array.isArray(f.value))f.value=[];f.value.push(inp.value.trim());}}});
+  const d={title,desc:document.getElementById('f-desc').value.trim(),type:selType,note:document.getElementById('f-note')?.value.trim()||'',nf:nfFields};
+  if(selType==='habit')d.items=clItems.filter(i=>i.text.trim());
+  if(editId){const i=cards.findIndex(c=>c.id===editId);if(i!==-1)cards[i]={...cards[i],...d};toast('Saved');}
+  else{cards.push({id:uid(),...d});toast('Card created');}
+  save();renderBoard();renderStats();closeModal('modal-add');
+}
+
+// ── Detail ──
+function openDetail(id){
+  const card=cards.find(c=>c.id===id);if(!card)return;
+  document.getElementById('modal-detail').dataset.cid=id;
+  document.getElementById('d-tag').textContent=(TYPES[card.type]||TYPES.custom).label;
+  document.getElementById('d-title').textContent=card.title;
+  document.getElementById('d-desc').textContent=card.desc||'';
+  let body='';
+  if(card.type==='habit'&&(card.items||[]).length){
+    const done=(card.items||[]).filter(i=>i.done).length,tot=(card.items||[]).length;
+    body+='<div class="fg"><label class="fl">Activities — '+done+'/'+tot+'</label><div class="cl">'+(card.items||[]).map(it=>'<label class="ci'+(it.done?' done':'')+'"><input type="checkbox" data-cid="'+card.id+'" data-iid="'+it.id+'" '+(it.done?'checked':'')+'><span>'+esc(it.text)+'</span></label>').join('')+'</div></div>';
+  }
+  const nf=card.nf||[];
+  if(nf.length)body+='<div class="flds">'+nf.map(f=>fDisplayHTML(f)).join('')+'</div>';
+  if(card.note)body+='<div class="card-note">'+esc(card.note).replace(/\n/g,'<br>')+'</div>';
+  body+='<div class="act-row"><button class="act-btn" onclick="dupCard(\''+card.id+'\')">Duplicate</button><button class="act-btn danger" onclick="delCard(\''+card.id+'\')">Delete</button></div>';
+  document.getElementById('d-body').innerHTML=body;
+  document.querySelectorAll('#d-body .ci input').forEach(cb=>cb.addEventListener('change',()=>{toggleCheck(cb.dataset.cid,cb.dataset.iid,cb.checked);openDetail(id);}));
+  openModal('modal-detail');
+}
+function editFromDetail(){const id=document.getElementById('modal-detail').dataset.cid;closeModal('modal-detail');setTimeout(()=>openEdit(id),200);}
+function delCard(id){if(!confirm('Delete?'))return;cards=cards.filter(c=>c.id!==id);save();renderBoard();renderStats();closeModal('modal-detail');toast('Deleted');}
+function dupCard(id){const c=cards.find(x=>x.id===id);if(!c)return;const dup={...JSON.parse(JSON.stringify(c)),id:uid(),title:c.title+' (copy)'};const i=cards.findIndex(x=>x.id===id);cards.splice(i+1,0,dup);save();renderBoard();closeModal('modal-detail');toast('Duplicated');}
+
+// ── CTX ──
+function showCtx(e,id){ctxId=id;const m=document.getElementById('ctx');m.classList.add('open');let x=e.clientX,y=e.clientY;if(x+155>innerWidth)x=innerWidth-158;if(y+110>innerHeight-80)y=y-108;m.style.left=x+'px';m.style.top=y+'px';}
+function closeCtx(){document.getElementById('ctx').classList.remove('open');}
+function ctxEdit(){closeCtx();openEdit(ctxId);}
+function ctxDup(){closeCtx();dupCard(ctxId);}
+function ctxDel(){closeCtx();delCard(ctxId);}
+
+// ── Reorder ──
+function toggleReorder(){reorder=!reorder;document.getElementById('reorder-btn').classList.toggle('act',reorder);renderBoard();}
+function dropCard(ti){if(dragIdx===null||dragIdx===ti)return;const m=cards.splice(dragIdx,1)[0];cards.splice(ti,0,m);dragIdx=null;save();renderBoard();}
+
+// ── Modals ──
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function ovClose(e,id){if(e.target===document.getElementById(id))closeModal(id);}
+
+// ── Toast ──
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000);}
+
+// ── Stats ──
+function renderStats(){
+  const wrap=document.getElementById('view-stats');const tot=cards.length;
+  const habits=cards.filter(c=>c.type==='habit');
+  const totI=habits.reduce((a,c)=>a+(c.items||[]).length,0);
+  const doneI=habits.reduce((a,c)=>a+(c.items||[]).filter(i=>i.done).length,0);
+  const byType={};cards.forEach(c=>byType[c.type]=(byType[c.type]||0)+1);
+  wrap.innerHTML='<div class="sg"><div class="sc"><div class="sn">'+tot+'</div><div class="sl">Cards</div></div><div class="sc"><div class="sn">'+doneI+'/'+totI+'</div><div class="sl">Activities</div></div></div><div>'+Object.keys(byType).map(t=>{const p=tot?Math.round(byType[t]/tot*100):0;return '<div class="bar-row"><div class="bar-lbl"><span>'+(TYPES[t]||TYPES.custom).label+'</span><span>'+byType[t]+'</span></div><div class="btrack"><div class="bfill" style="width:'+p+'%"></div></div></div>';}).join('')+'</div>';
+}
+
+// ── Calendar ──
+function renderCal(){
+  const now=new Date();if(calY===undefined){calY=now.getFullYear();calM=now.getMonth();}
+  const wrap=document.getElementById('view-calendar');
+  const first=new Date(calY,calM,1).getDay(),last=new Date(calY,calM+1,0).getDate();
+  const ev=new Set();cards.forEach(c=>(c.nf||[]).forEach(f=>{if(f.type==='date'&&f.value){const d=new Date(f.value);if(d.getMonth()===calM&&d.getFullYear()===calY)ev.add(d.getDate());}}));
+  const days=['Su','Mo','Tu','We','Th','Fr','Sa'];
+  let g=days.map(d=>'<div class="cdh">'+d+'</div>').join('');
+  for(let i=0;i<first;i++)g+='<div></div>';
+  for(let d=1;d<=last;d++){const it=d===now.getDate()&&calM===now.getMonth()&&calY===now.getFullYear();g+='<div class="cd'+(it?' today':'')+(ev.has(d)?' hev':'')+'">'+(d)+'</div>';}
+  wrap.innerHTML='<div class="cal-nav"><button class="btn" onclick="prevM()">&#8249;</button><span class="cal-title">'+new Date(calY,calM).toLocaleDateString('en-US',{month:'long',year:'numeric'})+'</span><button class="btn" onclick="nextM()">&#8250;</button></div><div class="cal-g">'+g+'</div><div style="text-align:center;font-size:12px;color:var(--ink3);margin-top:14px">Dots mark date fields.</div>';
+}
+function prevM(){calM--;if(calM<0){calM=11;calY--;}renderCal();}
+function nextM(){calM++;if(calM>11){calM=0;calY++;}renderCal();}
+
+// ── Settings ──
+function updateBN(v){bn=v||'My Workflow';localStorage.setItem('t-board',bn);}
+function exportData(){const b=new Blob([JSON.stringify({boardName:bn,cards,exported:new Date().toISOString()},null,2)],{type:'application/json'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='trille.json';a.click();URL.revokeObjectURL(u);toast('Exported');}
+function importData(){document.getElementById('import-file').click();}
+function handleImport(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{const d=JSON.parse(ev.target.result);if(d.cards){cards=d.cards;if(d.boardName){bn=d.boardName;document.getElementById('bn-in').value=bn;}save();renderBoard();renderStats();toast('Imported');}}catch{toast('Invalid file');}};r.readAsText(f);e.target.value='';}
+function clearAll(){if(!confirm('Delete all cards?'))return;cards=[];save();renderBoard();renderStats();toast('Cleared');}
+
+init();
+</script>
 </body>
 </html>
