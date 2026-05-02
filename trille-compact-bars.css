@@ -4,9 +4,9 @@
 .hdr-actions{gap:2px;}
 .icon-btn{width:36px;height:36px;border-radius:10px;}
 .icon-btn svg{width:20px;height:20px;stroke-width:1.7;}
-.bnav{padding:3px 0 max(5px,env(safe-area-inset-bottom));}
-.nbtn{font-size:7px;gap:1px;padding:3px;}
-.nbtn svg{width:21px;height:21px;stroke-width:1.55;}
+.bnav{padding:5px 0 max(8px,env(safe-area-inset-bottom));}
+.nbtn{font-size:10px;gap:2px;padding:5px 4px;}
+.nbtn svg{width:29px;height:29px;stroke-width:1.65;}
 .board-back-hdr{padding:1px 0 4px;}
 .board-nav-left span,.boards-back span{font-size:11px;}
 .board-nav-left svg,.boards-back svg{width:18px;height:18px;}
@@ -14,5 +14,5 @@
   .hdr-logo{font-size:19px;}
   .icon-btn{width:35px;height:35px;}
   .icon-btn svg{width:19px;height:19px;}
-  .nbtn svg{width:20px;height:20px;}
+  .nbtn svg{width:28px;height:28px;}
 }
