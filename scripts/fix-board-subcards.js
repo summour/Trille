@@ -119,3 +119,4 @@ js = replaceFunction(js, 'saveCard', saveCard);
 
 fs.writeFileSync(file, js);
 console.log('Fixed Add card inside single board view.');
+// trigger existing workflow
