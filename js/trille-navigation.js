@@ -118,7 +118,21 @@ function openBoard(cid){
   updateReorderButtons?.();
 }
 
+function scrollToLinkedCard(id){
+  const el=document.querySelector(`[data-subcard-id="${id}"]`);
+  if(el)el.scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+function linkedCardsHTML(board,sub){
+  const ids=Array.isArray(sub.linkedCardIds)?sub.linkedCardIds:[];
+  if(!board||!ids.length)return '';
+  const linked=ids.map(id=>(board.subcards||[]).find(card=>card.id===id)).filter(Boolean);
+  if(!linked.length)return '';
+  return `<div class="Trille-linked-flow"><div class="Trille-linked-label">Linked workflow</div>${linked.map(card=>`<button class="Trille-linked-chip" type="button" onclick="event.stopPropagation();scrollToLinkedCard('${card.id}')">${esc(card.title)}</button>`).join('')}</div>`;
+}
+
 function nestedCardHTML(sub){
+  const board=cards.find(c=>c.id===activeBoardId);
   const tagHtml=tagListHTML(sub.tags);
   const desc=sub.desc?`<div class="card-desc">${esc(sub.desc)}</div>`:'';
   const menu=`<div class="mbtn-wrap" onclick="showSubcardCtx(event,'${sub.id}')"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1" fill="currentColor" stroke="none"/></svg></div>`;
@@ -131,8 +145,64 @@ function nestedCardHTML(sub){
   const fields=Array.isArray(sub.nf)?sub.nf:[];
   if(fields.length)body+=`<div class="flds">${fields.map(f=>fDisplayHTML(f)).join('')}</div>`;
   if(sub.note)body+=`<div class="card-note">${esc(sub.note).replace(/\n/g,'<br>')}</div>`;
+  body+=linkedCardsHTML(board,sub);
   if(!body&&!sub.desc){body='<div class="card-desc">No details yet.</div>';}
   return `<div class="card" data-subcard-id="${sub.id}" data-id="${sub.id}"><div class="card-top"><div class="card-left">${tagHtml?`<div class="type-tag">${tagHtml}</div>`:''}<div class="card-title">${esc(sub.title)}</div>${desc}</div>${menu}</div>${body}</div>`;
+}
+
+let TrilleBoardLinesBound=false;
+function bindBoardLineResize(){
+  if(TrilleBoardLinesBound)return;
+  TrilleBoardLinesBound=true;
+  window.addEventListener('resize',()=>{
+    if(curView==='board')requestAnimationFrame(drawBoardLinkedLines);
+  },{passive:true});
+}
+function ensureBoardLineSvg(container){
+  let svg=container.querySelector('.Trille-board-lines');
+  if(svg)return svg;
+  svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svg.classList.add('Trille-board-lines');
+  container.prepend(svg);
+  return svg;
+}
+function boardLinePath(sx,sy,tx,ty){
+  const midY=(sy+ty)/2;
+  return `M ${sx} ${sy} C ${sx} ${midY}, ${tx} ${midY}, ${tx} ${ty}`;
+}
+function drawBoardLinkedLines(){
+  const container=document.getElementById('board-cards');
+  if(!container||!activeBoardId)return;
+  const board=cards.find(c=>c.id===activeBoardId);
+  if(!board)return;
+  const subcards=Array.isArray(board.subcards)?board.subcards:[];
+  const nodeMap=new Map();
+  container.querySelectorAll('.card[data-subcard-id]').forEach(node=>nodeMap.set(node.dataset.subcardId,node));
+  const svg=ensureBoardLineSvg(container);
+  const containerRect=container.getBoundingClientRect();
+  const width=Math.max(container.clientWidth,1);
+  const height=Math.max(container.scrollHeight,1);
+  const parts=[`<defs><marker id="Trille-board-line-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto"><path d="M 0 0 L 8 4 L 0 8 z" class="Trille-board-line-arrow"></path></marker></defs>`];
+  subcards.forEach(source=>{
+    const sourceNode=nodeMap.get(source.id);
+    if(!sourceNode)return;
+    const sourceRect=sourceNode.getBoundingClientRect();
+    const sourceX=sourceRect.left-containerRect.left+(sourceRect.width/2);
+    const sourceY=sourceRect.top-containerRect.top+sourceRect.height;
+    const linkedIds=Array.isArray(source.linkedCardIds)?source.linkedCardIds:[];
+    linkedIds.forEach(targetId=>{
+      const targetNode=nodeMap.get(targetId);
+      if(!targetNode)return;
+      const targetRect=targetNode.getBoundingClientRect();
+      const targetX=targetRect.left-containerRect.left+(targetRect.width/2);
+      const targetY=targetRect.top-containerRect.top;
+      parts.push(`<path class="Trille-board-line-path" d="${boardLinePath(sourceX,sourceY,targetX,targetY)}" marker-end="url(#Trille-board-line-arrow)"></path><circle class="Trille-board-line-dot" cx="${sourceX}" cy="${sourceY}" r="4"></circle><circle class="Trille-board-line-dot" cx="${targetX}" cy="${targetY}" r="4"></circle>`);
+    });
+  });
+  svg.setAttribute('viewBox',`0 0 ${width} ${height}`);
+  svg.setAttribute('width',width);
+  svg.setAttribute('height',height);
+  svg.innerHTML=parts.join('');
 }
 
 function renderBoardCards(card){
@@ -161,6 +231,8 @@ function renderBoardCards(card){
   list.querySelectorAll('.ci input[data-subid]').forEach(cb=>cb.addEventListener('change',e=>{e.stopPropagation();toggleSubcardCheck(card.id,cb.dataset.subid,cb.dataset.iid,cb.checked);}));
   bindSubcardReorder?.();
   updateReorderButtons?.();
+  bindBoardLineResize();
+  requestAnimationFrame(drawBoardLinkedLines);
 }
 
 function editFromBoardView(id){openEdit(id);}
