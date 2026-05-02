@@ -1,4 +1,4 @@
-/* Direct compact top and segmented bottom bar tuning */
+/* Direct compact top and floating icon dock tuning */
 .hdr{padding:8px 16px 4px;}
 .hdr-logo{font-size:20px;letter-spacing:-.45px;}
 .hdr-actions{gap:2px;}
@@ -6,43 +6,49 @@
 .icon-btn svg{width:20px;height:20px;stroke-width:1.7;}
 
 .bnav{
-  left:16px;
-  right:16px;
-  bottom:max(10px,env(safe-area-inset-bottom));
+  left:26px;
+  right:26px;
+  bottom:max(12px,env(safe-area-inset-bottom));
   width:auto;
-  height:62px;
-  padding:7px;
+  height:58px;
+  padding:8px 12px;
   display:grid;
-  grid-template-columns:repeat(3,1fr);
+  grid-template-columns:repeat(5,1fr);
   gap:8px;
-  background:rgba(255,255,255,.92);
-  border:2px solid var(--ink);
+  align-items:center;
+  background:rgba(255,255,255,.94);
+  border:1px solid rgba(0,0,0,.08);
   border-radius:999px;
-  box-shadow:0 10px 28px rgba(0,0,0,.10);
-  backdrop-filter:blur(18px);
+  box-shadow:0 14px 34px rgba(0,0,0,.12);
+  backdrop-filter:blur(20px);
 }
 .nbtn{
   min-width:0;
-  height:48px;
-  padding:0 10px;
+  width:42px;
+  height:42px;
+  padding:0;
+  margin:0 auto;
   display:flex;
   align-items:center;
   justify-content:center;
   border-radius:999px;
-  font-size:17px;
-  line-height:1;
-  font-weight:800;
-  letter-spacing:-.2px;
-  color:#0a84ff;
+  font-size:0;
+  color:var(--ink);
   background:transparent;
 }
-.nbtn svg{display:none;}
-.nbtn.active{
-  color:#fff;
-  background:var(--ink);
+.nbtn svg{
+  display:block;
+  width:25px;
+  height:25px;
+  stroke-width:1.9;
 }
-#nav-calendar{display:none;}
-.view .scroll{padding-bottom:92px;}
+.nbtn.active{
+  color:var(--ink);
+  background:rgba(0,0,0,.06);
+}
+#nav-calendar{display:flex;}
+#nav-add{display:flex;}
+.view .scroll{padding-bottom:88px;}
 
 .board-back-hdr{padding:1px 0 4px;}
 .board-nav-left span,.boards-back span{font-size:11px;}
@@ -51,6 +57,7 @@
   .hdr-logo{font-size:19px;}
   .icon-btn{width:35px;height:35px;}
   .icon-btn svg{width:19px;height:19px;}
-  .bnav{left:14px;right:14px;height:58px;padding:6px;gap:6px;}
-  .nbtn{height:46px;font-size:16px;}
+  .bnav{left:24px;right:24px;height:56px;padding:7px 10px;gap:6px;}
+  .nbtn{width:40px;height:40px;}
+  .nbtn svg{width:24px;height:24px;}
 }
