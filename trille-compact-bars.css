@@ -13,27 +13,10 @@
 .bi-desc,.card-desc{font-size:15px;line-height:1.35;}
 
 .bnav{
-  position:fixed;
-  left:0;
-  right:0;
-  margin:0 auto;
-  bottom:8px;
-  width:min(690px,calc(100vw - 112px));
-  height:58px;
-  padding:8px 18px;
-  display:grid;
-  grid-template-columns:repeat(5,1fr);
-  gap:12px;
-  align-items:center;
-  transform:none;
-  background:rgba(255,255,255,.72); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
-  border:0;
-  border-radius:999px;
-  box-shadow:0 8px 24px rgba(0,0,0,.10);
-  backdrop-filter:none;
-  -webkit-backdrop-filter:none;
-  overflow:hidden;
-  z-index:180;
+  background:rgba(245,245,247,.8);
+  backdrop-filter:saturate(180%) blur(20px);
+  -webkit-backdrop-filter:saturate(180%) blur(20px);
+  box-shadow:none;
 }
 .nbtn{
   min-width:0;
@@ -182,4 +165,6 @@
   .nbtn svg{width:25px;height:25px;min-width:25px;min-height:25px;}
 }
 /* แก้ padding-bottom ของ scroll */
-.view .scroll{padding-bottom:100px;}
+.view .scroll{
+  padding-bottom:calc(80px + env(safe-area-inset-bottom));
+}
