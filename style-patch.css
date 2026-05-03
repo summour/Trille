@@ -206,12 +206,20 @@ body:has(#view-canvas.active) .bnav {
 .cn-textblock {
   box-sizing: border-box;
   padding: 10px 28px 20px 10px;
+  cursor: grab;
+}
+.cn-textblock:active {
+  cursor: grabbing;
 }
 .cn-textblock-inner {
   width: 100%;
   min-height: 100%;
   box-sizing: border-box;
   white-space: pre-wrap;
+  pointer-events: none;
+  -webkit-user-select: none;
+  user-select: none;
+  cursor: inherit;
 }
 
 /* Temporarily hide unused Canvas tools */
