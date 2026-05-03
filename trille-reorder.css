@@ -2,3 +2,6 @@
 .trille-reorder-active .board-item,
 .trille-reorder-active .card[data-subcard-id]{touch-action:none;-webkit-user-select:none;user-select:none;}
 .trille-reorder-dragging{opacity:.9;transform:scale(.985);}
+.Trille-field-drag-handle{width:28px;flex-shrink:0;border:.5px solid var(--line);border-radius:12px;background:var(--bg);display:flex;align-items:center;justify-content:center;color:var(--ink3);font-size:18px;font-weight:600;touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;}
+.Trille-field-drag-handle:active{background:var(--hover);color:var(--ink2);}
+.Trille-field-reorder-dragging{opacity:.86;transform:scale(.985);}
