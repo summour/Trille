@@ -34,7 +34,7 @@ body::before {
 }
 
 #view-canvas.active {
-  padding-top: var(--Trille-safe-top);
+  padding-top: 0;
   box-sizing: border-box;
 }
 
