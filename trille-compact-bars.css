@@ -13,10 +13,25 @@
 .bi-desc,.card-desc{font-size:15px;line-height:1.35;}
 
 .bnav{
-  background:rgba(245,245,247,.8);
+  position:fixed;
+  left:0;
+  right:0;
+  margin:0 auto;
+  bottom:max(12px,calc(env(safe-area-inset-bottom) + 8px));
+  width:min(690px,calc(100vw - 112px));
+  height:58px;
+  padding:8px 18px;
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:12px;
+  align-items:center;
+  border-radius:999px;
+  background:rgba(245,245,247,.85);
   backdrop-filter:saturate(180%) blur(20px);
   -webkit-backdrop-filter:saturate(180%) blur(20px);
-  box-shadow:none;
+  box-shadow:0 2px 16px rgba(0,0,0,.08);
+  overflow:hidden;
+  z-index:180;
 }
 .nbtn{
   min-width:0;
@@ -130,15 +145,13 @@
 }
 
 [data-dark] .bnav{
-  background:rgba(28,28,30,.72);
-  backdrop-filter:blur(20px);
-  -webkit-backdrop-filter:blur(20px);
-  box-shadow:0 10px 28px rgba(0,0,0,.36);
-  border:1px solid rgba(255,255,255,.08);
+  background:rgba(28,28,30,.85);
+  backdrop-filter:saturate(180%) blur(20px);
+  -webkit-backdrop-filter:saturate(180%) blur(20px);
+  box-shadow:0 4px 24px rgba(0,0,0,.4);
+  border:0.5px solid rgba(255,255,255,.08);
 }
-  box-shadow:0 10px 28px rgba(0,0,0,.36);
-  border:1px solid rgba(255,255,255,.08);
-}
+
 [data-dark] .nbtn{
   color:rgba(255,255,255,.76);
 }
@@ -163,6 +176,7 @@
   .bnav{width:calc(100vw - 112px);bottom:6px;}
   .nbtn{width:40px;height:40px;}
   .nbtn svg{width:25px;height:25px;min-width:25px;min-height:25px;}
+  .bnav{width:calc(100vw - 112px);bottom:max(10px,calc(env(safe-area-inset-bottom) + 6px));height:56px;...}
 }
 /* แก้ padding-bottom ของ scroll */
 .view .scroll{
