@@ -154,9 +154,8 @@ body:has(#view-canvas.active) .bnav {
   color: var(--ink);
 }
 
-/* Post-it and text resize handles */
-.Trille-canvas-sticky-resize,
-.Trille-canvas-text-resize {
+/* Canvas resize handles */
+.Trille-canvas-resize-handle {
   position: absolute;
   right: 4px;
   bottom: 4px;
@@ -168,16 +167,19 @@ body:has(#view-canvas.active) .bnav {
   touch-action: none;
   opacity: 0;
   pointer-events: none;
+  z-index: 280;
 }
-.Trille-canvas-text-resize {
+.Trille-canvas-text-resize,
+.Trille-canvas-shape-resize,
+.Trille-canvas-frame-resize,
+.Trille-canvas-upload-resize {
   right: -9px;
   bottom: -9px;
   background: var(--surface);
   border: .5px solid var(--line);
   box-shadow: 0 2px 6px rgba(0,0,0,.14);
 }
-.Trille-canvas-sticky-resize::before,
-.Trille-canvas-text-resize::before {
+.Trille-canvas-resize-handle::before {
   content: '';
   position: absolute;
   right: 5px;
@@ -187,10 +189,16 @@ body:has(#view-canvas.active) .bnav {
   border-right: 2px solid rgba(0,0,0,.45);
   border-bottom: 2px solid rgba(0,0,0,.45);
 }
-.cn-sticky:hover .Trille-canvas-sticky-resize,
-.cn-sticky:focus-within .Trille-canvas-sticky-resize,
-.cn-textblock:hover .Trille-canvas-text-resize,
-.cn-textblock:focus-within .Trille-canvas-text-resize {
+.cn-sticky:hover .Trille-canvas-resize-handle,
+.cn-sticky:focus-within .Trille-canvas-resize-handle,
+.cn-textblock:hover .Trille-canvas-resize-handle,
+.cn-textblock:focus-within .Trille-canvas-resize-handle,
+.cn-shape:hover .Trille-canvas-resize-handle,
+.cn-shape:focus-within .Trille-canvas-resize-handle,
+.cn-frame:hover .Trille-canvas-resize-handle,
+.cn-frame:focus-within .Trille-canvas-resize-handle,
+.cn-upload:hover .Trille-canvas-resize-handle,
+.cn-upload:focus-within .Trille-canvas-resize-handle {
   opacity: 1;
   pointer-events: auto;
 }
