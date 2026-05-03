@@ -1,0 +1,101 @@
+/* ============================================================
+   Trille — Edge-to-Edge patch
+   เพิ่มท้าย style.css หรือโหลดหลังสุด
+   ============================================================ */
+
+/* ── 1. HTML / Body: ให้จอเต็มแบบสุดขอบ ─────────────────── */
+html, body {
+  height: 100%;
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+/* ── 2. #app: ยึดเต็มจอ ไม่มี padding safe-area ─────────── */
+#app {
+  position: fixed;
+  inset: 0;                    /* top:0 right:0 bottom:0 left:0 */
+  height: 100dvh;
+  max-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── 3. Header: แนบขอบบนสุด ใช้ safe-area เฉพาะ padding ── */
+.hdr {
+  padding-top: max(16px, env(safe-area-inset-top));
+  padding-left: max(20px, env(safe-area-inset-left));
+  padding-right: max(20px, env(safe-area-inset-right));
+  padding-bottom: 10px;
+}
+
+/* ── 4. Bottom Nav (compact dock): แนบขอบล่างสุด ────────── */
+/*    trille-compact-bars.css จัดการ .bnav เป็น floating pill
+      เราแค่ทำให้ body เต็มจอใต้มัน                          */
+.bnav {
+  /* floating pill อยู่แล้ว — ไม่แตะ position */
+  /* แต่ให้แน่ใจว่า bottom ใช้ safe-area */
+  bottom: max(20px, calc(env(safe-area-inset-bottom) + 10px));
+}
+
+/* ── 5. View scroll area: ขยายถึงขอบล่างจอ ─────────────── */
+/*    ให้ content เต็มจอ แต่ padding ล่างรองรับ nav pill    */
+.view .scroll {
+  padding-bottom: max(100px, calc(env(safe-area-inset-bottom) + 90px));
+}
+
+/* ── 6. Canvas view: เต็มจอแบบ absolute ─────────────────── */
+#view-canvas {
+  position: fixed;
+  inset: 0;
+  height: 100dvh;
+  width: 100vw;
+}
+
+/* canvas back button: อยู่ใต้ notch */
+.canvas-back {
+  top: max(12px, env(safe-area-inset-top));
+}
+
+/* canvas title: อยู่ใต้ notch */
+.canvas-board-title {
+  top: max(12px, env(safe-area-inset-top));
+}
+
+/* canvas toolbar: อยู่เหนือขอบล่าง */
+.canvas-toolbar {
+  bottom: max(88px, calc(env(safe-area-inset-bottom) + 78px));
+}
+
+.canvas-hint {
+  bottom: max(148px, calc(env(safe-area-inset-bottom) + 138px));
+}
+
+/* ── 7. Modal: เต็มล่าง ใช้ safe-area สำหรับ padding ──── */
+.modal {
+  padding-bottom: max(20px, env(safe-area-inset-bottom));
+}
+
+/* ── 8. Toast: อยู่เหนือขอบล่าง + nav ────────────────────── */
+.toast {
+  bottom: max(84px, calc(env(safe-area-inset-bottom) + 74px));
+}
+
+/* ── 9. ซ่อน header/nav เมื่อ canvas active ──────────────── */
+body:has(#view-canvas.active) #main-hdr,
+body:has(#view-canvas.active) .srch-wrap,
+body:has(#view-canvas.active) .bnav {
+  display: none !important;
+}
+
+/* ── 10. Left/Right safe area สำหรับ content ──────────────── */
+#view-home .scroll,
+#view-boards .scroll,
+#view-board .scroll,
+#view-stats .scroll,
+#view-calendar .scroll,
+#view-settings .scroll {
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
