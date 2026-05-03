@@ -281,6 +281,7 @@ function bindCanvasCardDrag() {
       if (!dragging) {
         if (Math.hypot(e.clientX - startClientX, e.clientY - startClientY) > 8) {
           clearTimeout(tapTimer);
+          hasMoved = true;
         }
         return;
       }
@@ -303,11 +304,11 @@ function bindCanvasCardDrag() {
     const finish = () => {
       clearTimeout(tapTimer);
       if (!dragging) {
-        // tap → open card
+        // tap → open details, not edit
         if (!hasMoved) {
           const id = el.dataset.id;
           if (canvasActiveBoard) {
-            openSubcardEdit(id);
+            openCanvasSubcardDetail(id);
           } else {
             openBoard(id);
           }
@@ -330,14 +331,13 @@ function bindCanvasCardDrag() {
 
 // ---- Pan + Pinch zoom ----
 function bindCanvasPanZoom() {
-  const vp = document.getElementById('view-canvas');
+  const vp = document.getElementById('canvas-vp');
   if (!vp || vp.dataset.panBound) return;
   vp.dataset.panBound = '1';
 
   let isPanning = false;
   let panStartX = 0, panStartY = 0;
   let panOriginX = 0, panOriginY = 0;
-  let touches = [];
   let lastPinchDist = 0;
   let lastPinchMidX = 0, lastPinchMidY = 0;
 
@@ -348,7 +348,7 @@ function bindCanvasPanZoom() {
   }
 
   vp.addEventListener('touchstart', e => {
-    touches = Array.from(e.touches);
+    const touches = Array.from(e.touches);
     if (touches.length === 2) {
       lastPinchDist = getTouchDist(touches);
       lastPinchMidX = (touches[0].clientX + touches[1].clientX) / 2;
@@ -364,15 +364,11 @@ function bindCanvasPanZoom() {
       const midX = (ts[0].clientX + ts[1].clientX) / 2;
       const midY = (ts[0].clientY + ts[1].clientY) / 2;
 
-      // pan
       canvasX += midX - lastPinchMidX;
       canvasY += midY - lastPinchMidY;
 
-      // zoom
       const ratio = dist / lastPinchDist;
       const newScale = Math.min(3, Math.max(0.2, canvasScale * ratio));
-
-      // zoom toward pinch midpoint
       const rect = vp.getBoundingClientRect();
       const ox = midX - rect.left;
       const oy = midY - rect.top;
@@ -389,11 +385,8 @@ function bindCanvasPanZoom() {
     }
   }, { passive: false });
 
-  // Pointer-based pan (when not dragging a card)
   vp.addEventListener('pointerdown', e => {
-    if (e.target.closest('.cn') || e.target.closest('.canvas-toolbar') ||
-        e.target.closest('.canvas-back') || e.target.closest('.canvas-ctx') ||
-        e.target.closest('.canvas-color-popup')) return;
+    if (e.target.closest('.cn')) return;
     isPanning = true;
     panStartX = e.clientX;
     panStartY = e.clientY;
@@ -412,7 +405,6 @@ function bindCanvasPanZoom() {
   vp.addEventListener('pointerup', () => { isPanning = false; vp.style.cursor = ''; });
   vp.addEventListener('pointercancel', () => { isPanning = false; vp.style.cursor = ''; });
 
-  // Wheel zoom (desktop)
   vp.addEventListener('wheel', e => {
     e.preventDefault();
     const delta = e.ctrlKey ? e.deltaY : e.deltaY * 0.5;
@@ -514,7 +506,7 @@ document.addEventListener('click', e => {
 // ---- Fit all cards into view ----
 function canvasFitAll() {
   const world = document.getElementById('canvas-world');
-  const vp = document.getElementById('view-canvas');
+  const vp = document.getElementById('canvas-vp');
   if (!world || !vp) return;
 
   const board = canvasActiveBoard ? cards.find(c => c.id === canvasActiveBoard) : null;
@@ -541,6 +533,37 @@ function canvasFitAll() {
   canvasY = (vpH - contentH * scale) / 2 - minY * scale + 20 * scale;
   applyCanvasTransform();
   updateCanvasZoomLabel();
+}
+
+function openCanvasSubcardDetail(subId) {
+  const board = cards.find(c => c.id === canvasActiveBoard);
+  const card = board?.subcards?.find(c => c.id === subId);
+  if (!board || !card) return;
+
+  document.getElementById('modal-detail').dataset.cid = subId;
+  document.getElementById('modal-detail').dataset.boardId = board.id;
+  document.getElementById('d-tag').innerHTML = tagListHTML(card.tags);
+  document.getElementById('d-title').textContent = card.title;
+  document.getElementById('d-desc').textContent = card.desc || '';
+
+  let body = '';
+  if ((card.items || []).length) {
+    const done = card.items.filter(i => i.done).length;
+    body += `<div class="fg"><label class="fl">Activities — ${done}/${card.items.length}</label><div class="detail-flds">${card.items.map(it => `<div class="detail-cl-item${it.done ? ' done' : ''}"><input type="checkbox" data-board-id="${board.id}" data-sub-id="${card.id}" data-iid="${it.id}" ${it.done ? 'checked' : ''}><span>${esc(it.text)}</span></div>`).join('')}</div></div>`;
+  }
+
+  const nf = card.nf || [];
+  if (nf.length) body += `<div class="fg"><label class="fl">Fields</label><div class="detail-flds">${nf.map(f => fDisplayHTML(f)).join('')}</div></div>`;
+  if (card.note) body += `<div class="fg"><label class="fl">Note</label><div class="card-note">${esc(card.note).replace(/\n/g, '<br>')}</div></div>`;
+  body += `<div class="act-row"><button class="act-btn" onclick="openSubcardEdit('${card.id}')">Edit</button><button class="act-btn danger" onclick="delSubcard('${card.id}');closeModal('modal-detail');renderCanvas();">Delete</button></div>`;
+
+  document.getElementById('d-body').innerHTML = body;
+  document.querySelectorAll('#d-body .detail-cl-item input').forEach(cb => cb.addEventListener('change', () => {
+    toggleSubcardCheck(cb.dataset.boardId, cb.dataset.subId, cb.dataset.iid, cb.checked);
+    renderCanvas();
+    openCanvasSubcardDetail(subId);
+  }));
+  openModal('modal-detail');
 }
 
 // ---- Button to open canvas from board view ----
