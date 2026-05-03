@@ -23,7 +23,6 @@ function loadCanvasStyles(){
   link.href='trille-canvas.css';
   link.dataset.trilleCanvas='true';
   document.head.appendChild(link);
-  // Patch: inline critical canvas/drag overrides
   const patch=document.createElement('link');
   patch.rel='stylesheet';
   patch.href='style-patch.css';
@@ -136,22 +135,23 @@ function deleteCanvasCardLink(sourceId,targetId){
   TrilleSaveCanvasLinkData();
 }
 
-function TrilleCanvasLayerBase(kind){
-  const bases={frame:20,shape:40,line:60,upload:80,sticky:100,text:120,card:140};
-  return bases[kind]||100;
+function TrilleCanvasLayerDefault(kind,index=0){
+  const defaults={frame:20,card:120,shape:180,upload:190,sticky:220,text:230};
+  return (defaults[kind]||120)+index;
 }
 
 function TrilleCanvasLayerValue(kind,obj,id,index=0){
-  if(kind==='card')return Number(canvasPositions[id]?.layer||0);
-  return Number(obj?.layer||0);
+  const stored=kind==='card'?canvasPositions[id]?.layer:obj?.layer;
+  const parsed=Number(stored);
+  return Number.isFinite(parsed)&&parsed!==0?parsed:TrilleCanvasLayerDefault(kind,index);
 }
 
 function TrilleCanvasObjectGroups(){
   const board=canvasActiveBoard?cards.find(c=>c.id===canvasActiveBoard):null;
   const cardItems=canvasActiveBoard?(board?.subcards||[]):cards;
   return [
-    {kind:'card',items:cardItems,selector:'.cn',key:'id'},
     {kind:'frame',items:canvasFrames,selector:'.cn-frame',key:'frid'},
+    {kind:'card',items:cardItems,selector:'.cn',key:'id'},
     {kind:'shape',items:canvasShapes,selector:'.cn-shape',key:'shid'},
     {kind:'upload',items:canvasUploads,selector:'.cn-upload',key:'upid'},
     {kind:'sticky',items:canvasStickyNotes,selector:'.cn-sticky',key:'snid'},
@@ -171,23 +171,21 @@ function TrilleFindLayerTarget(kind,id){
 function TrilleNextCanvasLayer(){
   let maxLayer=0;
   TrilleCanvasObjectGroups().forEach(group=>{
-    group.items.forEach(obj=>{
-      const id=obj.id;
-      maxLayer=Math.max(maxLayer,TrilleCanvasLayerValue(group.kind,obj,id));
+    group.items.forEach((obj,index)=>{
+      maxLayer=Math.max(maxLayer,TrilleCanvasLayerValue(group.kind,obj,obj.id,index));
     });
   });
-  return maxLayer+1;
+  return maxLayer+10;
 }
 
 function TrilleMinCanvasLayer(){
   let minLayer=0;
   TrilleCanvasObjectGroups().forEach(group=>{
-    group.items.forEach(obj=>{
-      const id=obj.id;
-      minLayer=Math.min(minLayer,TrilleCanvasLayerValue(group.kind,obj,id));
+    group.items.forEach((obj,index)=>{
+      minLayer=Math.min(minLayer,TrilleCanvasLayerValue(group.kind,obj,obj.id,index));
     });
   });
-  return minLayer-1;
+  return minLayer-10;
 }
 
 function moveCanvasLayer(kind,id,direction){
@@ -200,8 +198,8 @@ function moveCanvasLayer(kind,id,direction){
 
 function TrilleCanvasLayerControls(kind,id){
   return `<div class="Trille-canvas-layer-controls" onclick="event.stopPropagation()" onpointerdown="event.stopPropagation()">
-    <button class="Trille-canvas-layer-btn" type="button" title="Bring forward" onclick="event.stopPropagation();moveCanvasLayer('${kind}','${id}','front')">↑</button>
-    <button class="Trille-canvas-layer-btn" type="button" title="Send backward" onclick="event.stopPropagation();moveCanvasLayer('${kind}','${id}','back')">↓</button>
+    <button class="Trille-canvas-layer-btn" type="button" title="Bring to front" onclick="event.stopPropagation();moveCanvasLayer('${kind}','${id}','front')">↑</button>
+    <button class="Trille-canvas-layer-btn" type="button" title="Send to back" onclick="event.stopPropagation();moveCanvasLayer('${kind}','${id}','back')">↓</button>
   </div>`;
 }
 
@@ -211,8 +209,7 @@ function TrilleApplyCanvasLayers(){
       const id=obj.id;
       const node=document.querySelector(`${group.selector}[data-${group.key}="${id}"]`);
       if(!node)return;
-      const layer=TrilleCanvasLayerValue(group.kind,obj,id,index);
-      node.style.zIndex=String(TrilleCanvasLayerBase(group.kind)+layer);
+      node.style.zIndex=String(TrilleCanvasLayerValue(group.kind,obj,id,index));
     });
   });
 }
@@ -228,6 +225,64 @@ function TrilleInjectCanvasLayerControls(){
   });
 }
 
+function TrilleInjectStickyResizeHandles(){
+  canvasStickyNotes.forEach(note=>{
+    const node=document.querySelector(`.cn-sticky[data-snid="${note.id}"]`);
+    if(!node||node.querySelector('.Trille-canvas-sticky-resize'))return;
+    node.insertAdjacentHTML('beforeend',`<button class="Trille-canvas-sticky-resize" type="button" title="Resize post-it" aria-label="Resize post-it"></button>`);
+  });
+}
+
+function TrilleBindStickyResize(){
+  const world=document.getElementById('canvas-world');
+  if(!world)return;
+  world.querySelectorAll('.Trille-canvas-sticky-resize').forEach(handle=>{
+    if(handle.dataset.resizeBound)return;
+    handle.dataset.resizeBound='1';
+    let resizing=false,startX=0,startY=0,startW=0,startH=0,target=null,pointerId=null;
+
+    handle.addEventListener('pointerdown',event=>{
+      const node=handle.closest('.cn-sticky');
+      if(!node)return;
+      target=canvasStickyNotes.find(note=>note.id===node.dataset.snid);
+      if(!target)return;
+      resizing=true;
+      pointerId=event.pointerId;
+      startX=event.clientX;
+      startY=event.clientY;
+      startW=target.w||node.offsetWidth||160;
+      startH=target.h||node.offsetHeight||120;
+      event.stopPropagation();
+      event.preventDefault();
+      try{handle.setPointerCapture(pointerId);}catch(err){}
+    },{passive:false});
+
+    handle.addEventListener('pointermove',event=>{
+      if(!resizing||!target)return;
+      const dx=(event.clientX-startX)/canvasScale;
+      const dy=(event.clientY-startY)/canvasScale;
+      target.w=Math.max(120,Math.round(startW+dx));
+      target.h=Math.max(80,Math.round(startH+dy));
+      const node=handle.closest('.cn-sticky');
+      if(node){
+        node.style.width=target.w+'px';
+        node.style.minHeight=target.h+'px';
+      }
+      event.stopPropagation();
+      event.preventDefault();
+    },{passive:false});
+
+    const finish=event=>{
+      if(!resizing)return;
+      resizing=false;
+      saveCanvasData();
+      if(event)event.stopPropagation();
+    };
+    handle.addEventListener('pointerup',finish);
+    handle.addEventListener('pointercancel',finish);
+  });
+}
+
 function installCanvasLayers(){
   if(typeof renderCanvas!=='function')return;
   const baseRenderCanvas=renderCanvas;
@@ -235,6 +290,8 @@ function installCanvasLayers(){
     baseRenderCanvas();
     TrilleApplyCanvasLayers();
     TrilleInjectCanvasLayerControls();
+    TrilleInjectStickyResizeHandles();
+    TrilleBindStickyResize();
   };
 }
 
