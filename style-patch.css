@@ -145,3 +145,33 @@ body:has(#view-canvas.active) .bnav {
   background: var(--hover);
   color: var(--ink);
 }
+
+/* Post-it resize handle */
+.Trille-canvas-sticky-resize {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  width: 22px;
+  height: 22px;
+  border-radius: 7px;
+  background: rgba(0,0,0,.12);
+  cursor: nwse-resize;
+  touch-action: none;
+  opacity: 0;
+  pointer-events: none;
+}
+.Trille-canvas-sticky-resize::before {
+  content: '';
+  position: absolute;
+  right: 5px;
+  bottom: 5px;
+  width: 9px;
+  height: 9px;
+  border-right: 2px solid rgba(0,0,0,.45);
+  border-bottom: 2px solid rgba(0,0,0,.45);
+}
+.cn-sticky:hover .Trille-canvas-sticky-resize,
+.cn-sticky:focus-within .Trille-canvas-sticky-resize {
+  opacity: 1;
+  pointer-events: auto;
+}
