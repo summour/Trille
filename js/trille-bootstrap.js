@@ -214,6 +214,18 @@ function TrilleApplyCanvasLayers(){
   });
 }
 
+function TrilleApplyTextSizes(){
+  canvasTextBlocks.forEach(text=>{
+    const node=document.querySelector(`.cn-textblock[data-tbid="${text.id}"]`);
+    if(!node)return;
+    if(text.w)node.style.width=text.w+'px';
+    if(text.h){
+      node.style.height=text.h+'px';
+      node.style.minHeight=text.h+'px';
+    }
+  });
+}
+
 function TrilleInjectCanvasLayerControls(){
   TrilleCanvasObjectGroups().forEach(group=>{
     group.items.forEach(obj=>{
@@ -225,61 +237,90 @@ function TrilleInjectCanvasLayerControls(){
   });
 }
 
-function TrilleInjectStickyResizeHandles(){
+function TrilleInjectResizeHandles(){
   canvasStickyNotes.forEach(note=>{
     const node=document.querySelector(`.cn-sticky[data-snid="${note.id}"]`);
     if(!node||node.querySelector('.Trille-canvas-sticky-resize'))return;
     node.insertAdjacentHTML('beforeend',`<button class="Trille-canvas-sticky-resize" type="button" title="Resize post-it" aria-label="Resize post-it"></button>`);
   });
+  canvasTextBlocks.forEach(text=>{
+    const node=document.querySelector(`.cn-textblock[data-tbid="${text.id}"]`);
+    if(!node||node.querySelector('.Trille-canvas-text-resize'))return;
+    node.insertAdjacentHTML('beforeend',`<button class="Trille-canvas-text-resize" type="button" title="Resize text" aria-label="Resize text"></button>`);
+  });
 }
 
-function TrilleBindStickyResize(){
+function TrilleBindCanvasResizeHandle(handle,config){
+  if(handle.dataset.resizeBound)return;
+  handle.dataset.resizeBound='1';
+  let resizing=false,startX=0,startY=0,startW=0,startH=0,target=null,pointerId=null;
+
+  handle.addEventListener('pointerdown',event=>{
+    const node=handle.closest(config.selector);
+    if(!node)return;
+    target=config.findTarget(node);
+    if(!target)return;
+    resizing=true;
+    pointerId=event.pointerId;
+    startX=event.clientX;
+    startY=event.clientY;
+    startW=target.w||node.offsetWidth||config.defaultW;
+    startH=target.h||node.offsetHeight||config.defaultH;
+    event.stopPropagation();
+    event.preventDefault();
+    try{handle.setPointerCapture(pointerId);}catch(err){}
+  },{passive:false});
+
+  handle.addEventListener('pointermove',event=>{
+    if(!resizing||!target)return;
+    const dx=(event.clientX-startX)/canvasScale;
+    const dy=(event.clientY-startY)/canvasScale;
+    target.w=Math.max(config.minW,Math.round(startW+dx));
+    target.h=Math.max(config.minH,Math.round(startH+dy));
+    const node=handle.closest(config.selector);
+    if(node){
+      node.style.width=target.w+'px';
+      node.style.minHeight=target.h+'px';
+      if(config.useHeight)node.style.height=target.h+'px';
+    }
+    event.stopPropagation();
+    event.preventDefault();
+  },{passive:false});
+
+  const finish=event=>{
+    if(!resizing)return;
+    resizing=false;
+    saveCanvasData();
+    if(event)event.stopPropagation();
+  };
+  handle.addEventListener('pointerup',finish);
+  handle.addEventListener('pointercancel',finish);
+}
+
+function TrilleBindCanvasResizeHandles(){
   const world=document.getElementById('canvas-world');
   if(!world)return;
   world.querySelectorAll('.Trille-canvas-sticky-resize').forEach(handle=>{
-    if(handle.dataset.resizeBound)return;
-    handle.dataset.resizeBound='1';
-    let resizing=false,startX=0,startY=0,startW=0,startH=0,target=null,pointerId=null;
-
-    handle.addEventListener('pointerdown',event=>{
-      const node=handle.closest('.cn-sticky');
-      if(!node)return;
-      target=canvasStickyNotes.find(note=>note.id===node.dataset.snid);
-      if(!target)return;
-      resizing=true;
-      pointerId=event.pointerId;
-      startX=event.clientX;
-      startY=event.clientY;
-      startW=target.w||node.offsetWidth||160;
-      startH=target.h||node.offsetHeight||120;
-      event.stopPropagation();
-      event.preventDefault();
-      try{handle.setPointerCapture(pointerId);}catch(err){}
-    },{passive:false});
-
-    handle.addEventListener('pointermove',event=>{
-      if(!resizing||!target)return;
-      const dx=(event.clientX-startX)/canvasScale;
-      const dy=(event.clientY-startY)/canvasScale;
-      target.w=Math.max(120,Math.round(startW+dx));
-      target.h=Math.max(80,Math.round(startH+dy));
-      const node=handle.closest('.cn-sticky');
-      if(node){
-        node.style.width=target.w+'px';
-        node.style.minHeight=target.h+'px';
-      }
-      event.stopPropagation();
-      event.preventDefault();
-    },{passive:false});
-
-    const finish=event=>{
-      if(!resizing)return;
-      resizing=false;
-      saveCanvasData();
-      if(event)event.stopPropagation();
-    };
-    handle.addEventListener('pointerup',finish);
-    handle.addEventListener('pointercancel',finish);
+    TrilleBindCanvasResizeHandle(handle,{
+      selector:'.cn-sticky',
+      defaultW:160,
+      defaultH:120,
+      minW:120,
+      minH:80,
+      useHeight:false,
+      findTarget:node=>canvasStickyNotes.find(note=>note.id===node.dataset.snid)
+    });
+  });
+  world.querySelectorAll('.Trille-canvas-text-resize').forEach(handle=>{
+    TrilleBindCanvasResizeHandle(handle,{
+      selector:'.cn-textblock',
+      defaultW:180,
+      defaultH:80,
+      minW:80,
+      minH:36,
+      useHeight:true,
+      findTarget:node=>canvasTextBlocks.find(text=>text.id===node.dataset.tbid)
+    });
   });
 }
 
@@ -289,9 +330,10 @@ function installCanvasLayers(){
   renderCanvas=function(){
     baseRenderCanvas();
     TrilleApplyCanvasLayers();
+    TrilleApplyTextSizes();
     TrilleInjectCanvasLayerControls();
-    TrilleInjectStickyResizeHandles();
-    TrilleBindStickyResize();
+    TrilleInjectResizeHandles();
+    TrilleBindCanvasResizeHandles();
   };
 }
 
