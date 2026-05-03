@@ -154,60 +154,53 @@ body:has(#view-canvas.active) .bnav {
   color: var(--ink);
 }
 
-/* Canvas resize handles */
+/* Canvas resize handles — ultra minimal, active-only visual */
 .Trille-canvas-resize-handle {
   position: absolute;
-  right: 4px;
-  bottom: 4px;
-  width: 22px;
-  height: 22px;
+  right: -8px;
+  bottom: -8px;
+  width: 28px;
+  height: 28px;
   background: transparent;
   border: 0;
   box-shadow: none;
   cursor: nwse-resize;
   touch-action: none;
-  opacity: .35;
   pointer-events: auto;
   z-index: 420;
+  opacity: 0;
+  transform: none;
 }
-.Trille-canvas-resize-handle::before {
-  content: '';
-  position: absolute;
-  right: 3px;
-  bottom: 3px;
-  width: 12px;
-  height: 12px;
-  border-right: 3px solid color-mix(in srgb, var(--ink) 70%, transparent);
-  border-bottom: 3px solid color-mix(in srgb, var(--ink) 70%, transparent);
-  border-radius: 1px;
-}
+.Trille-canvas-resize-handle::before,
 .Trille-canvas-resize-handle::after {
   content: '';
   position: absolute;
-  right: 8px;
-  bottom: 8px;
+  opacity: 0;
+  transition: opacity .08s ease;
+}
+.Trille-canvas-resize-handle::before {
+  right: 5px;
+  bottom: 5px;
+  width: 12px;
+  height: 12px;
+  border-right: 2px solid color-mix(in srgb, var(--ink) 72%, transparent);
+  border-bottom: 2px solid color-mix(in srgb, var(--ink) 72%, transparent);
+  border-radius: 1px;
+}
+.Trille-canvas-resize-handle::after {
+  right: 9px;
+  bottom: 9px;
   width: 7px;
   height: 7px;
-  border-right: 2px solid color-mix(in srgb, var(--ink) 35%, transparent);
-  border-bottom: 2px solid color-mix(in srgb, var(--ink) 35%, transparent);
-}
-.cn:hover .Trille-canvas-resize-handle,
-.cn-sticky:hover .Trille-canvas-resize-handle,
-.cn-textblock:hover .Trille-canvas-resize-handle,
-.cn-shape:hover .Trille-canvas-resize-handle,
-.cn-frame:hover .Trille-canvas-resize-handle,
-.cn-upload:hover .Trille-canvas-resize-handle,
-.cn:focus-within .Trille-canvas-resize-handle,
-.cn-sticky:focus-within .Trille-canvas-resize-handle,
-.cn-textblock:focus-within .Trille-canvas-resize-handle,
-.cn-shape:focus-within .Trille-canvas-resize-handle,
-.cn-frame:focus-within .Trille-canvas-resize-handle,
-.cn-upload:focus-within .Trille-canvas-resize-handle {
-  opacity: .75;
+  border-right: 1.5px solid color-mix(in srgb, var(--ink) 38%, transparent);
+  border-bottom: 1.5px solid color-mix(in srgb, var(--ink) 38%, transparent);
 }
 .Trille-canvas-resize-handle:active {
   opacity: 1;
-  transform: scale(1.08);
+}
+.Trille-canvas-resize-handle:active::before,
+.Trille-canvas-resize-handle:active::after {
+  opacity: 1;
 }
 
 .cn-textblock {
@@ -246,8 +239,10 @@ body:has(#view-canvas.active) .bnav {
 /* Post-it color controls */
 .Trille-canvas-sticky-colors {
   position: absolute;
-  top: -36px;
-  right: 0;
+  top: auto;
+  right: auto;
+  left: 0;
+  bottom: -36px;
   z-index: 270;
   display: flex;
   gap: 4px;
@@ -311,7 +306,7 @@ body:has(#view-canvas.active) .bnav {
 .cn-shape:has(.Trille-canvas-resize-handle:active),
 .cn-frame:has(.Trille-canvas-resize-handle:active),
 .cn-upload:has(.Trille-canvas-resize-handle:active) {
-  outline: 3px dashed var(--ink);
+  outline: none;
   transform: none;
 }
 
