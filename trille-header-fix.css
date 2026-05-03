@@ -1,0 +1,29 @@
+/* ============================================================
+   Trille — Header safe-area fix
+   เพิ่มไฟล์นี้ใน index.html หลัง stylesheet ทั้งหมด
+   ============================================================ */
+
+/* Header ลงมาให้พ้น status bar / notch */
+.hdr {
+  padding-top: max(52px, calc(env(safe-area-inset-top) + 12px));
+  padding-bottom: 10px;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+/* Board back header (view-board) */
+.board-back-hdr {
+  padding-top: max(52px, calc(env(safe-area-inset-top) + 12px));
+}
+
+/* Boards back header (view-boards) */
+#view-boards .scroll {
+  padding-top: max(52px, calc(env(safe-area-inset-top) + 12px));
+}
+
+/* Stats / Calendar / Settings — scroll area ก็ต้องมี top padding */
+#view-stats .scroll,
+#view-calendar .scroll,
+#view-settings .scroll {
+  padding-top: max(52px, calc(env(safe-area-inset-top) + 12px));
+}
