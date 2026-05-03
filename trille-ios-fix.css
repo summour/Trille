@@ -15,10 +15,34 @@
   padding-bottom: 10px;
 }
 
-/* ── Edge-to-edge app surface ────────────────────────────── */
+/* ── Full-height app shell: avoid iOS 100dvh bottom gap ───── */
 html,
-body,
-#app,
+body {
+  height: 100%;
+  min-height: 100%;
+  max-height: none;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  pointer-events: none;
+  z-index: -1;
+}
+
+#app {
+  position: fixed;
+  inset: 0;
+  height: 100%;
+  min-height: 100%;
+  max-height: none;
+  background: var(--bg);
+}
+
 .view,
 .scroll {
   background: var(--bg);
