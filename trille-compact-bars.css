@@ -5,7 +5,6 @@
 .icon-btn{width:36px;height:36px;border-radius:10px;}
 .icon-btn svg{width:20px;height:20px;stroke-width:1.7;}
 
-#view-boards .boards-back{display:none;}
 .boards-folder-hdr{margin-top:18px;margin-bottom:18px;}
 .boards-folder-name{font-size:22px;line-height:1.15;letter-spacing:-.45px;}
 .board-title{font-size:25px;line-height:1.15;letter-spacing:-.55px;}
