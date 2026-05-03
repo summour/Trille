@@ -95,3 +95,53 @@ body:has(#view-canvas.active) .bnav {
 .Trille-canvas-link-delete:hover .Trille-canvas-link-delete-bg {
   fill: var(--hover);
 }
+
+/* Canvas object layer controls */
+.Trille-canvas-layer-controls {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  z-index: 260;
+  display: flex;
+  gap: 3px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .12s;
+}
+.cn:hover .Trille-canvas-layer-controls,
+.cn:focus-within .Trille-canvas-layer-controls,
+.cn-sticky:hover .Trille-canvas-layer-controls,
+.cn-sticky:focus-within .Trille-canvas-layer-controls,
+.cn-textblock:hover .Trille-canvas-layer-controls,
+.cn-textblock:focus-within .Trille-canvas-layer-controls,
+.cn-shape:hover .Trille-canvas-layer-controls,
+.cn-shape:focus-within .Trille-canvas-layer-controls,
+.cn-frame:hover .Trille-canvas-layer-controls,
+.cn-frame:focus-within .Trille-canvas-layer-controls,
+.cn-upload:hover .Trille-canvas-layer-controls,
+.cn-upload:focus-within .Trille-canvas-layer-controls {
+  opacity: 1;
+  pointer-events: auto;
+}
+.Trille-canvas-layer-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink2);
+  border: .5px solid var(--line);
+  box-shadow: 0 2px 6px rgba(0,0,0,.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.Trille-canvas-layer-btn:hover,
+.Trille-canvas-layer-btn:active {
+  background: var(--hover);
+  color: var(--ink);
+}
