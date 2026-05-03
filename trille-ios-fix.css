@@ -1,0 +1,45 @@
+/* ============================================================
+   Trille — iOS safe-area fix
+   ลบ trille-header-fix.css และ trille-edge-to-edge.css ออกก่อน
+   แล้วโหลดไฟล์นี้หลังสุดใน index.html
+   ============================================================ */
+
+/* ── Header: ดันลงมาให้พ้น status bar ─────────────────────
+   iPhone 14 Pro / 15 Pro: safe-area-inset-top = 59px
+   iPhone SE / ไม่มี notch: safe-area-inset-top = 20px
+   ─────────────────────────────────────────────────────────── */
+.hdr {
+  padding-top: calc(env(safe-area-inset-top) + 10px);
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-bottom: 10px;
+}
+
+/* ── Canvas: back button และ title ให้พ้น notch ─────────── */
+.canvas-back {
+  top: calc(env(safe-area-inset-top) + 12px);
+}
+
+.canvas-board-title {
+  top: calc(env(safe-area-inset-top) + 12px);
+}
+
+/* ── Canvas: toolbar อยู่เหนือ home indicator ────────────── */
+.canvas-toolbar {
+  bottom: calc(env(safe-area-inset-bottom) + 16px);
+}
+
+/* ── Bottom nav pill: อยู่เหนือ home indicator ──────────── */
+.bnav {
+  bottom: calc(env(safe-area-inset-bottom) + 10px);
+}
+
+/* ── Modal: padding ล่างรองรับ home indicator ───────────── */
+.modal {
+  padding-bottom: calc(env(safe-area-inset-bottom) + 20px);
+}
+
+/* ── Toast: อยู่เหนือ nav pill ──────────────────────────── */
+.toast {
+  bottom: calc(env(safe-area-inset-bottom) + 90px);
+}
