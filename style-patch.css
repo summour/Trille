@@ -222,18 +222,12 @@ body:has(#view-canvas.active) .bnav {
   cursor: inherit;
 }
 
-/* IG-style frame for uploaded images */
+/* IG-style upload object */
 .cn-upload.Trille-canvas-upload-host {
-  overflow: visible;
-  background: transparent;
-}
-.Trille-canvas-upload-shell {
-  position: absolute;
-  inset: 0;
   display: flex;
   flex-direction: column;
-  border-radius: 24px;
   overflow: hidden;
+  border-radius: 24px;
   background: var(--surface);
   border: .5px solid var(--line);
   box-shadow: 0 8px 24px rgba(0,0,0,.10);
@@ -246,6 +240,7 @@ body:has(#view-canvas.active) .bnav {
   padding: 0 14px;
   background: var(--surface);
   border-bottom: .5px solid var(--line);
+  z-index: 1;
 }
 .Trille-canvas-upload-avatar {
   width: 18px;
@@ -270,6 +265,7 @@ body:has(#view-canvas.active) .bnav {
   flex: 1;
   min-height: 0;
   background: var(--bg2);
+  position: relative;
 }
 .Trille-canvas-upload-media img {
   width: 100%;
