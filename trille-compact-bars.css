@@ -17,8 +17,7 @@
   left:0;
   right:0;
   margin:0 auto;
-  bottom:max(20px,calc(env(safe-area-inset-bottom) + 10px));
-  width:min(690px,calc(100vw - 112px));
+  bottom:env(safe-area-inset-bottom);  width:min(690px,calc(100vw - 112px));
   height:58px;
   padding:8px 18px;
   display:grid;
@@ -172,7 +171,7 @@
   .boards-folder-name{font-size:21px;}
   .board-title{font-size:24px;}
   .bi-title,.card-title{font-size:18px;}
-  .bnav{width:calc(100vw - 112px);bottom:max(18px,calc(env(safe-area-inset-bottom) + 8px));height:56px;padding:7px 14px;gap:8px;}
+  .bnav{width:calc(100vw - 112px);bottom:env(safe-area-inset-bottom);height:56px;padding:7px 14px;gap:8px;}
   .nbtn{width:40px;height:40px;}
   .nbtn svg{width:25px;height:25px;min-width:25px;min-height:25px;}
 }
