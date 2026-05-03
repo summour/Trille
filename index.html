@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>Trille</title>
+<link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+<div id="app">
+  <div class="hdr" id="main-hdr">
+    <span class="hdr-logo">trill<em>e</em></span>
+    <div class="hdr-actions">
+      <button class="icon-btn" id="search-btn" onclick="toggleSearch()">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </button>
+      <button class="icon-btn" onclick="toggleTheme()">
+        <svg id="theme-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="srch-wrap" id="srch-wrap">
+    <input class="srch-in" id="srch-in" placeholder="Search boards..." oninput="onSearch(this.value)">
+  </div>
+
+  <!-- HOME -->
+  <div class="view active" id="view-home">
+    <div class="scroll" id="home-scroll">
+      <div style="padding:0 16px 20px">
+        <div class="section-hdr"><span class="section-title">Folders</span><button class="section-btn" onclick="openFolderModal()">New</button></div>
+        <div class="folders-grid" id="folders-grid"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOARDS -->
+  <div class="view" id="view-boards">
+    <div class="scroll">
+      <div style="padding:0 16px 20px">
+        <div class="boards-back" onclick="goHome()">
+          <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+          <span>Home</span>
+        </div>
+        <div class="boards-folder-hdr" id="boards-folder-hdr"></div>
+        <div class="boards-grid" id="boards-grid"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOARD -->
+  <div class="view" id="view-board">
+    <div class="scroll">
+      <div style="padding:0 16px 20px">
+        <div class="board-back-hdr">
+          <div class="board-nav-left" id="board-back-btn">
+            <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+            <span id="board-back-label">Back</span>
+          </div>
+          <div style="display:flex;gap:4px">
+            <!-- Canvas button -->
+            <button class="icon-btn" onclick="openBoardCanvas()" title="Canvas view" style="color:var(--ink2)">
+              <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+            </button>
+            <button class="icon-btn" onclick="toggleReorder()" id="reorder-btn" title="Reorder">
+              <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+            </button>
+            <button class="icon-btn" onclick="openAdd()">
+              <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="board-title-row">
+          <div class="board-type-tag" id="board-type-tag"></div>
+          <div class="board-title" id="board-title-el"></div>
+          <div class="board-desc" id="board-desc-el"></div>
+        </div>
+        <div class="cards-list" id="board-cards"></div>
+        <button class="add-card-btn" onclick="openAdd()" style="margin-top:12px">+ Add card</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CANVAS VIEW (Miro-style) -->
+  <div class="view" id="view-canvas">
+    <!-- Back button -->
+    <button class="canvas-back" onclick="closeCanvas()">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      Back
+    </button>
+    <!-- Board title -->
+    <div class="canvas-board-title" id="canvas-board-title">Overview</div>
+    <!-- Canvas viewport -->
+    <div class="canvas-vp" id="canvas-vp">
+      <div class="canvas-world" id="canvas-world"></div>
+    </div>
+    <!-- Touch hint -->
+    <div class="canvas-hint" id="canvas-hint">Pinch to zoom · Drag to pan · Hold card to move</div>
+    <!-- Toolbar -->
+    <div class="canvas-toolbar">
+      <button class="canvas-tb-btn" onclick="canvasZoomOut()" title="Zoom out">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+      </button>
+      <span class="canvas-tb-zoom" id="canvas-zoom-label">100%</span>
+      <button class="canvas-tb-btn" onclick="canvasZoomIn()" title="Zoom in">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+      </button>
+      <div class="canvas-tb-sep"></div>
+      <button class="canvas-tb-btn" onclick="canvasFitAll()" title="Fit all">
+        <svg viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>
+      </button>
+      <button class="canvas-tb-btn" onclick="canvasZoomReset()" title="Reset zoom">
+        <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1018 0A9 9 0 003 12z"/><path d="M12 8v4l3 3"/></svg>
+      </button>
+      <div class="canvas-tb-sep"></div>
+      <button class="canvas-tb-btn" onclick="openAdd()" title="Add card">
+        <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </button>
+    </div>
+    <!-- Empty state -->
+    <div class="canvas-empty" id="canvas-empty" style="display:none">
+      <h3>No cards yet</h3>
+      <p>Add cards to see them on the canvas.</p>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="view" id="view-stats">
+    <div class="scroll" style="padding:0 16px 20px">
+      <div style="margin-top:8px" id="stats-content"></div>
+    </div>
+  </div>
+
+  <!-- CALENDAR -->
+  <div class="view" id="view-calendar">
+    <div class="scroll" style="padding:0 16px 20px">
+      <div id="cal-content" style="margin-top:8px"></div>
+    </div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="view" id="view-settings">
+    <div class="scroll" style="padding:0 16px 20px">
+      <div class="settings-section">
+        <div class="ss-t">General</div>
+        <div class="settings-group">
+          <div class="si"><span class="si-label">App name</span><input class="bn-in" id="bn-in" value="My Workspace" oninput="updateBN(this.value)"></div>
+          <div class="si"><span class="si-label">Dark mode</span><button class="tog" id="dark-tog" onclick="toggleTheme()"></button></div>
+        </div>
+      </div>
+      <div class="settings-section">
+        <div class="ss-t">Data</div>
+        <div class="settings-group">
+          <div class="si" onclick="exportData()"><span class="si-label">Export JSON</span><span class="si-r">↗</span></div>
+          <div class="si" onclick="importData()"><span class="si-label">Import JSON</span><span class="si-r">↙</span></div>
+          <div class="si" onclick="clearAll()"><span class="si-label" style="color:var(--ink2)">Clear all data</span><span class="si-r">×</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bnav">
+    <button class="nbtn active" id="nav-home" onclick="switchView('home',this)">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Home
+    </button>
+    <button class="nbtn" id="nav-stats" onclick="switchView('stats',this)">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Stats
+    </button>
+    <button class="nbtn" id="nav-calendar" onclick="switchView('calendar',this)">
+      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Calendar
+    </button>
+    <button class="nbtn" id="nav-settings" onclick="switchView('settings',this)">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      Settings
+    </button>
+  </nav>
+</div>
+
+<!-- CALENDAR DAY SHEET -->
+<div class="ov" id="modal-calday" onclick="ovClose(event,'modal-calday')">
+  <div class="modal">
+    <div class="mhandle"></div>
+    <div class="mhead"><h2 id="calday-title">— </h2><button class="icon-btn" onclick="closeModal('modal-calday')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="mbody" id="calday-body"></div>
+  </div>
+</div>
+<div class="ov" id="modal-add" onclick="ovClose(event,'modal-add')">
+  <div class="modal">
+    <div class="mhandle"></div>
+    <div class="mhead"><h2 id="modal-add-title">New Card</h2><button class="icon-btn" onclick="closeModal('modal-add')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="mbody">
+      <div class="fg"><label class="fl">Type</label><div class="tgrid" id="type-grid"></div></div>
+      <div class="fg"><label class="fl">Title</label><input class="fi" id="f-title" placeholder="Card title..." maxlength="80"></div>
+      <div class="fg"><label class="fl">Description</label><textarea class="fi" id="f-desc" rows="2" placeholder="Optional description..."></textarea></div>
+      <div id="dyn-fields"></div>
+      <button class="pri-btn" onclick="saveCard()" id="save-lbl">Create Card</button>
+    </div>
+  </div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="ov" id="modal-detail" onclick="ovClose(event,'modal-detail')">
+  <div class="modal">
+    <div class="mhandle"></div>
+    <div class="mhead" style="border:none;padding-bottom:8px">
+      <div style="flex:1;min-width:0">
+        <div id="d-tag" style="font-size:10px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);margin-bottom:4px"></div>
+        <h2 id="d-title" style="font-size:22px;font-weight:700;letter-spacing:-.3px;line-height:1.2"></h2>
+        <p id="d-desc" style="font-size:13px;color:var(--ink2);margin-top:3px;font-weight:400"></p>
+      </div>
+      <div style="display:flex;gap:4px;flex-shrink:0">
+        <button class="icon-btn" onclick="editFromDetail()"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+        <button class="icon-btn" onclick="closeModal('modal-detail')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      </div>
+    </div>
+    <div class="mbody" id="d-body"></div>
+  </div>
+</div>
+
+<!-- FOLDER MODAL -->
+<div class="ov" id="modal-folder" onclick="ovClose(event,'modal-folder')">
+  <div class="modal">
+    <div class="mhandle"></div>
+    <div class="mhead"><h2 id="modal-folder-title">New Folder</h2><button class="icon-btn" onclick="closeModal('modal-folder')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="mbody">
+      <div class="fg"><label class="fl">Folder name</label><input class="fi" id="folder-name-in" placeholder="e.g. Work, Personal..."></div>
+      <button class="pri-btn" onclick="saveFolder()" id="folder-save-lbl">Create Folder</button>
+      <button class="act-btn danger hidden" id="folder-del-btn" onclick="deleteFolder()" style="width:100%;margin-top:4px">Delete Folder</button>
+    </div>
+  </div>
+</div>
+
+<!-- CTX -->
+<div class="ctx" id="ctx">
+  <button class="ctx-i" onclick="ctxEdit()">
+    <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+    Edit
+  </button>
+  <button class="ctx-i" onclick="ctxDup()">
+    <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+    Duplicate
+  </button>
+  <div class="ctx-div"></div>
+  <button class="ctx-i danger" onclick="ctxDel()">
+    <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+    Delete
+  </button>
+</div>
+
+<!-- CANVAS CTX -->
+<div class="canvas-ctx" id="canvas-ctx">
+  <button class="canvas-ctx-i" onclick="canvasCtxEdit()">
+    <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+    Edit
+  </button>
+  <button class="canvas-ctx-i" onclick="canvasCtxColor()">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 000 20"/></svg>
+    Color
+  </button>
+  <div class="canvas-ctx-div"></div>
+  <button class="canvas-ctx-i" id="canvas-ctx-open-board" onclick="canvasCtxOpenBoard()" style="display:none">
+    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+    Open board
+  </button>
+  <button class="canvas-ctx-i" style="color:var(--ink2)" onclick="canvasCtxDel()">
+    <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
+    Delete
+  </button>
+</div>
+
+<!-- CANVAS COLOR POPUP -->
+<div class="canvas-color-popup" id="canvas-color-popup">
+  <button class="canvas-swatch" style="background:#e8e8ed" onclick="applyCanvasColor('default')" title="White"></button>
+  <button class="canvas-swatch" style="background:#ffe066" onclick="applyCanvasColor('yellow')" title="Yellow"></button>
+  <button class="canvas-swatch" style="background:#ffb3cc" onclick="applyCanvasColor('pink')" title="Pink"></button>
+  <button class="canvas-swatch" style="background:#a8e6b4" onclick="applyCanvasColor('green')" title="Green"></button>
+  <button class="canvas-swatch" style="background:#a0c4ff" onclick="applyCanvasColor('blue')" title="Blue"></button>
+  <button class="canvas-swatch" style="background:#c9b4ff" onclick="applyCanvasColor('purple')" title="Purple"></button>
+  <button class="canvas-swatch" style="background:#ffcf86" onclick="applyCanvasColor('orange')" title="Orange"></button>
+</div>
+
+<div class="ft-popup" id="ft-popup"></div>
+<div class="toast" id="toast"></div>
+<input type="file" id="import-file" accept=".json" style="display:none" onchange="handleImport(event)">
+<script src="js/trille-state.js"></script>
+<script src="js/trille-core.js"></script>
+<script src="js/trille-navigation.js"></script>
+<script src="js/trille-editor.js"></script>
+<script src="js/trille-board-actions.js"></script>
+<script src="js/trille-insights.js"></script>
+<script src="js/trille-canvas.js"></script>
+<script src="js/trille-bootstrap.js"></script>
+</body>
+</html>
