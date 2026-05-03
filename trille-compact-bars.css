@@ -1,5 +1,5 @@
 /* Direct compact top and stable floating icon dock tuning */
-.hdr{padding:8px 16px 4px;}
+.hdr{padding:calc(env(safe-area-inset-top) + 8px) 16px 4px;}
 .hdr-logo{font-size:28px;letter-spacing:-.75px;}
 .hdr-actions{gap:2px;}
 .icon-btn{width:36px;height:36px;border-radius:10px;}
