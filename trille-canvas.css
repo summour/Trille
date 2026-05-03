@@ -1,0 +1,501 @@
+/* ============================================================
+   Trille Canvas — Miro-style board, mobile-first
+   ============================================================ */
+
+#view-canvas {
+  position: relative;
+  overflow: hidden;
+  background: var(--canvas-bg, #f0eff4);
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+[data-dark] #view-canvas {
+  --canvas-bg: #0a0a0c;
+}
+
+/* dot-grid background */
+#view-canvas::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(circle, var(--canvas-dot, rgba(0,0,0,.12)) 1px, transparent 1px);
+  background-size: 28px 28px;
+  z-index: 0;
+}
+
+[data-dark] #view-canvas::before {
+  --canvas-dot: rgba(255,255,255,.08);
+}
+
+/* canvas viewport */
+.canvas-vp {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: visible;
+}
+
+/* transform layer */
+.canvas-world {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+  will-change: transform;
+}
+
+/* ---- SVG lines ---- */
+.canvas-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: visible;
+  pointer-events: none;
+  z-index: 0;
+}
+.canvas-line {
+  fill: none;
+  stroke: var(--line);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: .7;
+}
+.canvas-line-arrow {
+  fill: var(--line);
+  opacity: .7;
+}
+
+/* ---- Card nodes ---- */
+.cn {
+  position: absolute;
+  width: 200px;
+  min-height: 110px;
+  background: var(--surface);
+  border-radius: 18px;
+  box-shadow: 0 2px 12px rgba(0,0,0,.10), 0 0 0 .5px rgba(0,0,0,.07);
+  padding: 14px 14px 12px;
+  cursor: grab;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  transition: box-shadow .15s, transform .1s;
+  box-sizing: border-box;
+}
+
+.cn:active {
+  cursor: grabbing;
+  box-shadow: 0 8px 28px rgba(0,0,0,.18), 0 0 0 1px rgba(0,0,0,.10);
+  transform: scale(1.025);
+  z-index: 99 !important;
+}
+
+.cn.cn-dragging {
+  box-shadow: 0 12px 36px rgba(0,0,0,.22), 0 0 0 2px var(--accent);
+  transform: scale(1.03) rotate(.5deg);
+  z-index: 200 !important;
+  opacity: .94;
+}
+
+/* post-it color variants */
+.cn[data-color="yellow"]  { background: #fffbe6; }
+.cn[data-color="pink"]    { background: #fff0f5; }
+.cn[data-color="green"]   { background: #f0faf2; }
+.cn[data-color="blue"]    { background: #edf4ff; }
+.cn[data-color="purple"]  { background: #f5f0ff; }
+.cn[data-color="orange"]  { background: #fff7ed; }
+
+[data-dark] .cn[data-color="yellow"]  { background: #2a2510; }
+[data-dark] .cn[data-color="pink"]    { background: #28101a; }
+[data-dark] .cn[data-color="green"]   { background: #0f2015; }
+[data-dark] .cn[data-color="blue"]    { background: #0f1c2e; }
+[data-dark] .cn[data-color="purple"]  { background: #1a1028; }
+[data-dark] .cn[data-color="orange"]  { background: #251a08; }
+
+.cn-tag {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--ink3);
+  margin-bottom: 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cn-title {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -.2px;
+  color: var(--ink);
+  word-break: break-word;
+  margin-bottom: 4px;
+}
+
+.cn-desc {
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--ink2);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+
+.cn-prog {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+}
+.cn-prog-bar {
+  flex: 1;
+  height: 3px;
+  background: var(--line);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.cn-prog-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 2px;
+  transition: width .3s;
+}
+.cn-prog-pct {
+  font-size: 11px;
+  color: var(--ink3);
+  font-weight: 600;
+  min-width: 28px;
+  text-align: right;
+}
+
+.cn-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: .5px solid var(--line);
+}
+.cn-cards-count {
+  font-size: 11px;
+  color: var(--ink3);
+  font-weight: 500;
+}
+.cn-done-count {
+  font-size: 11px;
+  color: var(--ink3);
+  font-weight: 500;
+}
+
+.cn-menu {
+  position: absolute;
+  top: 9px;
+  right: 9px;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink3);
+  opacity: 0;
+  transition: opacity .15s, background .12s;
+  z-index: 2;
+}
+.cn:hover .cn-menu,
+.cn-menu:focus {
+  opacity: 1;
+}
+.cn-menu:hover {
+  background: var(--hover);
+  color: var(--ink);
+}
+.cn-menu svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+/* ---- Board node (top-level) ---- */
+.cn-board {
+  border-left: 4px solid var(--accent);
+  border-radius: 18px;
+}
+
+/* ---- Canvas toolbar ---- */
+.canvas-toolbar {
+  position: absolute;
+  bottom: max(90px, calc(env(safe-area-inset-bottom) + 80px));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--surface);
+  border-radius: 999px;
+  padding: 6px 10px;
+  box-shadow: 0 4px 20px rgba(0,0,0,.14);
+  border: .5px solid var(--line);
+  white-space: nowrap;
+}
+
+[data-dark] .canvas-toolbar {
+  box-shadow: 0 6px 24px rgba(0,0,0,.5);
+}
+
+.canvas-tb-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  color: var(--ink2);
+  transition: background .12s, color .12s;
+  flex-shrink: 0;
+}
+.canvas-tb-btn svg {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.canvas-tb-btn:hover,
+.canvas-tb-btn:active {
+  background: var(--hover);
+  color: var(--ink);
+}
+.canvas-tb-sep {
+  width: 1px;
+  height: 22px;
+  background: var(--line);
+  flex-shrink: 0;
+}
+.canvas-tb-zoom {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink3);
+  min-width: 38px;
+  text-align: center;
+  letter-spacing: .02em;
+}
+
+/* canvas color swatches for post-it */
+.canvas-color-row {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+.canvas-swatch {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  transition: transform .12s, border-color .12s;
+  flex-shrink: 0;
+}
+.canvas-swatch:hover {
+  transform: scale(1.2);
+  border-color: var(--ink2);
+}
+
+/* ---- Back button ---- */
+.canvas-back {
+  position: absolute;
+  top: max(12px, env(safe-area-inset-top));
+  left: 12px;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--surface);
+  border-radius: 12px;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink2);
+  box-shadow: 0 2px 10px rgba(0,0,0,.10);
+  border: .5px solid var(--line);
+  cursor: pointer;
+}
+.canvas-back svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ---- Canvas board title ---- */
+.canvas-board-title {
+  position: absolute;
+  top: max(12px, env(safe-area-inset-top));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 40;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink2);
+  letter-spacing: -.2px;
+  pointer-events: none;
+  white-space: nowrap;
+  max-width: calc(100vw - 160px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---- Mini-map ---- */
+.canvas-minimap {
+  position: absolute;
+  bottom: max(90px, calc(env(safe-area-inset-bottom) + 80px));
+  right: 14px;
+  z-index: 50;
+  width: 100px;
+  height: 70px;
+  background: var(--surface);
+  border: .5px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0,0,0,.10);
+  display: none; /* shown on tablet+ */
+}
+
+@media (min-width: 600px) {
+  .canvas-minimap { display: block; }
+}
+
+/* ---- Empty state ---- */
+.canvas-empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  pointer-events: none;
+  z-index: 2;
+}
+.canvas-empty h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ink2);
+  letter-spacing: -.3px;
+}
+.canvas-empty p {
+  font-size: 14px;
+  color: var(--ink3);
+  font-weight: 400;
+}
+
+/* ---- Context popup for canvas card ---- */
+.canvas-ctx {
+  position: fixed;
+  z-index: 400;
+  background: var(--surface);
+  border: .5px solid var(--line);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.15);
+  padding: 6px;
+  min-width: 180px;
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(.93);
+  transform-origin: top right;
+  transition: all .15s cubic-bezier(.32,1,.23,1);
+}
+.canvas-ctx.open {
+  opacity: 1;
+  pointer-events: all;
+  transform: scale(1);
+}
+.canvas-ctx-i {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 11px 13px;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--ink2);
+  transition: background .12s;
+}
+.canvas-ctx-i svg {
+  width: 17px;
+  height: 17px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.canvas-ctx-i:hover { background: var(--hover); color: var(--ink); }
+.canvas-ctx-div { height: .5px; background: var(--line); margin: 4px 0; }
+
+/* ---- color palette popup ---- */
+.canvas-color-popup {
+  position: fixed;
+  z-index: 410;
+  background: var(--surface);
+  border: .5px solid var(--line);
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.15);
+  padding: 10px;
+  display: flex;
+  gap: 7px;
+  align-items: center;
+  flex-wrap: wrap;
+  max-width: 180px;
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(.9);
+  transform-origin: bottom center;
+  transition: all .15s cubic-bezier(.32,1,.23,1);
+}
+.canvas-color-popup.open {
+  opacity: 1;
+  pointer-events: all;
+  transform: scale(1);
+}
+
+/* ---- reorder drag ghost ---- */
+.cn-ghost {
+  opacity: .4;
+  pointer-events: none;
+}
+
+/* ---- touch hint ---- */
+.canvas-hint {
+  position: absolute;
+  bottom: max(148px, calc(env(safe-area-inset-bottom) + 138px));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 40;
+  font-size: 12px;
+  color: var(--ink3);
+  font-weight: 500;
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity .6s;
+  white-space: nowrap;
+}
+.canvas-hint.hidden { opacity: 0; }

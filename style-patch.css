@@ -1,0 +1,69 @@
+/* ============================================================
+   Trille drag-handle patch — append to style.css
+   ============================================================ */
+
+/* Activity row drag handle */
+.clrow {
+  align-items: center;
+}
+.drag-handle {
+  font-size: 16px;
+  color: var(--ink3);
+  cursor: grab;
+  padding: 0 4px 0 2px;
+  flex-shrink: 0;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  line-height: 1;
+  letter-spacing: -1px;
+}
+.drag-handle:active { cursor: grabbing; color: var(--ink2); }
+
+/* nf-row drag handle (already has .Trille-field-drag-handle from reorder.css) */
+.nf-drag-handle {
+  font-size: 15px;
+  color: var(--ink3);
+  cursor: grab;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  letter-spacing: -1px;
+  width: 28px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: .5px solid var(--line);
+  border-radius: 12px;
+  background: var(--bg);
+}
+.nf-drag-handle:active { cursor: grabbing; background: var(--hover); }
+
+/* Dragging state */
+.clrow.Trille-field-reorder-dragging,
+.nf-row.Trille-field-reorder-dragging {
+  opacity: .6;
+  background: var(--hover);
+  border-radius: 12px;
+  transform: scale(.985);
+}
+
+/* Canvas view occupies full height (no header/nav) */
+#view-canvas {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 150;
+  display: none;
+  flex-direction: column;
+}
+#view-canvas.active {
+  display: flex !important;
+}
+/* Hide header & nav when canvas is active */
+body:has(#view-canvas.active) #main-hdr,
+body:has(#view-canvas.active) .srch-wrap,
+body:has(#view-canvas.active) .bnav {
+  display: none !important;
+}
