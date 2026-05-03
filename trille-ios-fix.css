@@ -1,43 +1,24 @@
-/* Trille final fullscreen view model
-   Use Canvas surface model for every app page,
-   but keep normal scrolling on non-canvas pages. */
-
 html,
 body {
   width: 100%;
   height: 100%;
-  min-height: 100%;
+  min-height: -webkit-fill-available;
   overflow: hidden;
-  max-height: none;
-  background: var(--bg);
+  background: #000;
 }
 
 #app {
   position: fixed;
-  inset: 0;
-  width: 100%;
-  height: auto;
-  min-height: 100%;
-  max-height: none;
-  overflow: hidden;
-  background: var(--bg);
-}
-
-body:not(:has(#view-canvas.active)) #main-hdr {
-  position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  z-index: 120;
-  background: var(--bg);
-}
-
-body:not(:has(#view-canvas.active)) .srch-wrap {
-  position: fixed;
-  top: calc(env(safe-area-inset-top) + 76px);
-  left: 0;
-  right: 0;
-  z-index: 119;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  max-height: none !important;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
   background: var(--bg);
 }
 
@@ -48,7 +29,10 @@ body:not(:has(#view-canvas.active)) .srch-wrap {
 #view-calendar,
 #view-settings {
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   z-index: 1;
   display: none;
   flex-direction: column;
@@ -65,65 +49,96 @@ body:not(:has(#view-canvas.active)) .srch-wrap {
   display: flex;
 }
 
+#main-hdr {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 120;
+  background: var(--bg);
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-bottom: 8px;
+}
+
+.srch-wrap {
+  position: fixed;
+  top: calc(env(safe-area-inset-top, 0px) + 52px);
+  left: 0;
+  right: 0;
+  z-index: 119;
+  background: var(--bg);
+  padding: 0 16px 8px;
+}
+
 #view-home .scroll,
-#view-boards .scroll,
-#view-board .scroll,
 #view-stats .scroll,
 #view-calendar .scroll,
 #view-settings .scroll {
   flex: 1;
   min-height: 0;
-  height: 100%;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  background: var(--bg);
-  padding-top: calc(env(safe-area-inset-top) + 86px);
-  padding-bottom: calc(96px + env(safe-area-inset-bottom));
+  overscroll-behavior: contain;
+  padding-top: calc(env(safe-area-inset-top, 0px) + 60px);
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 100px);
 }
 
 #view-boards .scroll,
 #view-board .scroll {
-  padding-bottom: calc(32px + env(safe-area-inset-bottom));
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  padding-top: calc(env(safe-area-inset-top, 0px) + 60px);
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 24px);
+}
+
+.bnav {
+  position: fixed !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  bottom: max(10px, env(safe-area-inset-bottom, 0px)) !important;
+  z-index: 180 !important;
 }
 
 body:has(#view-boards.active) .bnav,
 body:has(#view-board.active) .bnav,
 body:has(#view-canvas.active) .bnav {
-  display: none;
-}
-
-.bnav {
-  position: fixed;
-  z-index: 130;
-  bottom: calc(env(safe-area-inset-bottom) + 10px);
+  display: none !important;
 }
 
 #view-canvas {
-  position: fixed;
-  inset: 0;
-  z-index: 150;
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 150 !important;
+  display: none;
 }
 
-.hdr {
-  padding-top: calc(env(safe-area-inset-top) + 10px);
-  padding-left: 20px;
-  padding-right: 20px;
-  padding-bottom: 10px;
+#view-canvas.active {
+  display: flex !important;
+}
+
+body:has(#view-canvas.active) #main-hdr,
+body:has(#view-canvas.active) .srch-wrap {
+  display: none !important;
 }
 
 .canvas-back,
 .canvas-board-title {
-  top: calc(env(safe-area-inset-top) + 12px);
+  top: calc(env(safe-area-inset-top, 0px) + 12px) !important;
 }
 
 .canvas-toolbar {
-  bottom: calc(env(safe-area-inset-bottom) + 16px);
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 16px) !important;
 }
 
 .modal {
-  padding-bottom: calc(env(safe-area-inset-bottom) + 20px);
+  padding-bottom: max(20px, env(safe-area-inset-bottom, 0px)) !important;
 }
 
 .toast {
-  bottom: calc(env(safe-area-inset-bottom) + 90px);
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 88px) !important;
 }
