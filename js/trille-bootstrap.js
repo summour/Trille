@@ -397,15 +397,20 @@ function TrilleEnhanceUploadCards(){
     const img=node.querySelector('img');
     if(!img)return;
 
-    let shell=node.querySelector('.Trille-canvas-upload-shell');
+    const oldShell=node.querySelector('.Trille-canvas-upload-shell');
+    if(oldShell){
+      const oldMedia=oldShell.querySelector('.Trille-canvas-upload-media');
+      const oldImg=oldMedia?.querySelector('img');
+      if(oldImg)node.appendChild(oldImg);
+      oldShell.remove();
+    }
+
+    let header=node.querySelector('.Trille-canvas-upload-header');
     let media=node.querySelector('.Trille-canvas-upload-media');
     let titleInput=node.querySelector('.Trille-canvas-upload-title');
 
-    if(!shell){
-      shell=document.createElement('div');
-      shell.className='Trille-canvas-upload-shell';
-
-      const header=document.createElement('div');
+    if(!header){
+      header=document.createElement('div');
       header.className='Trille-canvas-upload-header';
       header.addEventListener('pointerdown',event=>event.stopPropagation());
       header.addEventListener('click',event=>event.stopPropagation());
@@ -433,12 +438,14 @@ function TrilleEnhanceUploadCards(){
       titleInput.addEventListener('blur',commit);
 
       header.append(avatar,titleInput);
+      node.insertBefore(header,node.firstChild);
+    }
 
+    if(!media){
       media=document.createElement('div');
       media.className='Trille-canvas-upload-media';
-
-      node.insertBefore(shell,node.firstChild);
-      shell.append(header,media);
+      if(header.nextSibling)node.insertBefore(media,header.nextSibling);
+      else node.appendChild(media);
     }
 
     if(img.parentElement!==media){
