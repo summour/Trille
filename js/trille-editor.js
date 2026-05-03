@@ -84,7 +84,7 @@ function fDisplayHTML(f){
   switch(f.type){
     case 'text':case 'formula':case 'person':v=esc(val||'—');break;
     case 'number':v=val!==''&&val!==undefined?String(val):'—';break;
-    case 'date':if(val){const d=new Date(val);const left=Math.ceil((d-new Date())/86400000);v=d.toLocaleDateString('en-GB')+(left>=0&&left<=30?` <span class="fv warn">(${left}d)</span>`:'')}else v='—';break;
+    case 'date':if(val){const d=new Date(val);const today=new Date();today.setHours(0,0,0,0);d.setHours(0,0,0,0);const left=Math.ceil((d-today)/86400000);v=d.toLocaleDateString('en-GB')+` <span class="fv warn">(${left}d)</span>`;}else v='—';break;
     case 'select':v=val?`<span class="pill">${esc(val)}</span>`:'—';break;
     case 'multi':v=(Array.isArray(val)?val:[]).map(t=>`<span class="tag-chip">${esc(t)}</span>`).join('')||'—';break;
     case 'check':v=val?'☑ Yes':'☐ No';break;
