@@ -239,26 +239,60 @@ body:has(#view-canvas.active) .bnav {
 /* Post-it color controls */
 .Trille-canvas-sticky-colors {
   position: absolute;
-  top: auto;
+  top: 50%;
+  left: -40px;
   right: auto;
-  left: 0;
-  bottom: -36px;
+  bottom: auto;
+  transform: translateY(-50%);
   z-index: 270;
   display: flex;
-  gap: 4px;
-  opacity: 0;
-  pointer-events: none;
-  padding: 3px;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  opacity: 1;
+  pointer-events: auto;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+.Trille-canvas-sticky-palette-btn {
+  width: 28px;
+  height: 28px;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  border: 1px solid rgba(0,0,0,.18);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.45), 0 2px 8px rgba(0,0,0,.10);
+  cursor: pointer;
+  touch-action: manipulation;
+  position: relative;
+  flex-shrink: 0;
+}
+.Trille-canvas-sticky-palette-btn::after {
+  content: '';
+  position: absolute;
+  right: -1px;
+  bottom: -1px;
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid rgba(0,0,0,.12);
+  box-shadow: 0 1px 3px rgba(0,0,0,.12);
+}
+.Trille-canvas-sticky-palette-panel {
+  display: none;
+  flex-direction: column;
+  gap: 6px;
+  padding: 6px;
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
   border: .5px solid var(--line);
   box-shadow: 0 4px 14px rgba(0,0,0,.12);
   backdrop-filter: blur(10px);
 }
-.cn-sticky:hover .Trille-canvas-sticky-colors,
-.cn-sticky:focus-within .Trille-canvas-sticky-colors {
-  opacity: 1;
-  pointer-events: auto;
+.cn-sticky.Trille-sticky-palette-open .Trille-canvas-sticky-palette-panel {
+  display: flex;
 }
 .Trille-canvas-sticky-color {
   width: 22px;
@@ -273,12 +307,19 @@ body:has(#view-canvas.active) .bnav {
   outline: 2px solid var(--ink);
   outline-offset: 2px;
 }
+.Trille-canvas-sticky-palette-btn[data-color="yellow"],
 .Trille-canvas-sticky-color[data-color="yellow"] { background: #fff9c4; }
+.Trille-canvas-sticky-palette-btn[data-color="pink"],
 .Trille-canvas-sticky-color[data-color="pink"] { background: #f8bbd0; }
+.Trille-canvas-sticky-palette-btn[data-color="blue"],
 .Trille-canvas-sticky-color[data-color="blue"] { background: #bbdefb; }
+.Trille-canvas-sticky-palette-btn[data-color="green"],
 .Trille-canvas-sticky-color[data-color="green"] { background: #c8e6c9; }
+.Trille-canvas-sticky-palette-btn[data-color="purple"],
 .Trille-canvas-sticky-color[data-color="purple"] { background: #e1bee7; }
+.Trille-canvas-sticky-palette-btn[data-color="orange"],
 .Trille-canvas-sticky-color[data-color="orange"] { background: #ffe0b2; }
+.Trille-canvas-sticky-palette-btn[data-color="white"],
 .Trille-canvas-sticky-color[data-color="white"] { background: #ffffff; }
 
 /* Visible move-ready feedback */
