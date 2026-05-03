@@ -37,36 +37,60 @@ function renderDyn(card){
   document.getElementById('dyn-fields').innerHTML=h;
 }
 
-function nfRowHTML(f,i){const sym=FT[f.type]?FT[f.type].sym:'T';return `<div class="nf-row" id="nfrow-${f.id}"><button class="nf-type-btn" onclick="openPicker('${f.id}',${i})" title="${FT[f.type]?.label||'Text'}">${sym}</button><input class="nf-key" type="text" placeholder="Name" value="${esc(f.key)}" oninput="nfFields[${i}].key=this.value"><div class="nf-val-wrap">${nfValHTML(f,i)}</div><button class="delbtn" onclick="nfDel(${i})"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>`;}
+function nfLockedAttrs(){return 'readonly data-trille-edit-locked="1" onclick="fieldEditTap(this,event)" onblur="lockFieldInput(this)"';}
+function nfRowHTML(f,i){const sym=FT[f.type]?FT[f.type].sym:'T';return `<div class="nf-row" id="nfrow-${f.id}"><button class="nf-type-btn" onclick="openPicker('${f.id}',${i})" title="${FT[f.type]?.label||'Text'}">${sym}</button><input class="nf-key" type="text" placeholder="Name" value="${esc(f.key)}" ${nfLockedAttrs()} oninput="nfFields[${i}].key=this.value"><div class="nf-val-wrap">${nfValHTML(f,i)}</div><button class="delbtn" onclick="nfDel(${i})"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>`;}
+function fieldEditTap(el,e){
+  const now=Date.now();
+  const last=parseInt(el.dataset.trilleLastTap||'0',10);
+  if(now-last<450){
+    el.readOnly=false;
+    el.dataset.trilleEditLocked='0';
+    setTimeout(()=>{
+      el.focus();
+      if(el.setSelectionRange&&typeof el.value==='string'){
+        const end=el.value.length;
+        el.setSelectionRange(end,end);
+      }
+    },0);
+    return;
+  }
+  el.dataset.trilleLastTap=String(now);
+  if(e)e.preventDefault();
+  el.blur();
+}
+function lockFieldInput(el){
+  el.readOnly=true;
+  el.dataset.trilleEditLocked='1';
+}
 
 function nfValHTML(f,i){
   const v=f.value;
   switch(f.type){
-    case 'text':return `<input class="nf-in" type="text" placeholder="Value..." value="${esc(v||'')}" oninput="nfFields[${i}].value=this.value">`;
-    case 'number':return `<input class="nf-in" type="number" placeholder="0" value="${v!==undefined?v:''}" oninput="nfFields[${i}].value=parseFloat(this.value)||0">`;
-    case 'date':return `<input class="nf-in" type="date" value="${v||''}" style="color:var(--ink)" oninput="nfFields[${i}].value=this.value">`;
+    case 'text':return `<input class="nf-in" type="text" placeholder="Value..." value="${esc(v||'')}" ${nfLockedAttrs()} oninput="nfFields[${i}].value=this.value">`;
+    case 'number':return `<input class="nf-in" type="number" placeholder="0" value="${v!==undefined?v:''}" ${nfLockedAttrs()} oninput="nfFields[${i}].value=parseFloat(this.value)||0">`;
+    case 'date':return `<input class="nf-in" type="date" value="${v||''}" style="color:var(--ink)" ${nfLockedAttrs()} oninput="nfFields[${i}].value=this.value">`;
     case 'select':{const opts=['To Do','In Progress','Done','Blocked','On Hold','Not Started','Cancelled'];return `<select class="nf-in" onchange="nfFields[${i}].value=this.value"><option value="">— select —</option>${opts.map(o=>`<option value="${o}"${v===o?' selected':''}>${o}</option>`).join('')}${v&&!opts.includes(v)?`<option value="${esc(v)}" selected>${esc(v)}</option>`:''}</select>`;}
     case 'multi':return nfMultiHTML(f,i);
     case 'check':return `<div class="nf-check-wrap"><input type="checkbox" ${v?'checked':''} onchange="nfFields[${i}].value=this.checked;this.nextElementSibling.textContent=this.checked?'Yes':'No'"><span class="nf-check-label">${v?'Yes':'No'}</span></div>`;
-    case 'url':return `<input class="nf-in" type="url" placeholder="https://..." value="${esc(v||'')}" oninput="nfFields[${i}].value=this.value">`;
-    case 'email':return `<input class="nf-in" type="email" placeholder="email@..." value="${esc(v||'')}" oninput="nfFields[${i}].value=this.value">`;
-    case 'phone':return `<input class="nf-in" type="tel" placeholder="+66..." value="${esc(v||'')}" oninput="nfFields[${i}].value=this.value">`;
-    case 'person':return `<input class="nf-in" type="text" placeholder="Name..." value="${esc(v||'')}" oninput="nfFields[${i}].value=this.value">`;
+    case 'url':return `<input class="nf-in" type="url" placeholder="https://..." value="${esc(v||'')}" ${nfLockedAttrs()} oninput="nfFields[${i}].value=this.value">`;
+    case 'email':return `<input class="nf-in" type="email" placeholder="email@..." value="${esc(v||'')}" ${nfLockedAttrs()} oninput="nfFields[${i}].value=this.value">`;
+    case 'phone':return `<input class="nf-in" type="tel" placeholder="+66..." value="${esc(v||'')}" ${nfLockedAttrs()} oninput="nfFields[${i}].value=this.value">`;
+    case 'person':return `<input class="nf-in" type="text" placeholder="Name..." value="${esc(v||'')}" ${nfLockedAttrs()} oninput="nfFields[${i}].value=this.value">`;
     case 'rating':return nfRatingHTML(f,i);
     case 'progress':return `<div class="nf-prog-wrap"><input type="range" min="0" max="100" value="${parseInt(v)||0}" oninput="nfFields[${i}].value=parseInt(this.value);this.nextElementSibling.textContent=this.value+'%'"><span class="nf-prog-n">${parseInt(v)||0}%</span></div>`;
-    case 'formula':return `<input class="nf-in" type="text" placeholder="formula..." value="${esc(v||'')}" style="font-style:italic;color:var(--ink3)" oninput="nfFields[${i}].value=this.value">`;
+    case 'formula':return `<input class="nf-in" type="text" placeholder="formula..." value="${esc(v||'')}" style="font-style:italic;color:var(--ink3)" ${nfLockedAttrs()} oninput="nfFields[${i}].value=this.value">`;
     case 'file':return `<div class="nf-file-wrap"><span class="nf-file-name">${v?esc(v):'No file'}</span><label class="nf-file-lbl">Upload<input type="file" style="display:none" onchange="nfFields[${i}].value=this.files[0]?.name||''"></label></div>`;
-    case 'longtext':return `<textarea class="nf-in" rows="3" placeholder="Long text..." oninput="nfFields[${i}].value=this.value" style="resize:vertical">${esc(v||'')}</textarea>`;
-    default:return `<input class="nf-in" type="text" placeholder="Value..." value="${esc(v||'')}" oninput="nfFields[${i}].value=this.value">`;
+    case 'longtext':return `<textarea class="nf-in" rows="3" placeholder="Long text..." ${nfLockedAttrs()} oninput="nfFields[${i}].value=this.value" style="resize:vertical">${esc(v||'')}</textarea>`;
+    default:return `<input class="nf-in" type="text" placeholder="Value..." value="${esc(v||'')}" ${nfLockedAttrs()} oninput="nfFields[${i}].value=this.value">`;
   }
 }
 
-function nfMultiHTML(f,i){const tags=Array.isArray(f.value)?f.value:[];return `<div class="nf-multi" id="nfm-${f.id}">${tags.map((t,ti)=>`<span class="nf-tag">${esc(t)}<button class="nf-tag-del" onclick="tagDel('${f.id}',${i},${ti})">×</button></span>`).join('')}<input class="nf-multi-in" id="nfmin-${f.id}" placeholder="${tags.length?'':'Add, Enter'}" onkeydown="tagKey(event,'${f.id}',${i})"></div>`;}
+function nfMultiHTML(f,i){const tags=Array.isArray(f.value)?f.value:[];return `<div class="nf-multi" id="nfm-${f.id}">${tags.map((t,ti)=>`<span class="nf-tag">${esc(t)}<button class="nf-tag-del" onclick="tagDel('${f.id}',${i},${ti})">×</button></span>`).join('')}<input class="nf-multi-in" id="nfmin-${f.id}" placeholder="${tags.length?'':'Add, Enter'}" ${nfLockedAttrs()} onkeydown="tagKey(event,'${f.id}',${i})"></div>`;}
 function nfRatingHTML(f,i){const n=parseInt(f.value)||0;return `<div class="nf-rating">${[1,2,3,4,5].map(s=>`<span class="nf-star${s<=n?' on':''}" data-s="${s}" onclick="setRating(${i},${s},'${f.id}')">★</span>`).join('')}</div>`;}
 function setRating(idx,val,fid){nfFields[idx].value=val;document.querySelectorAll('#nfrow-'+fid+' .nf-star').forEach(s=>s.classList.toggle('on',parseInt(s.dataset.s)<=val));}
 function tagKey(e,fid,idx){if(e.key==='Enter'||e.key===','||e.key==='Tab'){e.preventDefault();const v=e.target.value.trim();if(v){if(!Array.isArray(nfFields[idx].value))nfFields[idx].value=[];nfFields[idx].value.push(v);e.target.value='';const wrap=document.getElementById('nfm-'+fid);if(wrap)wrap.outerHTML=nfMultiHTML(nfFields[idx],idx);}}}
 function tagDel(fid,idx,ti){if(!Array.isArray(nfFields[idx].value))return;nfFields[idx].value.splice(ti,1);const wrap=document.getElementById('nfm-'+fid);if(wrap)wrap.outerHTML=nfMultiHTML(nfFields[idx],idx);}
-function nfAdd(){const f={id:uid(),key:'',type:'text',value:''};nfFields.push(f);const ed=document.getElementById('nf-editor');if(ed){const tmp=document.createElement('div');tmp.innerHTML=nfRowHTML(f,nfFields.length-1);ed.appendChild(tmp.firstElementChild);ed.lastElementChild.querySelector('.nf-key')?.focus();}}
+function nfAdd(){const f={id:uid(),key:'',type:'text',value:''};nfFields.push(f);const ed=document.getElementById('nf-editor');if(ed){const tmp=document.createElement('div');tmp.innerHTML=nfRowHTML(f,nfFields.length-1);ed.appendChild(tmp.firstElementChild);}}
 function nfDel(i){nfFields.splice(i,1);renderDyn();}
 
 function openPicker(fid,idx){if(activePicker===fid){closePicker();return;}activePicker=fid;const popup=document.getElementById('ft-popup');popup.innerHTML=FT_GROUPS.map(g=>`<div class="ftp-sec">${g.sec}</div>`+g.keys.map(k=>`<div class="ftp-item" onclick="setFType('${fid}',${idx},'${k}')"><span class="ftp-icon">${FT[k].sym}</span>${FT[k].label}</div>`).join('')).join('');const btn=document.querySelector('#nfrow-'+fid+' .nf-type-btn');if(!btn)return;const r=btn.getBoundingClientRect();popup.style.left=Math.min(r.left,innerWidth-210)+'px';popup.style.top=Math.min(r.bottom+4,innerHeight-320)+'px';popup.classList.add('open');}
