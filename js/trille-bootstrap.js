@@ -116,6 +116,26 @@ function TrilleHideCanvasView(){
   canvasView.style.pointerEvents='none';
 }
 
+function TrilleFindCanvasItem(itemId){
+  if(canvasActiveBoard){
+    const board=cards.find(c=>c.id===canvasActiveBoard);
+    return (board?.subcards||[]).find(item=>item.id===itemId)||null;
+  }
+  return cards.find(item=>item.id===itemId)||null;
+}
+
+function TrilleSaveCanvasLinkData(){
+  save();
+  renderCanvas();
+}
+
+function deleteCanvasCardLink(sourceId,targetId){
+  const source=TrilleFindCanvasItem(sourceId);
+  if(!source||!Array.isArray(source.linkedCardIds))return;
+  source.linkedCardIds=source.linkedCardIds.filter(id=>id!==targetId);
+  TrilleSaveCanvasLinkData();
+}
+
 function installCanvasScopedStorage(){
   if(typeof openCanvas!=='function')return;
 
@@ -190,6 +210,79 @@ function installCanvasScopedStorage(){
   };
 }
 
+function installCanvasLinkDeleteControls(){
+  if(typeof drawAllCanvasLines!=='function')return;
+
+  drawAllCanvasLines=function(items){
+    const world=document.getElementById('canvas-world');
+    if(!world)return;
+
+    let svg=world.querySelector('.canvas-svg');
+    if(!svg){
+      svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+      svg.classList.add('canvas-svg');
+      world.insertBefore(svg,world.firstChild);
+    }
+
+    const defs=`<defs>
+      <marker id="canvas-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto">
+        <path d="M 0 0 L 8 4 L 0 8 z" class="canvas-line-arrow"/>
+      </marker>
+    </defs>`;
+
+    let paths='';
+
+    items.forEach(item=>{
+      const ids=Array.isArray(item.linkedCardIds)?item.linkedCardIds:[];
+      if(!ids.length)return;
+      const srcPos=canvasPositions[item.id];
+      if(!srcPos)return;
+
+      ids.forEach(tid=>{
+        const tgtPos=canvasPositions[tid];
+        if(!tgtPos)return;
+        const sx=srcPos.x+100;
+        const sy=srcPos.y+110;
+        const tx=tgtPos.x+100;
+        const ty=tgtPos.y;
+        const midY=(sy+ty)/2;
+        const deleteX=(sx+tx)/2;
+        const deleteY=midY;
+
+        paths+=`<path class="canvas-line" d="M${sx},${sy} C${sx},${midY} ${tx},${midY} ${tx},${ty}" marker-end="url(#canvas-arrow)"/>`;
+        paths+=`<g class="Trille-canvas-link-delete" onclick="event.stopPropagation();deleteCanvasCardLink('${item.id}','${tid}')" aria-label="Delete link">
+          <circle class="Trille-canvas-link-delete-bg" cx="${deleteX}" cy="${deleteY}" r="10"></circle>
+          <text class="Trille-canvas-link-delete-x" x="${deleteX}" y="${deleteY+4}" text-anchor="middle">×</text>
+        </g>`;
+      });
+    });
+
+    canvasLines.forEach(ln=>{
+      const stroke=ln.color||'#666';
+      const dash=ln.style==='dashed'?'stroke-dasharray="8 4"':'';
+      const marker=(ln.style==='arrow')?'marker-end="url(#canvas-arrow)"':'';
+      paths+=`<line x1="${ln.x1}" y1="${ln.y1}" x2="${ln.x2}" y2="${ln.y2}" stroke="${stroke}" stroke-width="2.5" stroke-linecap="round" ${dash} ${marker}/>
+        <g class="canvas-line-del" onclick="deleteCanvasObj('line','${ln.id}')" style="cursor:pointer">
+          <circle cx="${(ln.x1+ln.x2)/2}" cy="${(ln.y1+ln.y2)/2}" r="8" fill="white" stroke="#ccc" stroke-width="1"/>
+          <text x="${(ln.x1+ln.x2)/2}" y="${(ln.y1+ln.y2)/2+4}" text-anchor="middle" font-size="12" fill="#999">×</text>
+        </g>`;
+    });
+
+    if(window._lineDrawing){
+      const ld=window._lineDrawing;
+      paths+=`<line x1="${ld.x1}" y1="${ld.y1}" x2="${ld.x2}" y2="${ld.y2}" stroke="#4a90d9" stroke-width="2" stroke-dasharray="6 3" stroke-linecap="round"/>`;
+    }
+
+    const maxX=Math.max(...items.map(i=>(canvasPositions[i.id]?.x||0)+220),...canvasLines.map(l=>Math.max(l.x1,l.x2)),800);
+    const maxY=Math.max(...items.map(i=>(canvasPositions[i.id]?.y||0)+200),...canvasLines.map(l=>Math.max(l.y1,l.y2)),600);
+    svg.setAttribute('width',maxX);
+    svg.setAttribute('height',maxY);
+    svg.style.width=maxX+'px';
+    svg.style.height=maxY+'px';
+    svg.innerHTML=defs+paths;
+  };
+}
+
 // Show/hide "Open board" option in canvas ctx based on kind
 document.addEventListener('click',e=>{
   if(e.target.closest('#canvas-ctx')||e.target.closest('.cn-menu')){
@@ -204,4 +297,5 @@ loadCanvasStyles();
 loadAppIconMetadata();
 ensureAddButton();
 installCanvasScopedStorage();
+installCanvasLinkDeleteControls();
 init();
