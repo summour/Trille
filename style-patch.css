@@ -222,6 +222,40 @@ body:has(#view-canvas.active) .bnav {
   cursor: inherit;
 }
 
+/* Post-it move-first mobile behavior */
+.cn-sticky {
+  cursor: grab;
+}
+.cn-sticky:active {
+  cursor: grabbing;
+}
+.cn-sticky-text {
+  pointer-events: none;
+  -webkit-user-select: none;
+  user-select: none;
+  cursor: inherit;
+}
+
+/* Visible move-ready feedback */
+.cn:active,
+.cn.cn-dragging,
+.cn-sticky:active,
+.cn-textblock:active,
+.cn-shape:active,
+.cn-frame:active,
+.cn-upload:active {
+  outline: 3px solid var(--ink);
+  outline-offset: 0;
+  box-shadow: 0 10px 30px rgba(0,0,0,.18);
+}
+.cn-sticky:active,
+.cn-textblock:active,
+.cn-shape:active,
+.cn-frame:active,
+.cn-upload:active {
+  transform: scale(.995);
+}
+
 /* IG-style upload object */
 .cn-upload.Trille-canvas-upload-host {
   display: flex;
