@@ -34,7 +34,8 @@ button,input,textarea,select{font:inherit;font-family:-apple-system,BlinkMacSyst
 button{cursor:pointer;}
 a{color:inherit;text-decoration:none;}
 
-#app{height:100dvh;max-height:100dvh;display:flex;flex-direction:column;overflow:hidden;position:fixed;inset:0;}
+#app{height:100dvh;max-height:100dvh;display:flex;flex-direction:column;overflow:hidden;position:fixed;inset:0;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;}
+#app input,#app textarea,#app [contenteditable="true"]{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default;}
 
 .hdr{padding:16px 20px 10px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
 .hdr-logo{font-size:34px;font-weight:700;letter-spacing:-1.1px;color:var(--ink);}
