@@ -381,6 +381,29 @@ function TrilleBindCanvasResizeHandles(){
   });
 }
 
+function changeCanvasStickyColor(id,color){
+  const note=canvasStickyNotes.find(item=>item.id===id);
+  if(!note)return;
+  note.color=color;
+  saveCanvasData();
+  renderCanvas();
+}
+
+function TrilleStickyColorControls(id,currentColor='yellow'){
+  const colors=['yellow','pink','blue','green','purple','orange','white'];
+  return `<div class="Trille-canvas-sticky-colors" onclick="event.stopPropagation()" onpointerdown="event.stopPropagation()">
+    ${colors.map(color=>`<button class="Trille-canvas-sticky-color ${color===currentColor?'is-active':''}" type="button" data-color="${color}" title="${color}" onclick="event.stopPropagation();changeCanvasStickyColor('${id}','${color}')"></button>`).join('')}
+  </div>`;
+}
+
+function TrilleInjectStickyColorControls(){
+  canvasStickyNotes.forEach(note=>{
+    const node=document.querySelector(`.cn-sticky[data-snid="${note.id}"]`);
+    if(!node||node.querySelector('.Trille-canvas-sticky-colors'))return;
+    node.insertAdjacentHTML('afterbegin',TrilleStickyColorControls(note.id,note.color||'yellow'));
+  });
+}
+
 function TrilleUploadTitleValue(upload){
   if(typeof upload?.title==='string'&&upload.title.trim())return upload.title.trim();
   if(typeof upload?.name==='string'&&upload.name.trim())return upload.name.trim();
@@ -468,6 +491,7 @@ function installCanvasLayers(){
     TrilleApplyCanvasLayers();
     TrilleApplyObjectSizes();
     TrilleInjectCanvasLayerControls();
+    TrilleInjectStickyColorControls();
     TrilleInjectResizeHandles();
     TrilleBindCanvasResizeHandles();
   };
