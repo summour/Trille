@@ -389,10 +389,21 @@ function changeCanvasStickyColor(id,color){
   renderCanvas();
 }
 
+function toggleCanvasStickyPalette(id){
+  const node=document.querySelector(`.cn-sticky[data-snid="${id}"]`);
+  if(!node)return;
+  const shouldOpen=!node.classList.contains('Trille-sticky-palette-open');
+  document.querySelectorAll('.cn-sticky.Trille-sticky-palette-open').forEach(el=>el.classList.remove('Trille-sticky-palette-open'));
+  if(shouldOpen)node.classList.add('Trille-sticky-palette-open');
+}
+
 function TrilleStickyColorControls(id,currentColor='yellow'){
   const colors=['yellow','pink','blue','green','purple','orange','white'];
   return `<div class="Trille-canvas-sticky-colors" onclick="event.stopPropagation()" onpointerdown="event.stopPropagation()">
-    ${colors.map(color=>`<button class="Trille-canvas-sticky-color ${color===currentColor?'is-active':''}" type="button" data-color="${color}" title="${color}" onclick="event.stopPropagation();changeCanvasStickyColor('${id}','${color}')"></button>`).join('')}
+    <button class="Trille-canvas-sticky-palette-btn" type="button" data-color="${currentColor}" title="Post-it color" aria-label="Post-it color" onclick="event.stopPropagation();toggleCanvasStickyPalette('${id}')"></button>
+    <div class="Trille-canvas-sticky-palette-panel">
+      ${colors.map(color=>`<button class="Trille-canvas-sticky-color ${color===currentColor?'is-active':''}" type="button" data-color="${color}" title="${color}" onclick="event.stopPropagation();changeCanvasStickyColor('${id}','${color}')"></button>`).join('')}
+    </div>
   </div>`;
 }
 
