@@ -2,7 +2,7 @@ function setDark(v){dark=v;v?document.documentElement.setAttribute('data-dark','
 function toggleTheme(){setDark(!dark);}
 
 function activateView(name){
-  ['home','boards','board','stats','calendar','settings'].forEach(n=>document.getElementById('view-'+n)?.classList.toggle('active',n===name));
+  ['home','boards','board','stats','calendar','settings','canvas'].forEach(n=>document.getElementById('view-'+n)?.classList.toggle('active',n===name));
   document.querySelectorAll('.nbtn').forEach(b=>b.classList.remove('active'));
   if(['home','stats','calendar','settings'].includes(name))document.getElementById('nav-'+name)?.classList.add('active');
   curView=name;
