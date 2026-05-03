@@ -222,9 +222,67 @@ body:has(#view-canvas.active) .bnav {
   cursor: inherit;
 }
 
+/* IG-style frame for uploaded images */
+.cn-upload.Trille-canvas-upload-host {
+  overflow: visible;
+  background: transparent;
+}
+.Trille-canvas-upload-shell {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  border-radius: 24px;
+  overflow: hidden;
+  background: var(--surface);
+  border: .5px solid var(--line);
+  box-shadow: 0 8px 24px rgba(0,0,0,.10);
+}
+.Trille-canvas-upload-header {
+  flex: 0 0 46px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  background: var(--surface);
+  border-bottom: .5px solid var(--line);
+}
+.Trille-canvas-upload-avatar {
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: var(--line);
+  flex-shrink: 0;
+}
+.Trille-canvas-upload-title {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  outline: none;
+  font: inherit;
+  font-weight: 700;
+  color: var(--ink);
+}
+.Trille-canvas-upload-title::placeholder {
+  color: var(--ink3);
+}
+.Trille-canvas-upload-media {
+  flex: 1;
+  min-height: 0;
+  background: var(--bg2);
+}
+.Trille-canvas-upload-media img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
 /* Temporarily hide unused Canvas tools */
 #canvas-toolbar .canvas-tool-btn[data-tool="shape"],
 #canvas-toolbar .canvas-tool-btn[data-tool="frame"],
-#canvas-shape-popup {
+#canvas-toolbar .canvas-tool-btn[data-tool="line"],
+#canvas-shape-popup,
+#canvas-line-popup {
   display: none;
 }
