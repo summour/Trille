@@ -136,6 +136,108 @@ function deleteCanvasCardLink(sourceId,targetId){
   TrilleSaveCanvasLinkData();
 }
 
+function TrilleCanvasLayerBase(kind){
+  const bases={frame:20,shape:40,line:60,upload:80,sticky:100,text:120,card:140};
+  return bases[kind]||100;
+}
+
+function TrilleCanvasLayerValue(kind,obj,id,index=0){
+  if(kind==='card')return Number(canvasPositions[id]?.layer||0);
+  return Number(obj?.layer||0);
+}
+
+function TrilleCanvasObjectGroups(){
+  const board=canvasActiveBoard?cards.find(c=>c.id===canvasActiveBoard):null;
+  const cardItems=canvasActiveBoard?(board?.subcards||[]):cards;
+  return [
+    {kind:'card',items:cardItems,selector:'.cn',key:'id'},
+    {kind:'frame',items:canvasFrames,selector:'.cn-frame',key:'frid'},
+    {kind:'shape',items:canvasShapes,selector:'.cn-shape',key:'shid'},
+    {kind:'upload',items:canvasUploads,selector:'.cn-upload',key:'upid'},
+    {kind:'sticky',items:canvasStickyNotes,selector:'.cn-sticky',key:'snid'},
+    {kind:'text',items:canvasTextBlocks,selector:'.cn-textblock',key:'tbid'}
+  ];
+}
+
+function TrilleFindLayerTarget(kind,id){
+  if(kind==='card'){
+    if(!canvasPositions[id])canvasPositions[id]={x:0,y:0};
+    return canvasPositions[id];
+  }
+  const group=TrilleCanvasObjectGroups().find(g=>g.kind===kind);
+  return group?.items.find(obj=>obj.id===id)||null;
+}
+
+function TrilleNextCanvasLayer(){
+  let maxLayer=0;
+  TrilleCanvasObjectGroups().forEach(group=>{
+    group.items.forEach(obj=>{
+      const id=obj.id;
+      maxLayer=Math.max(maxLayer,TrilleCanvasLayerValue(group.kind,obj,id));
+    });
+  });
+  return maxLayer+1;
+}
+
+function TrilleMinCanvasLayer(){
+  let minLayer=0;
+  TrilleCanvasObjectGroups().forEach(group=>{
+    group.items.forEach(obj=>{
+      const id=obj.id;
+      minLayer=Math.min(minLayer,TrilleCanvasLayerValue(group.kind,obj,id));
+    });
+  });
+  return minLayer-1;
+}
+
+function moveCanvasLayer(kind,id,direction){
+  const target=TrilleFindLayerTarget(kind,id);
+  if(!target)return;
+  target.layer=direction==='front'?TrilleNextCanvasLayer():TrilleMinCanvasLayer();
+  saveCanvasData();
+  renderCanvas();
+}
+
+function TrilleCanvasLayerControls(kind,id){
+  return `<div class="Trille-canvas-layer-controls" onclick="event.stopPropagation()" onpointerdown="event.stopPropagation()">
+    <button class="Trille-canvas-layer-btn" type="button" title="Bring forward" onclick="event.stopPropagation();moveCanvasLayer('${kind}','${id}','front')">↑</button>
+    <button class="Trille-canvas-layer-btn" type="button" title="Send backward" onclick="event.stopPropagation();moveCanvasLayer('${kind}','${id}','back')">↓</button>
+  </div>`;
+}
+
+function TrilleApplyCanvasLayers(){
+  TrilleCanvasObjectGroups().forEach(group=>{
+    group.items.forEach((obj,index)=>{
+      const id=obj.id;
+      const node=document.querySelector(`${group.selector}[data-${group.key}="${id}"]`);
+      if(!node)return;
+      const layer=TrilleCanvasLayerValue(group.kind,obj,id,index);
+      node.style.zIndex=String(TrilleCanvasLayerBase(group.kind)+layer);
+    });
+  });
+}
+
+function TrilleInjectCanvasLayerControls(){
+  TrilleCanvasObjectGroups().forEach(group=>{
+    group.items.forEach(obj=>{
+      const id=obj.id;
+      const node=document.querySelector(`${group.selector}[data-${group.key}="${id}"]`);
+      if(!node||node.querySelector('.Trille-canvas-layer-controls'))return;
+      node.insertAdjacentHTML('afterbegin',TrilleCanvasLayerControls(group.kind,id));
+    });
+  });
+}
+
+function installCanvasLayers(){
+  if(typeof renderCanvas!=='function')return;
+  const baseRenderCanvas=renderCanvas;
+  renderCanvas=function(){
+    baseRenderCanvas();
+    TrilleApplyCanvasLayers();
+    TrilleInjectCanvasLayerControls();
+  };
+}
+
 function installCanvasScopedStorage(){
   if(typeof openCanvas!=='function')return;
 
@@ -298,4 +400,5 @@ loadAppIconMetadata();
 ensureAddButton();
 installCanvasScopedStorage();
 installCanvasLinkDeleteControls();
+installCanvasLayers();
 init();
