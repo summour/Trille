@@ -157,43 +157,57 @@ body:has(#view-canvas.active) .bnav {
 /* Canvas resize handles */
 .Trille-canvas-resize-handle {
   position: absolute;
-  right: -13px;
-  bottom: -13px;
-  width: 32px;
-  height: 32px;
-  border-radius: 999px;
-  background: var(--surface);
-  border: 2px solid var(--ink);
-  box-shadow: 0 4px 12px rgba(0,0,0,.20);
+  right: 4px;
+  bottom: 4px;
+  width: 22px;
+  height: 22px;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
   cursor: nwse-resize;
   touch-action: none;
-  opacity: 1;
+  opacity: .35;
   pointer-events: auto;
   z-index: 420;
 }
 .Trille-canvas-resize-handle::before {
   content: '';
   position: absolute;
-  right: 8px;
-  bottom: 8px;
-  width: 11px;
-  height: 11px;
-  border-right: 2px solid var(--ink);
-  border-bottom: 2px solid var(--ink);
+  right: 3px;
+  bottom: 3px;
+  width: 12px;
+  height: 12px;
+  border-right: 3px solid color-mix(in srgb, var(--ink) 70%, transparent);
+  border-bottom: 3px solid color-mix(in srgb, var(--ink) 70%, transparent);
+  border-radius: 1px;
 }
 .Trille-canvas-resize-handle::after {
   content: '';
   position: absolute;
-  right: 5px;
-  bottom: 5px;
-  width: 17px;
-  height: 17px;
-  border-right: 1px solid color-mix(in srgb, var(--ink) 40%, transparent);
-  border-bottom: 1px solid color-mix(in srgb, var(--ink) 40%, transparent);
+  right: 8px;
+  bottom: 8px;
+  width: 7px;
+  height: 7px;
+  border-right: 2px solid color-mix(in srgb, var(--ink) 35%, transparent);
+  border-bottom: 2px solid color-mix(in srgb, var(--ink) 35%, transparent);
+}
+.cn:hover .Trille-canvas-resize-handle,
+.cn-sticky:hover .Trille-canvas-resize-handle,
+.cn-textblock:hover .Trille-canvas-resize-handle,
+.cn-shape:hover .Trille-canvas-resize-handle,
+.cn-frame:hover .Trille-canvas-resize-handle,
+.cn-upload:hover .Trille-canvas-resize-handle,
+.cn:focus-within .Trille-canvas-resize-handle,
+.cn-sticky:focus-within .Trille-canvas-resize-handle,
+.cn-textblock:focus-within .Trille-canvas-resize-handle,
+.cn-shape:focus-within .Trille-canvas-resize-handle,
+.cn-frame:focus-within .Trille-canvas-resize-handle,
+.cn-upload:focus-within .Trille-canvas-resize-handle {
+  opacity: .75;
 }
 .Trille-canvas-resize-handle:active {
+  opacity: 1;
   transform: scale(1.08);
-  background: var(--hover);
 }
 
 .cn-textblock {
