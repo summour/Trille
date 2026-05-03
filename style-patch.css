@@ -52,14 +52,21 @@
 
 /* Canvas view occupies full height (no header/nav) */
 #view-canvas {
-  position: fixed !important;
-  inset: 0 !important;
+  position: fixed;
+  inset: 0;
   z-index: 150;
   display: none;
   flex-direction: column;
 }
+#view-canvas:not(.active) {
+  display: none !important;
+  visibility: hidden;
+  pointer-events: none;
+}
 #view-canvas.active {
   display: flex !important;
+  visibility: visible;
+  pointer-events: auto;
 }
 /* Hide header & nav when canvas is active */
 body:has(#view-canvas.active) #main-hdr,
