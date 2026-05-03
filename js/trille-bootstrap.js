@@ -381,11 +381,83 @@ function TrilleBindCanvasResizeHandles(){
   });
 }
 
+function TrilleUploadTitleValue(upload){
+  if(typeof upload?.title==='string'&&upload.title.trim())return upload.title.trim();
+  if(typeof upload?.name==='string'&&upload.name.trim())return upload.name.trim();
+  return 'Photo';
+}
+
+function TrilleEnhanceUploadCards(){
+  canvasUploads.forEach(upload=>{
+    const node=document.querySelector(`.cn-upload[data-upid="${upload.id}"]`);
+    if(!node)return;
+
+    node.classList.add('Trille-canvas-upload-host');
+
+    const img=node.querySelector('img');
+    if(!img)return;
+
+    let shell=node.querySelector('.Trille-canvas-upload-shell');
+    let media=node.querySelector('.Trille-canvas-upload-media');
+    let titleInput=node.querySelector('.Trille-canvas-upload-title');
+
+    if(!shell){
+      shell=document.createElement('div');
+      shell.className='Trille-canvas-upload-shell';
+
+      const header=document.createElement('div');
+      header.className='Trille-canvas-upload-header';
+      header.addEventListener('pointerdown',event=>event.stopPropagation());
+      header.addEventListener('click',event=>event.stopPropagation());
+
+      const avatar=document.createElement('div');
+      avatar.className='Trille-canvas-upload-avatar';
+
+      titleInput=document.createElement('input');
+      titleInput.className='Trille-canvas-upload-title';
+      titleInput.type='text';
+      titleInput.placeholder='Photo';
+
+      titleInput.addEventListener('pointerdown',event=>event.stopPropagation());
+      titleInput.addEventListener('click',event=>event.stopPropagation());
+
+      const commit=()=>{
+        upload.title=(titleInput.value||'').trim()||'Photo';
+        saveCanvasData();
+      };
+
+      titleInput.addEventListener('input',()=>{
+        upload.title=titleInput.value;
+      });
+      titleInput.addEventListener('change',commit);
+      titleInput.addEventListener('blur',commit);
+
+      header.append(avatar,titleInput);
+
+      media=document.createElement('div');
+      media.className='Trille-canvas-upload-media';
+
+      node.insertBefore(shell,node.firstChild);
+      shell.append(header,media);
+    }
+
+    if(img.parentElement!==media){
+      media.appendChild(img);
+    }
+
+    titleInput=node.querySelector('.Trille-canvas-upload-title');
+    if(titleInput&&document.activeElement!==titleInput){
+      titleInput.value=TrilleUploadTitleValue(upload);
+    }
+  });
+}
+
 function installCanvasLayers(){
   if(typeof renderCanvas!=='function')return;
   const baseRenderCanvas=renderCanvas;
   renderCanvas=function(){
     baseRenderCanvas();
+    TrilleEnhanceUploadCards();
     TrilleApplyCanvasLayers();
     TrilleApplyObjectSizes();
     TrilleInjectCanvasLayerControls();
