@@ -214,7 +214,7 @@ function TrilleApplyCanvasLayers(){
   });
 }
 
-function TrilleApplyTextSizes(){
+function TrilleApplyObjectSizes(){
   canvasTextBlocks.forEach(text=>{
     const node=document.querySelector(`.cn-textblock[data-tbid="${text.id}"]`);
     if(!node)return;
@@ -223,6 +223,24 @@ function TrilleApplyTextSizes(){
       node.style.height=text.h+'px';
       node.style.minHeight=text.h+'px';
     }
+  });
+  canvasShapes.forEach(shape=>{
+    const node=document.querySelector(`.cn-shape[data-shid="${shape.id}"]`);
+    if(!node)return;
+    if(shape.w)node.style.width=shape.w+'px';
+    if(shape.h)node.style.height=shape.h+'px';
+  });
+  canvasFrames.forEach(frame=>{
+    const node=document.querySelector(`.cn-frame[data-frid="${frame.id}"]`);
+    if(!node)return;
+    if(frame.w)node.style.width=frame.w+'px';
+    if(frame.h)node.style.height=frame.h+'px';
+  });
+  canvasUploads.forEach(upload=>{
+    const node=document.querySelector(`.cn-upload[data-upid="${upload.id}"]`);
+    if(!node)return;
+    if(upload.w)node.style.width=upload.w+'px';
+    if(upload.h)node.style.height=upload.h+'px';
   });
 }
 
@@ -238,15 +256,20 @@ function TrilleInjectCanvasLayerControls(){
 }
 
 function TrilleInjectResizeHandles(){
-  canvasStickyNotes.forEach(note=>{
-    const node=document.querySelector(`.cn-sticky[data-snid="${note.id}"]`);
-    if(!node||node.querySelector('.Trille-canvas-sticky-resize'))return;
-    node.insertAdjacentHTML('beforeend',`<button class="Trille-canvas-sticky-resize" type="button" title="Resize post-it" aria-label="Resize post-it"></button>`);
-  });
-  canvasTextBlocks.forEach(text=>{
-    const node=document.querySelector(`.cn-textblock[data-tbid="${text.id}"]`);
-    if(!node||node.querySelector('.Trille-canvas-text-resize'))return;
-    node.insertAdjacentHTML('beforeend',`<button class="Trille-canvas-text-resize" type="button" title="Resize text" aria-label="Resize text"></button>`);
+  const configs=[
+    {items:canvasStickyNotes,selector:'.cn-sticky',key:'snid',cls:'Trille-canvas-sticky-resize',label:'Resize post-it'},
+    {items:canvasTextBlocks,selector:'.cn-textblock',key:'tbid',cls:'Trille-canvas-text-resize',label:'Resize text'},
+    {items:canvasShapes,selector:'.cn-shape',key:'shid',cls:'Trille-canvas-shape-resize',label:'Resize shape'},
+    {items:canvasFrames,selector:'.cn-frame',key:'frid',cls:'Trille-canvas-frame-resize',label:'Resize frame'},
+    {items:canvasUploads,selector:'.cn-upload',key:'upid',cls:'Trille-canvas-upload-resize',label:'Resize image'}
+  ];
+
+  configs.forEach(config=>{
+    config.items.forEach(item=>{
+      const node=document.querySelector(`${config.selector}[data-${config.key}="${item.id}"]`);
+      if(!node||node.querySelector(`.${config.cls}`))return;
+      node.insertAdjacentHTML('beforeend',`<button class="${config.cls} Trille-canvas-resize-handle" type="button" title="${config.label}" aria-label="${config.label}"></button>`);
+    });
   });
 }
 
@@ -300,8 +323,9 @@ function TrilleBindCanvasResizeHandle(handle,config){
 function TrilleBindCanvasResizeHandles(){
   const world=document.getElementById('canvas-world');
   if(!world)return;
-  world.querySelectorAll('.Trille-canvas-sticky-resize').forEach(handle=>{
-    TrilleBindCanvasResizeHandle(handle,{
+  const configs=[
+    {
+      handleSelector:'.Trille-canvas-sticky-resize',
       selector:'.cn-sticky',
       defaultW:160,
       defaultH:120,
@@ -309,10 +333,9 @@ function TrilleBindCanvasResizeHandles(){
       minH:80,
       useHeight:false,
       findTarget:node=>canvasStickyNotes.find(note=>note.id===node.dataset.snid)
-    });
-  });
-  world.querySelectorAll('.Trille-canvas-text-resize').forEach(handle=>{
-    TrilleBindCanvasResizeHandle(handle,{
+    },
+    {
+      handleSelector:'.Trille-canvas-text-resize',
       selector:'.cn-textblock',
       defaultW:180,
       defaultH:80,
@@ -320,7 +343,41 @@ function TrilleBindCanvasResizeHandles(){
       minH:36,
       useHeight:true,
       findTarget:node=>canvasTextBlocks.find(text=>text.id===node.dataset.tbid)
-    });
+    },
+    {
+      handleSelector:'.Trille-canvas-shape-resize',
+      selector:'.cn-shape',
+      defaultW:120,
+      defaultH:80,
+      minW:48,
+      minH:48,
+      useHeight:true,
+      findTarget:node=>canvasShapes.find(shape=>shape.id===node.dataset.shid)
+    },
+    {
+      handleSelector:'.Trille-canvas-frame-resize',
+      selector:'.cn-frame',
+      defaultW:300,
+      defaultH:200,
+      minW:120,
+      minH:90,
+      useHeight:true,
+      findTarget:node=>canvasFrames.find(frame=>frame.id===node.dataset.frid)
+    },
+    {
+      handleSelector:'.Trille-canvas-upload-resize',
+      selector:'.cn-upload',
+      defaultW:200,
+      defaultH:150,
+      minW:80,
+      minH:60,
+      useHeight:true,
+      findTarget:node=>canvasUploads.find(upload=>upload.id===node.dataset.upid)
+    }
+  ];
+
+  configs.forEach(config=>{
+    world.querySelectorAll(config.handleSelector).forEach(handle=>TrilleBindCanvasResizeHandle(handle,config));
   });
 }
 
@@ -330,7 +387,7 @@ function installCanvasLayers(){
   renderCanvas=function(){
     baseRenderCanvas();
     TrilleApplyCanvasLayers();
-    TrilleApplyTextSizes();
+    TrilleApplyObjectSizes();
     TrilleInjectCanvasLayerControls();
     TrilleInjectResizeHandles();
     TrilleBindCanvasResizeHandles();
