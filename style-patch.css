@@ -213,3 +213,10 @@ body:has(#view-canvas.active) .bnav {
   box-sizing: border-box;
   white-space: pre-wrap;
 }
+
+/* Temporarily hide unused Canvas tools */
+#canvas-toolbar .canvas-tool-btn[data-tool="shape"],
+#canvas-toolbar .canvas-tool-btn[data-tool="frame"],
+#canvas-shape-popup {
+  display: none;
+}
