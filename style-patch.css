@@ -96,21 +96,27 @@ body:has(#view-canvas.active) .bnav {
   fill: var(--hover);
 }
 
-/* Canvas object layer controls */
+/* Canvas object floating layer controls */
 .Trille-canvas-layer-controls {
   position: absolute;
-  top: 6px;
-  left: 6px;
+  top: -36px;
+  left: 0;
   z-index: 260;
   display: flex;
-  gap: 3px;
+  gap: 4px;
   opacity: 0;
   pointer-events: none;
   transition: opacity .12s;
+  padding: 3px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  border: .5px solid var(--line);
+  box-shadow: 0 4px 14px rgba(0,0,0,.12);
+  backdrop-filter: blur(10px);
 }
-.cn-textblock .Trille-canvas-layer-controls {
-  top: -36px;
-  left: 0;
+.cn-frame .Trille-canvas-layer-controls {
+  top: -42px;
+  left: 8px;
 }
 .cn:hover .Trille-canvas-layer-controls,
 .cn:focus-within .Trille-canvas-layer-controls,
@@ -128,17 +134,15 @@ body:has(#view-canvas.active) .bnav {
   pointer-events: auto;
 }
 .Trille-canvas-layer-btn {
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   border-radius: 999px;
-  background: var(--surface);
+  background: transparent;
   color: var(--ink2);
-  border: .5px solid var(--line);
-  box-shadow: 0 2px 6px rgba(0,0,0,.12);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
   line-height: 1;
   cursor: pointer;
