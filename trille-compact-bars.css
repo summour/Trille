@@ -178,6 +178,28 @@ body:has(#view-board.active) #view-board .scroll{
 .board-back-hdr{padding:1px 0 4px;}
 .board-nav-left span,.boards-back span{font-size:11px;}
 .board-nav-left svg,.boards-back svg{width:18px;height:18px;}
+
+/* === Sticky color tray behavior === */
+.cn-sticky .Trille-canvas-sticky-colors{
+  left:-44px;
+  opacity:0;
+  pointer-events:none;
+}
+.cn-sticky .Trille-canvas-sticky-palette-btn{
+  display:none;
+}
+.cn-sticky .Trille-canvas-sticky-palette-panel{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+.cn-sticky:hover .Trille-canvas-sticky-colors,
+.cn-sticky:active .Trille-canvas-sticky-colors,
+.cn-sticky:focus-within .Trille-canvas-sticky-colors{
+  opacity:1;
+  pointer-events:auto;
+}
+
 @media (max-width:390px){
   .hdr-logo{font-size:27px;letter-spacing:-.7px;}
   .icon-btn{width:35px;height:35px;}
