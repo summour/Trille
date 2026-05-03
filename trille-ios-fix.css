@@ -1,46 +1,28 @@
-/* Trille iOS viewport and safe-area fixes */
+/* Trille final fullscreen view model
+   Use Canvas surface model for every app page,
+   but keep normal scrolling on non-canvas pages. */
 
 html,
 body {
   width: 100%;
-  height: calc(var(--Trille-vh, 100svh) + max(44px, env(safe-area-inset-bottom)));
-  min-height: calc(var(--Trille-vh, 100svh) + max(44px, env(safe-area-inset-bottom)));
+  height: 100%;
+  min-height: 100%;
+  overflow: hidden;
+  max-height: none;
+  background: var(--bg);
+}
+
+#app {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: auto;
+  min-height: 100%;
   max-height: none;
   overflow: hidden;
   background: var(--bg);
 }
 
-body::before {
-  content: '';
-  position: fixed;
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: calc(max(44px, env(safe-area-inset-bottom)) * -1);
-  background: var(--bg);
-  pointer-events: none;
-}
-
-#app {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: calc(max(44px, env(safe-area-inset-bottom)) * -1);
-  width: 100%;
-  height: auto;
-  min-height: calc(var(--Trille-vh, 100svh) + max(44px, env(safe-area-inset-bottom)));
-  max-height: none;
-  padding-bottom: max(44px, env(safe-area-inset-bottom));
-  background: var(--bg);
-}
-
-.view,
-.scroll {
-  background: var(--bg);
-}
-
-/* Match Canvas behavior: every non-canvas page owns a fixed full-screen surface. */
 body:not(:has(#view-canvas.active)) #main-hdr {
   position: fixed;
   top: 0;
@@ -59,53 +41,67 @@ body:not(:has(#view-canvas.active)) .srch-wrap {
   background: var(--bg);
 }
 
-body:not(:has(#view-canvas.active)) .view {
+#view-home,
+#view-boards,
+#view-board,
+#view-stats,
+#view-calendar,
+#view-settings {
   position: fixed;
-  left: 0;
-  right: 0;
-  top: calc(env(safe-area-inset-top) + 54px);
-  bottom: calc(max(44px, env(safe-area-inset-bottom)) * -1);
-  min-height: 0;
-  background: var(--bg);
+  inset: 0;
   z-index: 1;
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--bg);
 }
 
-body:not(:has(#view-canvas.active)) .view.active {
+#view-home.active,
+#view-boards.active,
+#view-board.active,
+#view-stats.active,
+#view-calendar.active,
+#view-settings.active {
   display: flex;
 }
 
-body:not(:has(#view-canvas.active)) .view .scroll {
-  height: 100%;
+#view-home .scroll,
+#view-boards .scroll,
+#view-board .scroll,
+#view-stats .scroll,
+#view-calendar .scroll,
+#view-settings .scroll {
+  flex: 1;
   min-height: 0;
-  flex: 1 1 auto;
-}
-
-.view .scroll {
+  height: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  background: var(--bg);
+  padding-top: calc(env(safe-area-inset-top) + 86px);
   padding-bottom: calc(96px + env(safe-area-inset-bottom));
 }
 
 #view-boards .scroll,
-#view-board .scroll,
-#view-canvas .scroll {
-  padding-bottom: calc(72px + env(safe-area-inset-bottom));
+#view-board .scroll {
+  padding-bottom: calc(32px + env(safe-area-inset-bottom));
 }
 
-#app::after {
-  content: '';
+body:has(#view-boards.active) .bnav,
+body:has(#view-board.active) .bnav,
+body:has(#view-canvas.active) .bnav {
+  display: none;
+}
+
+.bnav {
   position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: max(56px, env(safe-area-inset-bottom));
-  background: rgba(245,245,247,.72);
-  backdrop-filter: saturate(180%) blur(18px);
-  -webkit-backdrop-filter: saturate(180%) blur(18px);
-  pointer-events: none;
-  z-index: 90;
+  z-index: 130;
+  bottom: calc(env(safe-area-inset-bottom) + 10px);
 }
 
-[data-dark] #app::after {
-  background: rgba(0,0,0,.72);
+#view-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 150;
 }
 
 .hdr {
@@ -122,10 +118,6 @@ body:not(:has(#view-canvas.active)) .view .scroll {
 
 .canvas-toolbar {
   bottom: calc(env(safe-area-inset-bottom) + 16px);
-}
-
-.bnav {
-  bottom: calc(env(safe-area-inset-bottom) + 10px);
 }
 
 .modal {
