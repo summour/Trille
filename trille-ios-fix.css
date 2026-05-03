@@ -40,6 +40,46 @@ body::before {
   background: var(--bg);
 }
 
+/* Match Canvas behavior: every non-canvas page owns a fixed full-screen surface. */
+body:not(:has(#view-canvas.active)) #main-hdr {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 120;
+  background: var(--bg);
+}
+
+body:not(:has(#view-canvas.active)) .srch-wrap {
+  position: fixed;
+  top: calc(env(safe-area-inset-top) + 76px);
+  left: 0;
+  right: 0;
+  z-index: 119;
+  background: var(--bg);
+}
+
+body:not(:has(#view-canvas.active)) .view {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: calc(env(safe-area-inset-top) + 54px);
+  bottom: calc(max(44px, env(safe-area-inset-bottom)) * -1);
+  min-height: 0;
+  background: var(--bg);
+  z-index: 1;
+}
+
+body:not(:has(#view-canvas.active)) .view.active {
+  display: flex;
+}
+
+body:not(:has(#view-canvas.active)) .view .scroll {
+  height: 100%;
+  min-height: 0;
+  flex: 1 1 auto;
+}
+
 .view .scroll {
   padding-bottom: calc(96px + env(safe-area-inset-bottom));
 }
