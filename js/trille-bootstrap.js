@@ -91,6 +91,105 @@ function ensureAddButton(){
   bnav.insertBefore(add,calendar);
 }
 
+function TrilleCanvasScopeKey(boardId=canvasActiveBoard){
+  return boardId?`board:${boardId}`:'overview';
+}
+
+function TrilleReadCanvasState(key,fallback){
+  try{
+    const raw=localStorage.getItem(key);
+    return raw?JSON.parse(raw):fallback;
+  }catch(err){
+    return fallback;
+  }
+}
+
+function TrilleWriteCanvasState(key,value){
+  localStorage.setItem(key,JSON.stringify(value));
+}
+
+function TrilleHideCanvasView(){
+  const canvasView=document.getElementById('view-canvas');
+  if(!canvasView)return;
+  canvasView.classList.remove('active');
+  canvasView.style.display='none';
+  canvasView.style.pointerEvents='none';
+}
+
+function installCanvasScopedStorage(){
+  if(typeof openCanvas!=='function')return;
+
+  saveCanvasData=function(){
+    const scope=TrilleCanvasScopeKey();
+    TrilleWriteCanvasState(`t-canvas-pos:${scope}`,canvasPositions);
+    TrilleWriteCanvasState(`t-canvas-colors:${scope}`,canvasCardColors);
+    TrilleWriteCanvasState(`t-canvas-sticky:${scope}`,canvasStickyNotes);
+    TrilleWriteCanvasState(`t-canvas-text:${scope}`,canvasTextBlocks);
+    TrilleWriteCanvasState(`t-canvas-shapes:${scope}`,canvasShapes);
+    TrilleWriteCanvasState(`t-canvas-lines:${scope}`,canvasLines);
+    TrilleWriteCanvasState(`t-canvas-frames:${scope}`,canvasFrames);
+    TrilleWriteCanvasState(`t-canvas-uploads:${scope}`,canvasUploads);
+  };
+
+  loadCanvasData=function(){
+    const scope=TrilleCanvasScopeKey();
+    canvasPositions=TrilleReadCanvasState(`t-canvas-pos:${scope}`,{});
+    canvasCardColors=TrilleReadCanvasState(`t-canvas-colors:${scope}`,{});
+    canvasStickyNotes=TrilleReadCanvasState(`t-canvas-sticky:${scope}`,[]);
+    canvasTextBlocks=TrilleReadCanvasState(`t-canvas-text:${scope}`,[]);
+    canvasShapes=TrilleReadCanvasState(`t-canvas-shapes:${scope}`,[]);
+    canvasLines=TrilleReadCanvasState(`t-canvas-lines:${scope}`,[]);
+    canvasFrames=TrilleReadCanvasState(`t-canvas-frames:${scope}`,[]);
+    canvasUploads=TrilleReadCanvasState(`t-canvas-uploads:${scope}`,[]);
+  };
+
+  openCanvas=function(boardId){
+    canvasActiveBoard=boardId||null;
+    loadCanvasData();
+    canvasScale=1;
+    canvasX=0;
+    canvasY=0;
+    canvasActiveTool='select';
+    canvasLinkMode=false;
+    canvasLinkSource=null;
+
+    if(canvasActiveBoard){
+      const board=cards.find(c=>c.id===canvasActiveBoard);
+      if(board)autoLayout(board.subcards||[],20,20,240,200,2);
+    }else{
+      autoLayout(cards,20,20,240,230,2);
+    }
+
+    const world=document.getElementById('canvas-world');
+    if(world)world.innerHTML='';
+
+    document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
+    const canvasView=document.getElementById('view-canvas');
+    if(canvasView){
+      canvasView.style.display='';
+      canvasView.style.pointerEvents='';
+      canvasView.classList.add('active');
+    }
+    document.querySelectorAll('.nbtn').forEach(b=>b.classList.remove('active'));
+
+    updateCanvasToolbar();
+    renderCanvas();
+  };
+
+  closeCanvas=function(){
+    document.getElementById('canvas-ctx')?.classList.remove('open');
+    document.getElementById('canvas-color-popup')?.classList.remove('open');
+    document.getElementById('canvas-link-popup')?.classList.remove('open');
+
+    const prevBoard=canvasActiveBoard;
+    canvasActiveBoard=null;
+    TrilleHideCanvasView();
+
+    if(prevBoard)openBoard(prevBoard);
+    else goHome();
+  };
+}
+
 // Show/hide "Open board" option in canvas ctx based on kind
 document.addEventListener('click',e=>{
   if(e.target.closest('#canvas-ctx')||e.target.closest('.cn-menu')){
@@ -104,4 +203,5 @@ loadReorderStyles();
 loadCanvasStyles();
 loadAppIconMetadata();
 ensureAddButton();
+installCanvasScopedStorage();
 init();
