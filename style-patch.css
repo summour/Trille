@@ -74,3 +74,24 @@ body:has(#view-canvas.active) .srch-wrap,
 body:has(#view-canvas.active) .bnav {
   display: none !important;
 }
+
+/* Canvas card-link delete control */
+.Trille-canvas-link-delete {
+  pointer-events: all;
+  cursor: pointer;
+}
+.Trille-canvas-link-delete-bg {
+  fill: var(--surface);
+  stroke: var(--line);
+  stroke-width: 1;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,.12));
+}
+.Trille-canvas-link-delete-x {
+  fill: var(--ink2);
+  font-size: 14px;
+  font-weight: 700;
+  pointer-events: none;
+}
+.Trille-canvas-link-delete:hover .Trille-canvas-link-delete-bg {
+  fill: var(--hover);
+}
