@@ -77,8 +77,10 @@ body {
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
-  padding-top: calc(env(safe-area-inset-top, 0px) + 60px);
-  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 100px);
+  padding-top: calc(env(safe-area-inset-top, 0px) + 60px) !important;
+  padding-right: calc(16px + env(safe-area-inset-right, 0px)) !important;
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 100px) !important;
+  padding-left: calc(16px + env(safe-area-inset-left, 0px)) !important;
 }
 
 #view-settings .scroll {
@@ -87,10 +89,10 @@ body {
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
-  padding-top: calc(env(safe-area-inset-top, 0px) + 132px);
-  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 132px);
-  padding-left: calc(16px + env(safe-area-inset-left, 0px));
-  padding-right: calc(16px + env(safe-area-inset-right, 0px));
+  padding-top: calc(env(safe-area-inset-top, 0px) + 72px) !important;
+  padding-right: calc(16px + env(safe-area-inset-right, 0px)) !important;
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 132px) !important;
+  padding-left: calc(16px + env(safe-area-inset-left, 0px)) !important;
 }
 
 #view-boards .scroll,
@@ -100,8 +102,10 @@ body {
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
-  padding-top: calc(env(safe-area-inset-top, 0px) + 60px);
-  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 24px);
+  padding-top: calc(env(safe-area-inset-top, 0px) + 60px) !important;
+  padding-right: calc(16px + env(safe-area-inset-right, 0px)) !important;
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 96px) !important;
+  padding-left: calc(16px + env(safe-area-inset-left, 0px)) !important;
 }
 
 .bnav {
