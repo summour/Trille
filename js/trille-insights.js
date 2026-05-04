@@ -112,17 +112,78 @@ function openLinkedCalendarCard(boardId,subId){
 }
 
 function updateBN(v){bn=v;save();}
+
+function isTrilleBackupKey(key){
+  if(!key)return false;
+  const k=String(key).toLowerCase();
+  return k.startsWith('t-')||k.startsWith('trille')||k.includes('canvas');
+}
+
+function getTrilleLocalStorageBackup(){
+  const storage={};
+  for(let i=0;i<localStorage.length;i++){
+    const key=localStorage.key(i);
+    if(!isTrilleBackupKey(key))continue;
+    storage[key]=localStorage.getItem(key);
+  }
+  return storage;
+}
+
+function createBackupPayload(){
+  save();
+  if(typeof saveCanvasData==='function')saveCanvasData();
+  return {
+    app:'Trille',
+    version:2,
+    createdAt:new Date().toISOString(),
+    folders,
+    cards,
+    bn,
+    localStorage:getTrilleLocalStorageBackup()
+  };
+}
+
 function exportData(){
-  const data=JSON.stringify({folders,cards,bn},null,2);
+  const data=JSON.stringify(createBackupPayload(),null,2);
   const blob=new Blob([data],{type:'application/json'});
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');
+  const date=new Date().toISOString().slice(0,10);
   a.href=url;
-  a.download='trille-data.json';
+  a.download=`trille-backup-${date}.json`;
   a.click();
   URL.revokeObjectURL(url);
 }
+
 function importData(){document.getElementById('import-file')?.click();}
+
+function getImportStorage(data){
+  if(data&&data.localStorage&&typeof data.localStorage==='object')return data.localStorage;
+  const storage={};
+  if(Array.isArray(data?.folders))storage['t-folders2']=JSON.stringify(data.folders);
+  if(Array.isArray(data?.cards))storage['t-cards2']=JSON.stringify(data.cards);
+  if(typeof data?.bn==='string')storage['t-board']=data.bn;
+  return storage;
+}
+
+function restoreTrilleStorage(storage){
+  Object.entries(storage||{}).forEach(([key,value])=>{
+    if(!isTrilleBackupKey(key))return;
+    if(typeof value==='string')localStorage.setItem(key,value);
+    else localStorage.setItem(key,JSON.stringify(value));
+  });
+}
+
+function syncStateFromBackup(data,storage){
+  const nextFolders=Array.isArray(data?.folders)?data.folders:JSON.parse(storage['t-folders2']||'[]');
+  const nextCards=Array.isArray(data?.cards)?data.cards:JSON.parse(storage['t-cards2']||'[]');
+  const nextBN=typeof data?.bn==='string'?data.bn:(storage['t-board']||bn);
+
+  if(Array.isArray(nextFolders))folders=nextFolders;
+  if(Array.isArray(nextCards))cards=nextCards;
+  if(nextBN)bn=nextBN;
+}
+
 function handleImport(e){
   const file=e.target.files?.[0];
   if(!file)return;
@@ -130,13 +191,19 @@ function handleImport(e){
   reader.onload=()=>{
     try{
       const data=JSON.parse(reader.result);
-      if(Array.isArray(data.folders))folders=data.folders;
-      if(Array.isArray(data.cards))cards=data.cards;
-      if(data.bn)bn=data.bn;
+      const storage=getImportStorage(data);
+      restoreTrilleStorage(storage);
+      syncStateFromBackup(data,storage);
       save();
-      switchView('home');
+      if(typeof loadCanvasData==='function')loadCanvasData();
       toast('Imported');
-    }catch(err){toast('Import failed');}
+      setTimeout(()=>window.location.reload(),250);
+    }catch(err){
+      console.error('Import failed',err);
+      toast('Import failed');
+    }finally{
+      e.target.value='';
+    }
   };
   reader.readAsText(file);
 }
