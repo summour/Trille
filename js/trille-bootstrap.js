@@ -30,6 +30,14 @@ function loadCanvasStyles(){
   document.head.appendChild(patch);
 }
 
+function loadCanvasTools(){
+  if(document.querySelector('script[data-trille-canvas-tools]'))return;
+  const script=document.createElement('script');
+  script.src='js/trille-canvas-tools.js?v=20260505-a';
+  script.dataset.trilleCanvasTools='true';
+  document.body.appendChild(script);
+}
+
 function loadAppIconMetadata(){
   if(!document.querySelector('link[rel="icon"]')){
     const favicon=document.createElement('link');
@@ -666,6 +674,7 @@ document.addEventListener('click',e=>{
 loadCompactBarsStyles();
 loadReorderStyles();
 loadCanvasStyles();
+loadCanvasTools();
 loadAppIconMetadata();
 ensureAddButton();
 installCanvasScopedStorage();
