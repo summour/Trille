@@ -1,6 +1,6 @@
 /* ============================================================
    Trille Canvas Tools
-   Owns canvas tool guard helpers only.
+   Owns canvas tool guards and upload flow.
    Load after trille-canvas.js.
    ============================================================ */
 
@@ -8,6 +8,18 @@ function TrilleCanvasIsObjectTarget(event) {
   return !!event.target.closest(
     '.cn,.cn-sticky,.cn-sticky-text,.cn-textblock,.cn-textblock-inner,.cn-shape,.cn-upload,.cn-frame,.canvas-toolbar,.canvas-back,.canvas-link-banner'
   );
+}
+
+function TrilleCanvasFallbackUploadPos() {
+  const vp = document.getElementById('canvas-vp');
+  if (!vp) return { x: 80, y: 80 };
+
+  const rect = vp.getBoundingClientRect();
+
+  return {
+    x: (rect.width / 2 - canvasX) / canvasScale - 100,
+    y: (rect.height / 2 - canvasY) / canvasScale - 75,
+  };
 }
 
 function TrillePatchUploadToolbarButton() {
@@ -36,6 +48,59 @@ function TrillePatchUploadPlacement() {
   placeCanvasObject.trilleToolGuarded = true;
 }
 
+function TrillePatchCanvasUploadHandler() {
+  if (typeof handleCanvasUpload !== 'function' || handleCanvasUpload.trilleToolGuarded) return;
+
+  handleCanvasUpload = function TrilleGuardedHandleCanvasUpload(event) {
+    const input = event?.target;
+    const file = input?.files?.[0];
+
+    if (!file) {
+      setCanvasTool('select');
+      return;
+    }
+
+    if (!file.type || !file.type.startsWith('image/')) {
+      input.value = '';
+      setCanvasTool('select');
+      return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      const pos = window._canvasUploadPos || TrilleCanvasFallbackUploadPos();
+
+      canvasUploads.push({
+        id: uid(),
+        x: pos.x,
+        y: pos.y,
+        w: 200,
+        h: 150,
+        src: reader.result,
+        name: file.name || 'Image',
+      });
+
+      window._canvasUploadPos = null;
+      input.value = '';
+
+      saveCanvasData();
+      setCanvasTool('select');
+      renderCanvas();
+    };
+
+    reader.onerror = () => {
+      window._canvasUploadPos = null;
+      input.value = '';
+      setCanvasTool('select');
+    };
+
+    reader.readAsDataURL(file);
+  };
+
+  handleCanvasUpload.trilleToolGuarded = true;
+}
+
 function TrillePatchObjectPointerUpGuard() {
   const vp = document.getElementById('canvas-vp');
   if (!vp || vp.dataset.trilleObjectPointerGuarded) return;
@@ -54,6 +119,7 @@ function TrillePatchObjectPointerUpGuard() {
 function TrilleInstallCanvasToolGuards() {
   TrillePatchUploadToolbarButton();
   TrillePatchUploadPlacement();
+  TrillePatchCanvasUploadHandler();
   TrillePatchObjectPointerUpGuard();
 }
 
