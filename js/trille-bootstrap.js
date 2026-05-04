@@ -30,11 +30,19 @@ function loadCanvasStyles(){
   document.head.appendChild(patch);
 }
 
-function loadCanvasTools(){
-  if(document.querySelector('script[data-trille-canvas-tools]'))return;
+function loadCanvasTools(onReady){
+  const done=()=>{ if(typeof onReady==='function')onReady(); };
+  const existing=document.querySelector('script[data-trille-canvas-tools]');
+  if(existing){
+    if(existing.dataset.trilleLoaded==='true')done();
+    else existing.addEventListener('load',done,{once:true});
+    return;
+  }
   const script=document.createElement('script');
-  script.src='js/trille-canvas-tools.js?v=20260505-a';
+  script.src='js/trille-canvas-tools.js?v=20260505-b';
   script.dataset.trilleCanvasTools='true';
+  script.onload=()=>{ script.dataset.trilleLoaded='true'; done(); };
+  script.onerror=done;
   document.body.appendChild(script);
 }
 
@@ -663,6 +671,15 @@ function installCanvasLinkDeleteControls(){
   };
 }
 
+function startTrilleApp(){
+  loadAppIconMetadata();
+  ensureAddButton();
+  installCanvasScopedStorage();
+  installCanvasLinkDeleteControls();
+  installCanvasLayers();
+  init();
+}
+
 // Show/hide "Open board" option in canvas ctx based on kind
 document.addEventListener('click',e=>{
   if(e.target.closest('#canvas-ctx')||e.target.closest('.cn-menu')){
@@ -674,10 +691,4 @@ document.addEventListener('click',e=>{
 loadCompactBarsStyles();
 loadReorderStyles();
 loadCanvasStyles();
-loadCanvasTools();
-loadAppIconMetadata();
-ensureAddButton();
-installCanvasScopedStorage();
-installCanvasLinkDeleteControls();
-installCanvasLayers();
-init();
+loadCanvasTools(startTrilleApp);
