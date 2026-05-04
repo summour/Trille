@@ -131,6 +131,7 @@ function getTrilleLocalStorageBackup(){
 
 function createBackupPayload(){
   save();
+  saveCanvasData();
   return {
     app:'Trille',
     version:2,

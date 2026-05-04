@@ -89,6 +89,8 @@ body {
   overscroll-behavior: contain;
   padding-top: calc(env(safe-area-inset-top, 0px) + 132px);
   padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 132px);
+  padding-left: calc(16px + env(safe-area-inset-left, 0px));
+  padding-right: calc(16px + env(safe-area-inset-right, 0px));
 }
 
 #view-boards .scroll,
@@ -110,8 +112,6 @@ body {
   z-index: 180 !important;
 }
 
-body:has(#view-boards.active) .bnav,
-body:has(#view-board.active) .bnav,
 body:has(#view-canvas.active) .bnav {
   display: none !important;
 }
