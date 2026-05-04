@@ -71,16 +71,14 @@
 }
 #nav-calendar{display:flex;}
 #nav-add{display:flex;font-size:0;}
-.view .scroll{padding-bottom:calc(80px + env(safe-area-inset-bottom));}
+.view .scroll{padding-bottom:calc(92px + env(safe-area-inset-bottom));}
 
-body:has(#view-boards.active) .bnav,
-body:has(#view-board.active) .bnav,
+#view-settings .scroll{
+  padding-bottom:calc(112px + env(safe-area-inset-bottom));
+}
+
 body:has(#view-canvas.active) .bnav{
   display:none;
-}
-body:has(#view-boards.active) #view-boards .scroll,
-body:has(#view-board.active) #view-board .scroll{
-  padding-bottom:20px;
 }
 
 #reorder-btn,
@@ -210,4 +208,5 @@ body:has(#view-board.active) #view-board .scroll{
   .bnav{width:calc(100vw - 112px);bottom:max(10px,calc(env(safe-area-inset-bottom) + 6px));height:56px;}
   .nbtn{width:40px;height:40px;}
   .nbtn svg{width:25px;height:25px;min-width:25px;min-height:25px;}
+  #view-settings .scroll{padding-bottom:calc(120px + env(safe-area-inset-bottom));}
 }
