@@ -1,15 +1,8 @@
 /* ============================================================
    Trille Canvas Tools
-   Owns canvas tool guards, upload flow, and object edit/drag arbitration.
+   Owns canvas object placement, upload flow, and object edit/drag arbitration.
    Load after trille-canvas.js and before init().
-   Cleanup note: keep working tool flow here before removing old canvas.js duplicates.
    ============================================================ */
-
-function TrilleCanvasIsObjectTarget(event) {
-  return !!event.target.closest(
-    '.cn,.cn-sticky,.cn-sticky-text,.cn-textblock,.cn-textblock-inner,.cn-shape,.cn-upload,.cn-frame,.canvas-toolbar,.canvas-back,.canvas-link-banner'
-  );
-}
 
 function TrilleCanvasFallbackUploadPos() {
   const vp = document.getElementById('canvas-vp');
@@ -23,6 +16,11 @@ function TrilleCanvasFallbackUploadPos() {
   };
 }
 
+function TrilleCommitCanvasChange() {
+  saveCanvasData();
+  renderCanvas();
+}
+
 function TrillePatchUploadToolbarButton() {
   const button = document.querySelector('.canvas-tool-btn[data-tool="upload"]');
   if (!button || button.dataset.trilleToolGuarded) return;
@@ -31,19 +29,35 @@ function TrillePatchUploadToolbarButton() {
   button.onclick = () => setCanvasTool('upload');
 }
 
-function TrillePatchUploadPlacement() {
+function TrillePatchObjectPlacement() {
   if (typeof placeCanvasObject !== 'function' || placeCanvasObject.trilleToolGuarded) return;
 
-  const basePlaceCanvasObject = placeCanvasObject;
+  placeCanvasObject = function TrillePlaceCanvasObject(tool, wx, wy) {
+    const id = uid();
 
-  placeCanvasObject = function TrilleGuardedPlaceCanvasObject(tool, wx, wy) {
-    if (tool === 'upload') {
-      window._canvasUploadPos = { x: wx - 100, y: wy - 75 };
-      document.getElementById('canvas-upload-input')?.click();
-      return;
+    switch (tool) {
+      case 'sticky':
+        canvasStickyNotes.push({ id, x: wx - 80, y: wy - 60, w: 160, h: 120, text: 'Note...', color: 'yellow' });
+        break;
+      case 'text':
+        canvasTextBlocks.push({ id, x: wx - 60, y: wy - 12, text: 'Text', fontSize: 16, bold: false });
+        break;
+      case 'shape':
+        canvasShapes.push({ id, x: wx - 60, y: wy - 40, w: 120, h: 80, shape: window._canvasShapeType || 'rect', color: '#e8e8ed', strokeColor: '#aaa' });
+        break;
+      case 'frame':
+        canvasFrames.push({ id, x: wx - 150, y: wy - 100, w: 300, h: 200, label: 'Frame' });
+        break;
+      case 'upload':
+        window._canvasUploadPos = { x: wx - 100, y: wy - 75 };
+        document.getElementById('canvas-upload-input')?.click();
+        return;
+      default:
+        return;
     }
 
-    basePlaceCanvasObject(tool, wx, wy);
+    setCanvasTool('select');
+    TrilleCommitCanvasChange();
   };
 
   placeCanvasObject.trilleToolGuarded = true;
@@ -52,7 +66,7 @@ function TrillePatchUploadPlacement() {
 function TrillePatchCanvasUploadHandler() {
   if (typeof handleCanvasUpload !== 'function' || handleCanvasUpload.trilleToolGuarded) return;
 
-  handleCanvasUpload = function TrilleGuardedHandleCanvasUpload(event) {
+  handleCanvasUpload = function TrilleHandleCanvasUpload(event) {
     const input = event?.target;
     const file = input?.files?.[0];
 
@@ -84,10 +98,8 @@ function TrillePatchCanvasUploadHandler() {
 
       window._canvasUploadPos = null;
       input.value = '';
-
-      saveCanvasData();
       setCanvasTool('select');
-      renderCanvas();
+      TrilleCommitCanvasChange();
     };
 
     reader.onerror = () => {
@@ -227,7 +239,7 @@ function TrillePatchCanvasObjectDrag() {
 
 function TrilleInstallCanvasToolGuards() {
   TrillePatchUploadToolbarButton();
-  TrillePatchUploadPlacement();
+  TrillePatchObjectPlacement();
   TrillePatchCanvasUploadHandler();
   TrillePatchCanvasObjectDrag();
 }
