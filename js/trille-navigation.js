@@ -1,6 +1,11 @@
 function setDark(v){dark=v;v?document.documentElement.setAttribute('data-dark',''):document.documentElement.removeAttribute('data-dark');document.getElementById('dark-tog')?.classList.toggle('on',v);localStorage.setItem('t-theme',v?'dark':'light');}
 function toggleTheme(){setDark(!dark);}
 
+function resetViewScroll(name){
+  const sc=document.querySelector(`#view-${name} .scroll`);
+  if(sc)sc.scrollTop=0;
+}
+
 function activateView(name){
   ['home','boards','board','stats','calendar','settings','canvas'].forEach(n=>document.getElementById('view-'+n)?.classList.toggle('active',n===name));
   document.querySelectorAll('.nbtn').forEach(b=>b.classList.remove('active'));
@@ -11,10 +16,10 @@ function activateView(name){
 function toggleSearch(){
   showSrch=!showSrch;
   document.getElementById('srch-wrap').style.display=showSrch?'block':'none';
-  if(!showSrch){sq='';renderHome();}
+  if(!showSrch){sq='';renderHome();resetViewScroll('home');}
   else setTimeout(()=>document.getElementById('srch-in').focus(),60);
 }
-function onSearch(v){sq=v;if(curView==='home')renderHome();}
+function onSearch(v){sq=v;if(curView==='home'){renderHome();resetViewScroll('home');}}
 
 function switchView(v,btn){
   activateView(v);
@@ -22,6 +27,7 @@ function switchView(v,btn){
   if(v==='home')renderHome();
   if(v==='stats')renderStats();
   if(v==='calendar')renderCal();
+  resetViewScroll(v);
 }
 
 function renderHome(){renderFolders();}
@@ -70,6 +76,7 @@ function openFolder(fid){
   document.getElementById('boards-folder-hdr').innerHTML=`<div class="boards-folder-icon-wrap">${folderSVG()}</div><div><div class="boards-folder-name">${esc(folder.name)}</div><div class="boards-folder-meta">${cnt} board${cnt!==1?'s':''}</div></div><button class="icon-btn" id="boards-reorder-btn" onclick="toggleReorder('boards')" title="Reorder boards"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></button>`;
   renderFolderBoards();
   activateView('boards');
+  resetViewScroll('boards');
   updateReorderButtons?.();
 }
 
@@ -97,6 +104,7 @@ function goHome(){
   reorder=false;
   activateView('home');
   renderHome();
+  resetViewScroll('home');
 }
 
 function openAddInFolder(){editId=null;openAdd();}
@@ -112,9 +120,10 @@ function openBoard(cid){
   document.getElementById('board-title-el').textContent=card.title;
   document.getElementById('board-desc-el').textContent=card.desc||'';
   document.getElementById('board-back-label').textContent=folder?folder.name:'Back';
-  document.getElementById('board-back-btn').onclick=()=>{reorder=false;activateView('boards');updateReorderButtons?.();};
+  document.getElementById('board-back-btn').onclick=()=>{reorder=false;activateView('boards');resetViewScroll('boards');updateReorderButtons?.();};
   renderBoardCards(card);
   activateView('board');
+  resetViewScroll('board');
   updateReorderButtons?.();
 }
 
