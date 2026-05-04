@@ -2,6 +2,7 @@
    Trille Canvas Tools
    Owns canvas tool guards, upload flow, and object edit/drag arbitration.
    Load after trille-canvas.js and before init().
+   Cleanup note: keep working tool flow here before removing old canvas.js duplicates.
    ============================================================ */
 
 function TrilleCanvasIsObjectTarget(event) {
