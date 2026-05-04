@@ -1,7 +1,7 @@
 /* ============================================================
    Trille Canvas Tools
    Owns canvas tool guard helpers only.
-   Load after trille-canvas.js and before trille-bootstrap.js.
+   Load after trille-canvas.js.
    ============================================================ */
 
 function TrilleCanvasIsObjectTarget(event) {
@@ -36,9 +36,25 @@ function TrillePatchUploadPlacement() {
   placeCanvasObject.trilleToolGuarded = true;
 }
 
+function TrillePatchObjectPointerUpGuard() {
+  const vp = document.getElementById('canvas-vp');
+  if (!vp || vp.dataset.trilleObjectPointerGuarded) return;
+
+  vp.dataset.trilleObjectPointerGuarded = '1';
+
+  vp.addEventListener('pointerup', event => {
+    if (canvasActiveTool === 'select') return;
+    if (!TrilleCanvasIsObjectTarget(event)) return;
+
+    setCanvasTool('select');
+    event.stopPropagation();
+  }, true);
+}
+
 function TrilleInstallCanvasToolGuards() {
   TrillePatchUploadToolbarButton();
   TrillePatchUploadPlacement();
+  TrillePatchObjectPointerUpGuard();
 }
 
 TrilleInstallCanvasToolGuards();
