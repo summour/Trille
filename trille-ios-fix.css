@@ -71,8 +71,7 @@ body {
 
 #view-home .scroll,
 #view-stats .scroll,
-#view-calendar .scroll,
-#view-settings .scroll {
+#view-calendar .scroll {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
@@ -80,6 +79,16 @@ body {
   overscroll-behavior: contain;
   padding-top: calc(env(safe-area-inset-top, 0px) + 60px);
   padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 100px);
+}
+
+#view-settings .scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  padding-top: calc(env(safe-area-inset-top, 0px) + 132px);
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 132px);
 }
 
 #view-boards .scroll,
