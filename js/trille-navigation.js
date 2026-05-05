@@ -118,7 +118,7 @@ function showBoardCtx(e,id){ctxKind='board';ctxId=id;const m=document.getElement
 function openCanvasFromFolder(cid){
   reorder=false;
   activeBoardId=cid;
-  curView='board';
+  curView='canvas';
   openCanvas(cid);
   ensureCanvasWorkspaceControls();
 }
@@ -168,6 +168,11 @@ function openCanvasCards(){
   if(!id)return;
   document.getElementById('view-canvas')?.classList.remove('Trille-canvas-direct');
   openBoard(id);
+}
+
+function openBoardCanvas(){
+  if(!activeBoardId)return;
+  openCanvasFromFolder(activeBoardId);
 }
 
 function openBoard(cid){
