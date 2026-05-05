@@ -118,9 +118,11 @@ function showBoardCtx(e,id){ctxKind='board';ctxId=id;const m=document.getElement
 function openCanvasFromFolder(cid){
   reorder=false;
   activeBoardId=cid;
-  curView='canvas';
   openCanvas(cid);
+  curView='canvas';
   ensureCanvasWorkspaceControls();
+  const nativeBack=document.querySelector('#view-canvas .canvas-back');
+  if(nativeBack)nativeBack.onclick=closeCanvasToFolder;
 }
 
 function ensureCanvasWorkspaceControls(){
