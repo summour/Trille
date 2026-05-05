@@ -227,6 +227,34 @@
 .cn-upload:hover .cn-obj-del { opacity: 1; }
 .cn-obj-del:hover { background: rgba(220,50,50,.8); }
 
+/* ---- Direct canvas header controls ---- */
+#view-canvas.Trille-canvas-direct .canvas-back { display: none; }
+
+.Trille-canvas-back-btn,
+.Trille-canvas-cards-btn {
+  position: absolute;
+  top: max(12px, env(safe-area-inset-top));
+  z-index: 70;
+  min-height: 38px;
+  border-radius: 14px;
+  background: var(--surface);
+  border: .5px solid var(--line);
+  box-shadow: 0 2px 10px rgba(0,0,0,.10);
+  color: var(--ink2);
+  font-size: 14px;
+  font-weight: 600;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 8px 12px;
+}
+#view-canvas.Trille-canvas-direct .Trille-canvas-back-btn,
+#view-canvas.Trille-canvas-direct .Trille-canvas-cards-btn { display: flex; }
+.Trille-canvas-back-btn { left: 12px; }
+.Trille-canvas-cards-btn { right: 12px; }
+.Trille-canvas-back-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
 /* ---- Miro-style Toolbar ---- */
 .canvas-toolbar {
   position: absolute;
