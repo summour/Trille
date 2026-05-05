@@ -175,12 +175,10 @@ function openBoard(cid){
   activeBoardId=cid;
   const card=cards.find(c=>c.id===cid);
   if(!card)return;
-  const folder=folders.find(f=>f.id===card.folderId);
+  document.getElementById('board-back-btn')?.remove();
   document.getElementById('board-type-tag').innerHTML=tagListHTML(card.tags);
   document.getElementById('board-title-el').textContent=card.title;
   document.getElementById('board-desc-el').textContent=card.desc||'';
-  document.getElementById('board-back-label').textContent=folder?folder.name:'Back';
-  document.getElementById('board-back-btn').onclick=()=>{reorder=false;activateView('boards');resetViewScroll('boards');updateReorderButtons?.();};
   renderBoardCards(card);
   activateView('board');
   resetViewScroll('board');
