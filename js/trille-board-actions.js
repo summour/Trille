@@ -41,8 +41,8 @@ function openAdd(){
   nfFields=[];
   linkedCardIds=[];
   addSourceView=curView;
-  document.getElementById('modal-add-title').textContent=curView==='board'?'New Card':'New Board';
-  document.getElementById('save-lbl').textContent=curView==='board'?'Create Card':'Create Board';
+  document.getElementById('modal-add-title').textContent=curView==='board'?'New Card':'New Canvas';
+  document.getElementById('save-lbl').textContent=curView==='board'?'Create Card':'Create Canvas';
   document.getElementById('f-title').value='';
   document.getElementById('f-desc').value='';
   renderDyn({tags:[]});
@@ -56,8 +56,8 @@ function openEdit(id){
   editId=id;
   editSubcardId=null;
   addSourceView=curView;
-  document.getElementById('modal-add-title').textContent='Edit Board';
-  document.getElementById('save-lbl').textContent='Save Board';
+  document.getElementById('modal-add-title').textContent='Edit Canvas';
+  document.getElementById('save-lbl').textContent='Save Canvas';
   fillCardForm(card);
   openModal('modal-add');
 }
@@ -133,17 +133,17 @@ function saveCard(){
   }else if(editId){
     const i=cards.findIndex(c=>c.id===editId);
     if(i!==-1)cards[i]={...cards[i],...d};
-    toast('Board saved');
+    toast('Canvas saved');
   }else if(addSourceView==='board'&&activeBoardId){
     const board=cards.find(c=>c.id===activeBoardId);
-    if(!board){toast('Board not found');return;}
+    if(!board){toast('Canvas not found');return;}
     if(!Array.isArray(board.subcards))board.subcards=[];
     board.subcards.push({id:uid(),...d});
     toast('Card created');
   }else{
     const fid=activeFolderId||(folders[0]?.id);
     cards.push({id:uid(),folderId:fid,...d});
-    toast('Board created');
+    toast('Canvas created');
   }
   save();
   closeModal('modal-add');
@@ -183,7 +183,7 @@ function editFromDetail(){
 }
 
 function delCard(id){
-  if(!confirm('Delete this board?'))return;
+  if(!confirm('Delete this canvas?'))return;
   cards=cards.filter(c=>c.id!==id);
   save();
   renderFolderBoards();
@@ -448,7 +448,7 @@ function saveFolder(){
 
 function deleteFolder(){
   if(!editFolderId)return;
-  if(!confirm('Delete folder and all its boards?'))return;
+  if(!confirm('Delete folder and all its canvases?'))return;
   cards=cards.filter(c=>c.folderId!==editFolderId);
   folders=folders.filter(f=>f.id!==editFolderId);
   save();
