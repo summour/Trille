@@ -38,7 +38,7 @@ function renderFolders(){
   const list=sq?folders.filter(f=>f.name.toLowerCase().includes(sq.toLowerCase())):folders;
   list.forEach(f=>{
     const cnt=cards.filter(c=>c.folderId===f.id).length;
-    html+=`<div class="folder-card" onclick="openFolder('${f.id}')"><div class="folder-icon-wrap">${folderSVG()}</div><div class="folder-name">${esc(f.name)}</div><div class="folder-count">${cnt} board${cnt!==1?'s':''}</div></div>`;
+    html+=`<div class="folder-card" onclick="openFolder('${f.id}')"><div class="folder-icon-wrap">${folderSVG()}</div><div class="folder-name">${esc(f.name)}</div><div class="folder-count">${cnt} canvas${cnt!==1?'es':''}</div></div>`;
   });
   html+=`<div class="folder-card folder-add" onclick="openFolderModal()"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg><p>New</p></div>`;
   grid.innerHTML=html;
@@ -53,7 +53,7 @@ function renderFolders(){
 function renderRecent(){
   const rl=document.getElementById('recent-list');
   const list=sq?cards.filter(c=>(c.title+(c.desc||'')+tagsToInput(c.tags)).toLowerCase().includes(sq.toLowerCase())):cards.slice(-5).reverse();
-  if(!list.length){rl.innerHTML='<div class="empty"><p>No boards yet. Create a folder and add boards!</p></div>';return;}
+  if(!list.length){rl.innerHTML='<div class="empty"><p>No canvases yet. Create a folder and add canvases!</p></div>';return;}
   rl.innerHTML=list.map(c=>{
     const folder=folders.find(f=>f.id===c.folderId);
     const tagText=tagsToInput(c.tags);
@@ -65,7 +65,7 @@ function openBoardFromCard(cid){
   const card=cards.find(c=>c.id===cid);
   if(!card)return;
   openFolder(card.folderId,false);
-  setTimeout(()=>openDetail(card.id),100);
+  setTimeout(()=>openCanvasFromFolder(card.id),100);
 }
 
 function openFolder(fid){
@@ -73,7 +73,7 @@ function openFolder(fid){
   const folder=folders.find(f=>f.id===fid);
   if(!folder)return;
   const cnt=cards.filter(c=>c.folderId===fid).length;
-  document.getElementById('boards-folder-hdr').innerHTML=`<div class="boards-folder-icon-wrap">${folderSVG()}</div><div><div class="boards-folder-name">${esc(folder.name)}</div><div class="boards-folder-meta">${cnt} board${cnt!==1?'s':''}</div></div><button class="icon-btn" id="boards-reorder-btn" onclick="toggleReorder('boards')" title="Reorder boards"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></button>`;
+  document.getElementById('boards-folder-hdr').innerHTML=`<div class="boards-folder-icon-wrap">${folderSVG()}</div><div><div class="boards-folder-name">${esc(folder.name)}</div><div class="boards-folder-meta">${cnt} canvas${cnt!==1?'es':''}</div></div><button class="icon-btn" id="boards-reorder-btn" onclick="toggleReorder('boards')" title="Reorder canvases"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></button>`;
   renderFolderBoards();
   activateView('boards');
   resetViewScroll('boards');
@@ -83,7 +83,7 @@ function openFolder(fid){
 function renderFolderBoards(){
   const bg=document.getElementById('boards-grid');
   const folderCards=cards.filter(c=>c.folderId===activeFolderId);
-  if(!folderCards.length){bg.innerHTML='<div class="empty"><h3>Empty folder</h3><p>Add your first board below.</p></div>'+addBoardBtnHTML();return;}
+  if(!folderCards.length){bg.innerHTML='<div class="empty"><h3>Empty folder</h3><p>Add your first canvas below.</p></div>'+addBoardBtnHTML();return;}
   bg.innerHTML=folderCards.map(c=>{
     const pct=(c.items||[]).length?Math.round(c.items.filter(i=>i.done).length/c.items.length*100):null;
     const prog=pct!==null?`<div class="bi-prog-pill"><div class="bi-prog-bar"><div class="bi-prog-fill" style="width:${pct}%"></div></div>${pct}%</div>`:'';
@@ -91,13 +91,13 @@ function renderFolderBoards(){
     const prog2=nfProgress?`<div class="bi-prog-pill"><div class="bi-prog-bar"><div class="bi-prog-fill" style="width:${nfProgress.value||0}%"></div></div>${nfProgress.value||0}%</div>`:'';
     const subCount=Array.isArray(c.subcards)&&c.subcards.length?`<span class="bi-type">${c.subcards.length} card${c.subcards.length!==1?'s':''}</span>`:'';
     const tags=tagListHTML(c.tags)||subCount;
-    return `<div class="board-item" data-id="${c.id}" onclick="if(!reorder)openBoard('${c.id}')"><div class="bi-top"><span class="bi-type">${tags||'Board'}</span><div class="mbtn-wrap" onclick="event.stopPropagation();ctxKind='board';showBoardCtx(event,'${c.id}')"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1" fill="currentColor" stroke="none"/></svg></div></div><div class="bi-title">${esc(c.title)}</div>${c.desc?`<div class="bi-desc">${esc(c.desc)}</div>`:''}<div class="bi-meta">${prog||prog2}</div></div>`;
+    return `<div class="board-item" data-id="${c.id}" onclick="if(!reorder)openCanvasFromFolder('${c.id}')"><div class="bi-top"><span class="bi-type">${tags||'Canvas'}</span><div class="mbtn-wrap" onclick="event.stopPropagation();ctxKind='board';showBoardCtx(event,'${c.id}')"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1" fill="currentColor" stroke="none"/></svg></div></div><div class="bi-title">${esc(c.title)}</div>${c.desc?`<div class="bi-desc">${esc(c.desc)}</div>`:''}<div class="bi-meta">${prog||prog2}</div></div>`;
   }).join('');
   bg.innerHTML+=addBoardBtnHTML();
   bindBoardListReorder?.();
   updateReorderButtons?.();
 }
-function addBoardBtnHTML(){return `<button class="add-board-btn" onclick="openAddInFolder()">+ Add board</button>`;}
+function addBoardBtnHTML(){return `<button class="add-board-btn" onclick="openAddInFolder()">+ Add canvas</button>`;}
 
 function goHome(){
   activeFolderId=null;
@@ -107,8 +107,68 @@ function goHome(){
   resetViewScroll('home');
 }
 
-function openAddInFolder(){editId=null;openAdd();}
+function openAddInFolder(){
+  editId=null;
+  openAdd();
+  document.getElementById('modal-add-title').textContent='New Canvas';
+  document.getElementById('save-lbl').textContent='Create Canvas';
+}
 function showBoardCtx(e,id){ctxKind='board';ctxId=id;const m=document.getElementById('ctx');m.classList.add('open');let x=e.clientX,y=e.clientY;if(x+160>innerWidth)x=innerWidth-162;if(y+120>innerHeight-80)y=y-120;m.style.left=x+'px';m.style.top=y+'px';}
+
+function openCanvasFromFolder(cid){
+  reorder=false;
+  activeBoardId=cid;
+  curView='board';
+  openCanvas(cid);
+  ensureCanvasWorkspaceControls();
+}
+
+function ensureCanvasWorkspaceControls(){
+  const view=document.getElementById('view-canvas');
+  if(!view)return;
+  view.classList.add('Trille-canvas-direct');
+  let back=view.querySelector('.Trille-canvas-back-btn');
+  if(!back){
+    back=document.createElement('button');
+    back.type='button';
+    back.className='Trille-canvas-back-btn';
+    back.innerHTML='<svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg><span>Canvases</span>';
+    back.addEventListener('click',closeCanvasToFolder);
+    view.appendChild(back);
+  }
+  let cardsBtn=view.querySelector('.Trille-canvas-cards-btn');
+  if(!cardsBtn){
+    cardsBtn=document.createElement('button');
+    cardsBtn.type='button';
+    cardsBtn.className='Trille-canvas-cards-btn';
+    cardsBtn.textContent='Cards';
+    cardsBtn.addEventListener('click',openCanvasCards);
+    view.appendChild(cardsBtn);
+  }
+}
+
+function closeCanvasToFolder(){
+  document.getElementById('canvas-ctx')?.classList.remove('open');
+  document.getElementById('canvas-color-popup')?.classList.remove('open');
+  document.getElementById('canvas-link-popup')?.classList.remove('open');
+  const prevBoard=canvasActiveBoard||activeBoardId;
+  const board=cards.find(c=>c.id===prevBoard);
+  canvasActiveBoard=null;
+  document.getElementById('view-canvas')?.classList.remove('Trille-canvas-direct');
+  if(board?.folderId){
+    activeFolderId=board.folderId;
+    openFolder(board.folderId);
+    return;
+  }
+  goHome();
+}
+
+function openCanvasCards(){
+  const id=canvasActiveBoard||activeBoardId;
+  if(!id)return;
+  document.getElementById('view-canvas')?.classList.remove('Trille-canvas-direct');
+  openBoard(id);
+}
 
 function openBoard(cid){
   reorder=false;
