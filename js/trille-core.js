@@ -4,6 +4,7 @@ function init(){
   if(tf)folders=JSON.parse(tf);
   if(tb)bn=tb;
   if(!folders.length&&!cards.length)loadDefaults();
+  ensureSampleProjectSeeded();
   if(th==='dark')setDark(true);
   document.getElementById('bn-in').value=bn;
   renderTypeGrid();
@@ -194,13 +195,24 @@ function findOrCreateProjectsFolder(){
   return folder;
 }
 
-function createSampleProject(){
+function hasSampleProject(){
+  return cards.some(card=>card.title==='Demo Workflow — Build a Mini App');
+}
+
+function ensureSampleProjectSeeded(){
+  if(localStorage.getItem('t-demo-project-seeded')==='true')return;
+  if(!hasSampleProject())createSampleProject({open:false});
+  localStorage.setItem('t-demo-project-seeded','true');
+}
+
+function createSampleProject(options={}){
   const folder=findOrCreateProjectsFolder();
   const demo=buildDemoWorkflowBoard(folder.id);
   cards.push(demo.board);
   seedDemoCanvasProject(demo.board.id,demo.ids);
   save();
   if(typeof renderTypeGrid==='function')renderTypeGrid();
+  if(options.open===false)return;
   if(typeof openCanvas==='function')openCanvas(demo.board.id);
 }
 
