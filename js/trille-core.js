@@ -11,11 +11,11 @@ function init(){
 }
 function save(){localStorage.setItem('t-cards2',JSON.stringify(cards));localStorage.setItem('t-folders2',JSON.stringify(folders));localStorage.setItem('t-board',bn);}
 
-function loadDefaults(){
-  const f1={id:uid(),name:'Study'};
-  const f2={id:uid(),name:'Personal'};
-  const f3={id:uid(),name:'Projects'};
+function writeLocalJSON(key,value){
+  localStorage.setItem(key,JSON.stringify(value));
+}
 
+function buildDemoWorkflowBoard(folderId){
   const workflowBoardId=uid();
   const captureId=uid();
   const planId=uid();
@@ -23,21 +23,21 @@ function loadDefaults(){
   const reviewId=uid();
   const launchId=uid();
 
-  folders=[f1,f2,f3];
-  cards=[
-    {
+  return {
+    ids:{workflowBoardId,captureId,planId,buildId,reviewId,launchId},
+    board:{
       id:workflowBoardId,
-      folderId:f3.id,
+      folderId,
       type:'workflow',
       title:'Demo Workflow — Build a Mini App',
-      desc:'A complete sample board showing cards, tasks, fields, notes, hashtags, links, and workflow connections.',
+      desc:'A complete sample project showing cards, tasks, fields, notes, links, post-it notes, frames, text, and canvas flow.',
       tags:['demo','workflow','trille'],
       items:[
-        {id:uid(),text:'Open each card menu to edit, duplicate, or delete',done:false},
-        {id:uid(),text:'Use + Add card to create another workflow step',done:false},
-        {id:uid(),text:'Edit a card and link it to another card',done:true}
+        {id:uid(),text:'Open the canvas to see the full workflow map',done:true},
+        {id:uid(),text:'Tap each card to read details and tasks',done:false},
+        {id:uid(),text:'Use the ⋯ menu to edit, link, or color cards',done:false}
       ],
-      note:'This board is only sample data. Edit or delete it when you are ready to build your own workflow.',
+      note:'This is sample data for learning Trille. Edit it, duplicate it, or delete it when you are ready to build your own workflow.',
       nf:[
         {id:uid(),key:'Board type',type:'select',value:'Workflow'},
         {id:uid(),key:'Progress',type:'progress',value:45},
@@ -126,14 +126,93 @@ function loadDefaults(){
             {id:uid(),text:'Use it for one real project',done:false},
             {id:uid(),text:'Write down what feels slow',done:false}
           ],
-          note:'After launch, add analytics or canvas only if the daily workflow is already clear.',
+          note:'After launch, add analytics only if the daily workflow is already clear.',
           nf:[
             {id:uid(),key:'Launch date',type:'date',value:'2026-05-15'},
             {id:uid(),key:'Confidence',type:'rating',value:3}
           ]
         }
       ]
-    },
+    }
+  };
+}
+
+function seedDemoCanvasProject(boardId,ids){
+  const scope=`board:${boardId}`;
+  const pos={
+    [ids.captureId]:{x:40,y:130,layer:120},
+    [ids.planId]:{x:330,y:130,layer:120},
+    [ids.buildId]:{x:620,y:130,layer:120},
+    [ids.reviewId]:{x:330,y:430,layer:120},
+    [ids.launchId]:{x:620,y:430,layer:120}
+  };
+  const colors={
+    [ids.captureId]:'yellow',
+    [ids.planId]:'blue',
+    [ids.buildId]:'green',
+    [ids.reviewId]:'purple',
+    [ids.launchId]:'orange'
+  };
+  const frames=[
+    {id:uid(),x:20,y:88,w:270,h:250,label:'Start here',layer:20},
+    {id:uid(),x:310,y:88,w:580,h:250,label:'Plan → Build',layer:20},
+    {id:uid(),x:310,y:388,w:580,h:250,label:'Review → Launch',layer:20}
+  ];
+  const sticky=[
+    {id:uid(),x:40,y:430,w:210,h:150,text:'Canvas tips\n\nTap card = open detail\nHold card = move\n⋯ menu = edit/link/color',color:'yellow',layer:220},
+    {id:uid(),x:930,y:130,w:210,h:145,text:'Use frames to group work by phase.\n\nUse post-it notes for context that is not a task.',color:'blue',layer:220},
+    {id:uid(),x:930,y:430,w:210,h:145,text:'Real usage idea:\nkeep one canvas per project, then split work into linked cards.',color:'green',layer:220}
+  ];
+  const text=[
+    {id:uid(),x:26,y:36,w:760,h:40,text:'Sample Canvas Project: from raw idea to small launch',fontSize:24,bold:true,layer:230},
+    {id:uid(),x:26,y:72,w:620,h:28,text:'This board is intentionally detailed so new users can understand the flow by opening the canvas.',fontSize:15,bold:false,layer:230}
+  ];
+  const shapes=[
+    {id:uid(),x:520,y:340,w:90,h:60,shape:'diamond',color:'#fff7ed',strokeColor:'#f59e0b',layer:180},
+    {id:uid(),x:918,y:86,w:240,h:548,shape:'rect',color:'rgba(255,255,255,.38)',strokeColor:'#d4d4d8',layer:30}
+  ];
+  const lines=[
+    {id:uid(),x1:565,y1:340,x2:455,y2:430,style:'arrow',color:'#888'},
+    {id:uid(),x1:565,y1:340,x2:665,y2:430,style:'arrow',color:'#888'}
+  ];
+
+  writeLocalJSON(`t-canvas-pos:${scope}`,pos);
+  writeLocalJSON(`t-canvas-colors:${scope}`,colors);
+  writeLocalJSON(`t-canvas-sticky:${scope}`,sticky);
+  writeLocalJSON(`t-canvas-text:${scope}`,text);
+  writeLocalJSON(`t-canvas-shapes:${scope}`,shapes);
+  writeLocalJSON(`t-canvas-lines:${scope}`,lines);
+  writeLocalJSON(`t-canvas-frames:${scope}`,frames);
+  writeLocalJSON(`t-canvas-uploads:${scope}`,[]);
+}
+
+function findOrCreateProjectsFolder(){
+  const existing=folders.find(f=>f.name==='Projects');
+  if(existing)return existing;
+  const folder={id:uid(),name:'Projects'};
+  folders.push(folder);
+  return folder;
+}
+
+function createSampleProject(){
+  const folder=findOrCreateProjectsFolder();
+  const demo=buildDemoWorkflowBoard(folder.id);
+  cards.push(demo.board);
+  seedDemoCanvasProject(demo.board.id,demo.ids);
+  save();
+  if(typeof renderTypeGrid==='function')renderTypeGrid();
+  if(typeof openCanvas==='function')openCanvas(demo.board.id);
+}
+
+function loadDefaults(){
+  const f1={id:uid(),name:'Study'};
+  const f2={id:uid(),name:'Personal'};
+  const f3={id:uid(),name:'Projects'};
+  const demo=buildDemoWorkflowBoard(f3.id);
+
+  folders=[f1,f2,f3];
+  cards=[
+    demo.board,
     {
       id:uid(),
       folderId:f1.id,
@@ -194,5 +273,6 @@ function loadDefaults(){
       subcards:[]
     }
   ];
+  seedDemoCanvasProject(demo.board.id,demo.ids);
   save();
 }
